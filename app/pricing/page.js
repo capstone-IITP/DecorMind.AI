@@ -548,7 +548,7 @@ export default function Pricing() {
             <ul className="space-y-2 text-sm text-white">
               <li><Link href="#" className="hover:text-white text-white">About Us</Link></li>
               <li><Link href="#" className="hover:text-white text-white">Careers</Link></li>
-              <li><Link href="#" className="hover:text-white text-white">Contact</Link></li>
+              <li><Link href="/contact-us" className="hover:text-white text-white">Contact Us</Link></li>
             </ul>
           </div>
           <div>

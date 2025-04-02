@@ -482,7 +482,7 @@ function HomeContent() {
           <a href="#features" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Features</a>
           <a href="#how-it-works" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">How it Works</a>
           <a href="#gallery" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Gallery</a>
-          <a href="#contact" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Contact Us</a>
+          <Link href="/contact-us" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Contact Us</Link>
         </div>
         <div className="flex gap-2">
           <button
@@ -766,59 +766,7 @@ function HomeContent() {
         </Button>
       </div>
 
-      {/* Contact Section */}
-      <div className="py-16 px-6 bg-zinc-900 transition-colors duration-500" id="contact">
-        <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-8">Contact Us</h3>
-        <p className="text-center text-white mb-12 max-w-2xl mx-auto">Have questions or need assistance? Reach out to our team and we'll get back to you as soon as possible.</p>
-
-        <div className="max-w-2xl mx-auto">
-          <form className="space-y-6 p-6 bg-black border border-zinc-800 rounded-lg transition-all duration-300">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-white mb-2">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                  placeholder="Your name"
-                />
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-white mb-2">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                  placeholder="Your email"
-                />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="subject" className="block text-sm font-medium text-white mb-2">Subject</label>
-              <input
-                type="text"
-                id="subject"
-                className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                placeholder="Subject"
-              />
-            </div>
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium text-white mb-2">Message</label>
-              <textarea
-                id="message"
-                rows="4"
-                className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                placeholder="Your message"
-              ></textarea>
-            </div>
-            <div className="text-center">
-              <Button className="bg-cyan-400 text-slate-800 hover:bg-cyan-500">
-                Send Message
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
+      {/* Contact Section Removed - Now available as a separate page */}
 
       {/* Footer */}
       <footer className="bg-black py-10 px-6 border-t border-zinc-800">
@@ -834,7 +782,7 @@ function HomeContent() {
             <ul className="space-y-2 text-sm text-white">
               <li><Link href="#" className="hover:text-white text-white">About Us</Link></li>
               <li><Link href="#" className="hover:text-white text-white">Careers</Link></li>
-              <li><a href="#contact" className="hover:text-white text-white">Contact</a></li>
+              <li><Link href="/contact-us" className="hover:text-white text-white">Contact</Link></li>
             </ul>
           </div>
           <div>

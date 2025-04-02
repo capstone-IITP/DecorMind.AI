@@ -273,22 +273,8 @@ function BedroomContent() {
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                         <Link
-                            href="/#contact"
+                            href="/contact-us"
                             className="text-white hover:text-cyan-400 transition-colors relative group"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                router.push('/');
-                                setTimeout(() => {
-                                    const featuresSection = document.getElementById('contact');
-                                    if (featuresSection) {
-                                        featuresSection.scrollIntoView({ behavior: 'smooth' });
-                                        // Add animation to the section after scrolling
-                                        setTimeout(() => {
-                                            animateSection(featuresSection);
-                                        }, 1000); // Wait for the scroll to complete
-                                    }
-                                }, 500); // Increased delay to ensure navigation completes
-                            }}
                         >
                             Contact Us
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
