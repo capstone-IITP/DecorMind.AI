@@ -50,9 +50,10 @@ function HomeContent() {
     "/images/bathroom.jpg",
     "/images/dining_room.jpg",
     "/images/home_office.jpg",
-    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1932&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1470&auto=format&fit=crop"
+    "/images/Luxury-Bathroom.jpg",
+    "/images/house.jpg",
+    "/images/livingroom.jpg",
+    "/images/kitchen-4.jpg",
   ];
 
   // Function to handle sign in
@@ -847,9 +848,9 @@ function HomeContent() {
           <div>
             <h5 className="font-bold mb-4 text-white">Legal</h5>
             <ul className="space-y-2 text-sm text-white">
-              <li><Link href="#" className="hover:text-white text-white">Terms of Service</Link></li>
-              <li><Link href="#" className="hover:text-white text-white">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-white text-white">Cookie Policy</Link></li>
+              <li><Link href="/terms-and-conditions" className="hover:text-white text-white">Terms and Conditions</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-white text-white">Privacy Policy</Link></li>
+              <li><Link href="/no-refund-policy" className="hover:text-white text-white">No Refund Policy</Link></li>
             </ul>
           </div>
         </div>

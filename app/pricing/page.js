@@ -562,9 +562,9 @@ export default function Pricing() {
           <div>
             <h5 className="font-bold mb-4 text-white">Legal</h5>
             <ul className="space-y-2 text-sm text-white">
-              <li><Link href="#" className="hover:text-white text-white">Terms of Service</Link></li>
-              <li><Link href="#" className="hover:text-white text-white">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-white text-white">Cookie Policy</Link></li>
+              <li><Link href="/terms-and-conditions" className="hover:text-white text-white">Terms and Conditions</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-white text-white">Privacy Policy</Link></li>
+              <li><Link href="/no-refund-policy" className="hover:text-white text-white">No Refund Policy</Link></li>
             </ul>
           </div>
         </div>
@@ -591,4 +591,4 @@ export default function Pricing() {
       </footer>
     </div>
   );
-} 
+}
