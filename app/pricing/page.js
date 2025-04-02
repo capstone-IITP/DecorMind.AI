@@ -9,6 +9,31 @@ import { UserButton } from '@clerk/nextjs';
 export default function Pricing() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [currency, setCurrency] = useState('USD');
+  const [exchangeRates, setExchangeRates] = useState({
+    USD: 1,
+    EUR: 0.92,
+    GBP: 0.79,
+    INR: 83.50,
+    CAD: 1.37,
+    AUD: 1.52,
+    JPY: 150.45
+  });
+
+  // Function to convert price to selected currency
+  const convertPrice = (usdPrice) => {
+    const convertedPrice = (usdPrice * exchangeRates[currency]).toFixed(2);
+    const currencySymbols = {
+      USD: '$',
+      EUR: '€',
+      GBP: '£',
+      INR: '₹',
+      CAD: 'C$',
+      AUD: 'A$',
+      JPY: '¥'
+    };
+    return `${currencySymbols[currency]}${convertedPrice}`;
+  };
 
   // Add CSS animations
   useEffect(() => {
@@ -350,7 +375,22 @@ export default function Pricing() {
           <Link href="/decormind" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300">DecorMind</Link>
           <Link href="/pricing" className="nav-link text-cyan-400 transition-colors duration-300">Pricing</Link>
         </div>
-        <div>
+        <div className="flex items-center gap-4">
+          <div className="bg-black/30 rounded-lg p-2 inline-flex items-center gap-2">
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="bg-zinc-800 text-white border border-zinc-700 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-cyan-400"
+            >
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="CAD">CAD (C$)</option>
+              <option value="AUD">AUD (A$)</option>
+              <option value="JPY">JPY (¥)</option>
+            </select>
+          </div>
           <UserButton afterSignOutUrl="/" />
         </div>
       </nav>
@@ -374,7 +414,7 @@ export default function Pricing() {
               <div className="mb-6">
                 <h4 className="text-xl font-bold mb-2 text-white">Free</h4>
                 <div className="flex items-end gap-1 mb-4">
-                  <span className="text-3xl font-bold text-white">$0</span>
+                  <span className="text-3xl font-bold text-white">{convertPrice(0)}</span>
                   <span className="text-white text-opacity-70 mb-1">/month</span>
                 </div>
                 <p className="text-white text-opacity-70 text-sm mb-6">Perfect for trying out our platform</p>
@@ -411,7 +451,7 @@ export default function Pricing() {
               <div className="mb-6">
                 <h4 className="text-xl font-bold mb-2 text-white">Premium</h4>
                 <div className="flex items-end gap-1 mb-4">
-                  <span className="text-3xl font-bold text-white">$19</span>
+                  <span className="text-3xl font-bold text-white">{convertPrice(20)}</span>
                   <span className="text-white text-opacity-70 mb-1">/month</span>
                 </div>
                 <p className="text-white text-opacity-70 text-sm mb-6">For regular home designers</p>
@@ -451,7 +491,7 @@ export default function Pricing() {
               <div className="mb-6">
                 <h4 className="text-xl font-bold mb-2 text-white">Pro</h4>
                 <div className="flex items-end gap-1 mb-4">
-                  <span className="text-3xl font-bold text-white">$49</span>
+                  <span className="text-3xl font-bold text-white">{convertPrice(50)}</span>
                   <span className="text-white text-opacity-70 mb-1">/month</span>
                 </div>
                 <p className="text-white text-opacity-70 text-sm mb-6">For professional designers</p>
