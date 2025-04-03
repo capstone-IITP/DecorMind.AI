@@ -365,7 +365,7 @@ export default function Pricing() {
     <div className="min-h-screen bg-black text-white">
       {/* Navigation Bar */}
       <nav className="flex justify-between items-center py-4 px-6 bg-zinc-900 sticky top-0 z-50 shadow-md border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
           <div className="bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
           <h1 className="text-lg font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
         </div>
@@ -374,6 +374,7 @@ export default function Pricing() {
           <Link href="/redesign" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300">Redesign</Link>
           <Link href="/decormind" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300">DecorMind</Link>
           <Link href="/pricing" className="nav-link text-cyan-400 transition-colors duration-300">Pricing</Link>
+          <Link href="/contact-us" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300">Contact Us</Link>
         </div>
         <div className="flex items-center gap-4">
           <div className="bg-black/30 rounded-lg p-2 inline-flex items-center gap-2">

@@ -25,11 +25,11 @@ export default function LivingRoomDesigns() {
         const style = document.createElement('style');
         style.textContent = `
             .highlight-section {
-                animation: highlightSection 1.5s ease-out;
+                animation: highlightSection 0.1s ease-out;
             }
             
             .section-fade-in {
-                animation: fadeIn 0.8s ease-out forwards;
+                animation: fadeIn 0.1s ease-out forwards;
             }
             
             .heading-highlight {
@@ -40,7 +40,7 @@ export default function LivingRoomDesigns() {
             }
             
             .icon-pulse {
-                animation: pulse 1.5s ease-out;
+                animation: pulse 0.1s ease-out;
             }
             
             @keyframes highlightSection {
@@ -128,48 +128,42 @@ export default function LivingRoomDesigns() {
             title: 'Modern Living Room',
             description: 'Clean lines, minimal decoration, and neutral colors create an elegant living space.',
             style: 'Modern',
-            imageUrl: 'https://images.unsplash.com/photo-1600210492493-0946911123ea?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/modern-living-room.jpg',
         },
         {
             id: 2,
             title: 'Scandinavian Living Room',
             description: 'Light colors, natural materials, and functional design for a bright, airy living space.',
             style: 'Scandinavian',
-            imageUrl: 'https://images.unsplash.com/photo-1618219944342-824e40a13285?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/scandinavian-living-room.jpg',
         },
         {
             id: 3,
             title: 'Industrial Living Room',
             description: 'Raw materials, exposed elements, and utilitarian objects for an urban loft feel.',
             style: 'Industrial',
-            imageUrl: 'https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1616137422495-1e9e46e2aa77?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/industrial-living-room.jpg',
         },
         {
             id: 4,
             title: 'Traditional Living Room',
             description: 'Classic design with rich colors and ornate details for a timeless appeal.',
             style: 'Traditional',
-            imageUrl: 'https://images.unsplash.com/photo-1600210492493-0946911123ea?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/traditional-living-room.jpg',
         },
         {
             id: 5,
             title: 'Bohemian Living Room',
             description: 'Eclectic, colorful, and artistic with global influences for a vibrant living space.',
             style: 'Bohemian',
-            imageUrl: 'https://images.unsplash.com/photo-1618219944342-824e40a13285?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/bohemian-living-room.jpg',
         },
         {
             id: 6,
             title: 'Minimalist Living Room',
-            description: 'Extreme simplicity, clean lines, and monochromatic palette for a serene environment.',
+            description: 'Extreme simplicity and monochromatic palette for a serene environment.',
             style: 'Minimalist',
-            imageUrl: 'https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1616137422495-1e9e46e2aa77?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/minimalist-living-room.jpg',
         }
     ];
 
@@ -201,7 +195,7 @@ export default function LivingRoomDesigns() {
                     <h2 className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
                 </div>
                 <div className="flex items-center">
-                    <nav className="flex gap-6">
+                    <nav className="flex gap-6 absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
                             Home
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -277,6 +271,18 @@ export default function LivingRoomDesigns() {
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </nav>
+                    <div className="ml-6 flex gap-3">
+                        <Link href="/sign-in">
+                            <Button variant="ghost" className="text-white hover:text-cyan-400 hover:bg-zinc-800 transition-colors">
+                                Sign In
+                            </Button>
+                        </Link>
+                        <Link href="/sign-up">
+                            <Button className="bg-cyan-400 hover:bg-cyan-500 text-slate-800">
+                                Sign Up
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
             </div>
 
@@ -360,7 +366,7 @@ export default function LivingRoomDesigns() {
                             <div className="absolute inset-0 grid grid-cols-2 gap-2">
                                 <div className="relative">
                                     <Image
-                                        src="https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1400&auto=format&fit=crop"
+                                        src="/images/living-room-before.jpg"
                                         alt="Before"
                                         fill
                                         className="object-cover rounded-l-xl"
@@ -371,7 +377,7 @@ export default function LivingRoomDesigns() {
                                 </div>
                                 <div className="relative">
                                     <Image
-                                        src="https://images.unsplash.com/photo-1600210492493-0946911123ea?q=80&w=1400&auto=format&fit=crop"
+                                        src="/images/modern-living-room.jpg"
                                         alt="After"
                                         fill
                                         className="object-cover rounded-r-xl"

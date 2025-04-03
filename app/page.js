@@ -482,6 +482,7 @@ function HomeContent() {
           <a href="#features" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Features</a>
           <a href="#how-it-works" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">How it Works</a>
           <a href="#gallery" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Gallery</a>
+          <Link href="/pricing" className="nav-link text-cyan-400 transition-colors duration-300">Pricing</Link>
           <Link href="/contact-us" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Contact Us</Link>
         </div>
         <div className="flex gap-2">
@@ -492,7 +493,7 @@ function HomeContent() {
             Sign In
           </button>
           <button
-            className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-4 py-2 rounded-md text-sm transition-colors"
+            className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-4 py-2 rounded-md text-sm font-bold transition-colors"
             onClick={handleSignUp}
           >
             Sign Up
@@ -583,7 +584,7 @@ function HomeContent() {
             onSeeMoreClick={(roomType) => {
               let targetPath = '/kitchen-designs';
               let actionLabel = 'kitchen_designs_button';
-              
+
               // Set appropriate path based on room type
               if (roomType === 'livingRoom') {
                 targetPath = '/living-room-designs';
@@ -607,7 +608,7 @@ function HomeContent() {
                 targetPath = '/redesign?room=bathroom';
                 actionLabel = 'bathroom_designs_button';
               }
-              
+
               analytics.event({
                 action: `see_more_${roomType}_designs`,
                 category: 'homepage',

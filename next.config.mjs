@@ -18,9 +18,9 @@ const nextConfig = {
     buildActivity: false,
     buildActivityPosition: 'bottom-right',
   },
-  // Disable banner completely
+  // Enable optimized loading for better performance
   experimental: {
-    disableOptimizedLoading: true,
+    disableOptimizedLoading: false, // Changed from true to false to enable optimized loading
     disablePostcssPresetEnv: true,
   },
 };

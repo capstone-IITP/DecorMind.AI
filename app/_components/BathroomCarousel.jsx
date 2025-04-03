@@ -5,13 +5,12 @@ import Image from 'next/image';
 import { Button } from '../../components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, EffectFade, Autoplay } from 'swiper/modules';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import 'swiper/css/effect-fade';
 
 const BathroomCarousel = ({ onSeeMoreClick }) => {
   const router = useRouter();
@@ -117,7 +116,7 @@ const BathroomCarousel = ({ onSeeMoreClick }) => {
       </div>
       
       <Swiper
-        modules={[Navigation, Pagination, EffectFade, Autoplay]}
+        modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={30}
         slidesPerView={1}
         navigation

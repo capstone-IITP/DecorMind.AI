@@ -147,7 +147,7 @@ export default function ContactUs() {
         </div>
 
         <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-8 text-sm">
-          <Link href="/" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative" prefetch={true}>Home</Link>
+          <Link href="/dashboard" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative" prefetch={true}>Home</Link>
           <Link href="/redesign" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative" prefetch={true}>Redesign</Link>
           <Link href="/decormind" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative" prefetch={true}>DecorMind</Link>
           <Link href="/pricing" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative" prefetch={true}>Pricing</Link>

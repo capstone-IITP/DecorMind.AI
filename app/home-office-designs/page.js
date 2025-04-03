@@ -26,11 +26,11 @@ function HomeOfficeDesignsContent() {
         const style = document.createElement('style');
         style.textContent = `
             .highlight-section {
-                animation: highlightSection 1.5s ease-out;
+                animation: highlightSection 0.1s ease-out;
             }
             
             .section-fade-in {
-                animation: fadeIn 0.8s ease-out forwards;
+                animation: fadeIn 0.1s ease-out forwards;
             }
             
             .heading-highlight {
@@ -41,7 +41,7 @@ function HomeOfficeDesignsContent() {
             }
             
             .icon-pulse {
-                animation: pulse 1.5s ease-out;
+                animation: pulse 0.1s ease-out;
             }
             
             @keyframes highlightSection {
@@ -129,48 +129,42 @@ function HomeOfficeDesignsContent() {
             title: 'Modern Home Office',
             description: 'Clean lines, minimal decoration, and neutral colors create a productive workspace.',
             style: 'Modern',
-            imageUrl: 'https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1486946255434-2466348c2166?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/modern-home-office.jpg',
         },
         {
             id: 2,
             title: 'Scandinavian Home Office',
             description: 'Light colors, natural materials, and functional design for a bright, airy workspace.',
             style: 'Scandinavian',
-            imageUrl: 'https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/scandinavian-home-office.jpg',
         },
         {
             id: 3,
             title: 'Industrial Home Office',
             description: 'Raw materials, exposed elements, and utilitarian objects for an urban loft feel.',
             style: 'Industrial',
-            imageUrl: 'https://images.unsplash.com/photo-1572025442646-866d16c84a54?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1542330952-bffc55e812b2?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/industrial-home-office.jpg',
         },
         {
             id: 4,
             title: 'Traditional Home Office',
             description: 'Classic design with rich colors and ornate details for a timeless appeal.',
             style: 'Traditional',
-            imageUrl: 'https://images.unsplash.com/photo-1572025442646-866d16c84a54?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1486946255434-2466348c2166?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/traditional-home-office.jpg',
         },
         {
             id: 5,
             title: 'Bohemian Home Office',
             description: 'Eclectic, colorful, and artistic with global influences for a vibrant workspace.',
             style: 'Bohemian',
-            imageUrl: 'https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/bohemian-home-office.jpg',
         },
         {
             id: 6,
             title: 'Minimalist Home Office',
             description: 'Extreme simplicity, clean lines, and monochromatic palette for a serene environment.',
             style: 'Minimalist',
-            imageUrl: 'https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1542330952-bffc55e812b2?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/minimalist-home-office.jpg',
         }
     ];
 
@@ -202,7 +196,7 @@ function HomeOfficeDesignsContent() {
                     <h2 className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
                 </div>
                 <div className="flex items-center">
-                    <nav className="flex gap-6">
+                    <nav className="flex gap-6 absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
                             Home
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -278,6 +272,18 @@ function HomeOfficeDesignsContent() {
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </nav>
+                    <div className="ml-6 flex gap-3">
+                        <Link href="/sign-in">
+                            <Button variant="ghost" className="text-white hover:text-cyan-400 hover:bg-zinc-800 transition-colors">
+                                Sign In
+                            </Button>
+                        </Link>
+                        <Link href="/sign-up">
+                            <Button className="bg-cyan-400 hover:bg-cyan-500 text-slate-800">
+                                Sign Up
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
             </div>
 
@@ -361,7 +367,7 @@ function HomeOfficeDesignsContent() {
                             <div className="absolute inset-0 grid grid-cols-2 gap-2">
                                 <div className="relative">
                                     <Image
-                                        src="https://images.unsplash.com/photo-1486946255434-2466348c2166?q=80&w=1400&auto=format&fit=crop"
+                                        src="/images/home-office-before.jpg"
                                         alt="Before"
                                         fill
                                         className="object-cover rounded-l-xl"

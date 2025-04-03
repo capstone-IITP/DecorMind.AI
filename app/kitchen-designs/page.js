@@ -21,155 +21,97 @@ export default function KitchenDesigns() {
             label: 'kitchen_designs_page'
         });
 
-        // Add animation styles
+        // Add optimized animation styles with reduced animations
         const style = document.createElement('style');
         style.textContent = `
             .highlight-section {
-                animation: highlightSection 1.5s ease-out;
+                transition: background-color 0.1s ease-out;
             }
             
             .section-fade-in {
-                animation: fadeIn 0.8s ease-out forwards;
+                opacity: 1;
+                transform: translateY(0);
+                transition: opacity 0.1s, transform 0.1s;
             }
             
             .heading-highlight {
                 background: linear-gradient(90deg, rgba(30, 58, 92, 0.1), rgba(34, 211, 238, 0.2), rgba(74, 222, 128, 0.1));
                 background-size: 200% 100%;
-                animation: gradientMove 2s ease infinite;
                 border-radius: 4px;
-            }
-            
-            .icon-pulse {
-                animation: pulse 1.5s ease-out;
-            }
-            
-            @keyframes highlightSection {
-                0% { background-color: rgba(34, 211, 238, 0.05); }
-                100% { background-color: transparent; }
-            }
-            
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            
-            @keyframes gradientMove {
-                0% { background-position: 0% 50%; }
-                50% { background-position: 100% 50%; }
-                100% { background-position: 0% 50%; }
-            }
-            
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.1); }
-                100% { transform: scale(1); }
             }
         `;
         document.head.appendChild(style);
+
+        return () => {
+            document.head.removeChild(style);
+        };
     }, [event]);
 
-    // Function to add animations to a section
+    // Optimized function to add minimal animations to a section
     const animateSection = (section) => {
         if (!section) return;
 
-        // Add highlight animation to the section
+        // Simple highlight effect without heavy animations
         section.classList.add("highlight-section");
 
-        // Add fade-in animation to section elements
-        const sectionElements = section.querySelectorAll('h2, h3, h4, p, .grid, .flex');
-        sectionElements.forEach((element, index) => {
-            // Stagger the animations
-            setTimeout(() => {
-                element.classList.add('section-fade-in');
-
-                // Remove the animation class after it completes
-                setTimeout(() => {
-                    element.classList.remove('section-fade-in');
-                }, 800);
-            }, index * 100); // Stagger by 100ms
-        });
-
-        // Add special highlight to headings
+        // Add fade-in animation only to important elements
         const headings = section.querySelectorAll('h2, h3');
-        headings.forEach((heading, index) => {
-            setTimeout(() => {
-                heading.classList.add('heading-highlight');
-
-                // Remove the animation class after some time
-                setTimeout(() => {
-                    heading.classList.remove('heading-highlight');
-                }, 2000);
-            }, 300 + (index * 150)); // Stagger with delay
+        headings.forEach(heading => {
+            heading.classList.add('heading-highlight');
         });
 
-        // Add pulse animation to icons
-        const icons = section.querySelectorAll('.w-10, .w-12, svg');
-        icons.forEach((icon, index) => {
-            setTimeout(() => {
-                icon.classList.add('icon-pulse');
-
-                // Remove the animation class after it completes
-                setTimeout(() => {
-                    icon.classList.remove('icon-pulse');
-                }, 1500);
-            }, 500 + (index * 200)); // Stagger with delay
-        });
-
-        // Remove the highlight animation after some time
+        // Remove the highlight after a short time
         setTimeout(() => {
             section.classList.remove("highlight-section");
-        }, 1500);
+            headings.forEach(heading => {
+                heading.classList.remove('heading-highlight');
+            });
+        }, 300); // Reduced from 500ms to 300ms for faster response
     };
 
     // Kitchen design examples data
     const kitchenDesigns = [
         {
             id: 1,
-            title: 'Modern Minimalist Kitchen',
+            title: 'Modern Kitchen',
             description: 'Clean lines, minimal decoration, and neutral colors create a sleek cooking space.',
             style: 'Modern',
-            imageUrl: 'https://images.unsplash.com/photo-1600489000022-c2086d79f9d4?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/modern-kitchen.jpg',
         },
         {
             id: 2,
             title: 'Scandinavian Kitchen',
             description: 'Light colors, natural materials, and functional design for a bright, airy feel.',
             style: 'Scandinavian',
-            imageUrl: 'https://images.unsplash.com/photo-1604709177225-055f99402ea3?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/scandinavian-kitchen.jpg',
         },
         {
             id: 3,
             title: 'Industrial Kitchen',
             description: 'Raw materials, exposed elements, and utilitarian objects for an urban loft feel.',
             style: 'Industrial',
-            imageUrl: 'https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1556911261-6bd341186b2f?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/industrial-kitchen.jpg',
         },
         {
             id: 4,
             title: 'Traditional Elegant Kitchen',
             description: 'Classic design with rich colors and ornate details for a timeless appeal.',
             style: 'Traditional',
-            imageUrl: 'https://images.unsplash.com/photo-1571843439991-dd2b8e051966?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1556909212-d5b604d0c90d?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/traditional-kitchen.jpg',
         },
         {
             id: 5,
             title: 'Bohemian Kitchen',
             description: 'Eclectic, colorful, and artistic with global influences for a vibrant cooking space.',
             style: 'Bohemian',
-            imageUrl: 'https://images.unsplash.com/photo-1588854337221-4cf9fa96059c?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1556909190-eccf4a8bf97a?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/bohemian-kitchen.jpg',
         },
         {
             id: 6,
             title: 'Minimalist Kitchen',
             description: 'Extreme simplicity, clean lines, and monochromatic palette for a serene environment.',
             style: 'Minimalist',
-            imageUrl: 'https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/minimalist-kitchen.jpg',
         }
     ];
 
@@ -202,7 +144,7 @@ export default function KitchenDesigns() {
                 </div>
 
                 <div className="flex items-center">
-                    <nav className="flex gap-6">
+                    <nav className="flex gap-6 absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
                             Home
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -213,16 +155,6 @@ export default function KitchenDesigns() {
                             onClick={(e) => {
                                 e.preventDefault();
                                 router.push('/');
-                                setTimeout(() => {
-                                    const featuresSection = document.getElementById('features');
-                                    if (featuresSection) {
-                                        featuresSection.scrollIntoView({ behavior: 'smooth' });
-                                        // Add animation to the section after scrolling
-                                        setTimeout(() => {
-                                            animateSection(featuresSection);
-                                        }, 1000); // Wait for the scroll to complete
-                                    }
-                                }, 300); // Small delay to ensure navigation completes
                             }}
                         >
                             Features
@@ -234,16 +166,6 @@ export default function KitchenDesigns() {
                             onClick={(e) => {
                                 e.preventDefault();
                                 router.push('/');
-                                setTimeout(() => {
-                                    const featuresSection = document.getElementById('how-it-works');
-                                    if (featuresSection) {
-                                        featuresSection.scrollIntoView({ behavior: 'smooth' });
-                                        // Add animation to the section after scrolling
-                                        setTimeout(() => {
-                                            animateSection(featuresSection);
-                                        }, 1000); // Wait for the scroll to complete
-                                    }
-                                }, 300); // Small delay to ensure navigation completes
                             }}
                         >
                             How it Works
@@ -255,16 +177,6 @@ export default function KitchenDesigns() {
                             onClick={(e) => {
                                 e.preventDefault();
                                 router.push('/');
-                                setTimeout(() => {
-                                    const featuresSection = document.getElementById('gallery');
-                                    if (featuresSection) {
-                                        featuresSection.scrollIntoView({ behavior: 'smooth' });
-                                        // Add animation to the section after scrolling
-                                        setTimeout(() => {
-                                            animateSection(featuresSection);
-                                        }, 1000); // Wait for the scroll to complete
-                                    }
-                                }, 300); // Small delay to ensure navigation completes
                             }}
                         >
                             Gallery
@@ -278,6 +190,18 @@ export default function KitchenDesigns() {
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </nav>
+                    <div className="ml-6 flex gap-3">
+                        <Link href="/sign-in">
+                            <Button variant="ghost" className="text-white hover:text-cyan-400 hover:bg-zinc-800 transition-colors">
+                                Sign In
+                            </Button>
+                        </Link>
+                        <Link href="/sign-up">
+                            <Button className="bg-cyan-400 hover:bg-cyan-500 text-slate-800">
+                                Sign Up
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
             </div>
 
@@ -300,14 +224,16 @@ export default function KitchenDesigns() {
                         <div
                             key={design.id}
                             className="bg-zinc-800/50 rounded-xl overflow-hidden border border-zinc-700/50 hover:border-cyan-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-400/10"
-                            onMouseEnter={(e) => animateSection(e.currentTarget)}
                         >
                             <div className="relative h-64 overflow-hidden">
                                 <Image
                                     src={design.imageUrl}
                                     alt={design.title}
                                     fill
-                                    className="object-cover transition-transform duration-500 hover:scale-105"
+                                    loading={design.id <= 2 ? "eager" : "lazy"}
+                                    priority={design.id <= 2}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    className="object-cover transition-transform duration-300 hover:scale-105"
                                 />
                                 <div className="absolute top-3 right-3 bg-cyan-400 text-slate-800 px-3 py-1 rounded-full text-sm font-medium">
                                     {design.style}
@@ -366,6 +292,9 @@ export default function KitchenDesigns() {
                                         src="/images/kitchen_room.jpg"
                                         alt="Before"
                                         fill
+                                        loading="eager"
+                                        priority
+                                        sizes="(max-width: 768px) 50vw, 25vw"
                                         className="object-cover rounded-l-xl"
                                     />
                                     <div className="absolute bottom-3 left-3 bg-cyan-400 text-slate-800 px-3 py-1 rounded-full text-sm">
@@ -374,9 +303,12 @@ export default function KitchenDesigns() {
                                 </div>
                                 <div className="relative">
                                     <Image
-                                        src="https://images.unsplash.com/photo-1600489000022-c2086d79f9d4?q=80&w=1400&auto=format&fit=crop"
+                                        src="/images/bohemian-kitchen.jpg"
                                         alt="After"
                                         fill
+                                        loading="eager"
+                                        priority
+                                        sizes="(max-width: 768px) 50vw, 25vw"
                                         className="object-cover rounded-r-xl"
                                     />
                                     <div className="absolute bottom-3 right-3 bg-cyan-400 text-slate-800 px-3 py-1 rounded-full text-sm">

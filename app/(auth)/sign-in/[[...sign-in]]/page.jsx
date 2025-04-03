@@ -4,10 +4,16 @@ import { SignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+  const router = useRouter();
+
+  const handleLogoClick = () => {
+    router.push('/');
+  };
+
   // Array of interior design images
   const images = [
     "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1400&auto=format&fit=crop",
@@ -29,11 +35,11 @@ export default function Page() {
       const img = new window.Image();
       img.src = src;
     });
-    
+
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 2000); // Changed from 3000ms to 2000ms (2 seconds)
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -43,11 +49,10 @@ export default function Page() {
       <div className="hidden md:block md:w-1/2 relative bg-zinc-900">
         <div className="absolute inset-0 overflow-hidden">
           {images.map((src, index) => (
-            <div 
+            <div
               key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                index === currentImageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-              }`}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+                }`}
             >
               <Image
                 src={src}
@@ -62,7 +67,7 @@ export default function Page() {
         </div>
         <div className="relative z-30 p-12 flex flex-col h-full justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-8">
+            <div className="flex items-center gap-2 mb-8 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleLogoClick}>
               <div className="bg-cyan-400 w-8 h-8 rounded-full flex items-center justify-center text-black text-lg font-bold">DM</div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
             </div>
@@ -76,14 +81,14 @@ export default function Page() {
           </div>
         </div>
       </div>
-      
+
       {/* Right side - Sign In Form */}
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <SignIn 
-            redirectUrl="/dashboard" 
-            routing="path" 
-            path="/sign-in" 
+          <SignIn
+            redirectUrl="/dashboard"
+            routing="path"
+            path="/sign-in"
             appearance={{
               elements: {
                 rootBox: 'mx-auto',

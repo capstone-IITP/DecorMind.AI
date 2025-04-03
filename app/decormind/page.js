@@ -17,7 +17,7 @@ export default function DecorMind() {
   useEffect(() => {
     // Set mounted state to true
     setMounted(true);
-    
+
     // Add CSS for animations
     let style;
     if (typeof window !== 'undefined') {
@@ -203,50 +203,50 @@ export default function DecorMind() {
     // Function to add animations to a section
     const animateSection = (section) => {
       if (!section) return;
-      
+
       // Add highlight animation to the section
       section.classList.add("highlight-section");
-      
+
       // Add fade-in animation to section elements
       const sectionElements = section.querySelectorAll('h2, h3, h4, p, .grid, .flex');
       sectionElements.forEach((element, index) => {
         // Stagger the animations
         setTimeout(() => {
           element.classList.add('section-fade-in');
-          
+
           // Remove the animation class after it completes
           setTimeout(() => {
             element.classList.remove('section-fade-in');
           }, 800);
         }, index * 100); // Stagger by 100ms
       });
-      
+
       // Add special highlight to headings
       const headings = section.querySelectorAll('h2, h3');
       headings.forEach((heading, index) => {
         setTimeout(() => {
           heading.classList.add('heading-highlight');
-          
+
           // Remove the animation class after some time
           setTimeout(() => {
             heading.classList.remove('heading-highlight');
           }, 2000);
         }, 300 + (index * 150)); // Stagger with delay
       });
-      
+
       // Add pulse animation to icons
       const icons = section.querySelectorAll('.w-10, .w-12, svg');
       icons.forEach((icon, index) => {
         setTimeout(() => {
           icon.classList.add('icon-pulse');
-          
+
           // Remove the animation class after it completes
           setTimeout(() => {
             icon.classList.remove('icon-pulse');
           }, 1500);
         }, 500 + (index * 200)); // Stagger with delay
       });
-      
+
       // Remove the highlight animation after some time
       setTimeout(() => {
         section.classList.remove("highlight-section");
@@ -263,12 +263,12 @@ export default function DecorMind() {
     const handleSmoothScroll = (e) => {
       e.preventDefault();
       const href = e.currentTarget.getAttribute("href");
-      
+
       // Add a visual feedback to the clicked link
       if (e.currentTarget.classList && e.currentTarget.classList.add) {
         e.currentTarget.classList.add("nav-link-clicked");
       }
-      
+
       // Delay the scroll action for a better visual effect
       setTimeout(() => {
         // If it's not a hash link, navigate to the page
@@ -276,10 +276,10 @@ export default function DecorMind() {
           router.push(href);
           return;
         }
-        
+
         const targetId = href.substring(1);
         const targetElement = document.getElementById(targetId);
-        
+
         if (targetElement) {
           // Special case for top - scroll to top
           if (targetId === 'top') {
@@ -290,23 +290,23 @@ export default function DecorMind() {
           } else {
             // Add extra offset for contact section
             const offset = targetId === 'contact' ? 100 : 80;
-            
+
             // Calculate the position to scroll to
             const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - offset;
-            
+
             // Use the native smooth scrolling
             window.scrollTo({
               top: targetPosition,
               behavior: 'smooth'
             });
-            
+
             // Add animations to the target section after scrolling
             setTimeout(() => {
               animateSection(targetElement);
             }, 1000); // Wait for the scroll to complete
           }
         }
-        
+
         // Remove the visual feedback class
         if (e.currentTarget.classList && e.currentTarget.classList.remove) {
           setTimeout(() => {
@@ -327,13 +327,13 @@ export default function DecorMind() {
       if (style && style.parentNode) {
         document.head.removeChild(style);
       }
-      
+
       // Get all navigation links again for cleanup
       const navLinks = document.querySelectorAll('.nav-link');
       navLinks.forEach(link => {
         link.removeEventListener("click", handleSmoothScroll);
       });
-      
+
       // Remove scroll event listener
       window.removeEventListener('scroll', highlightActiveSection);
     };
@@ -372,7 +372,7 @@ export default function DecorMind() {
     <div className="min-h-screen bg-black text-white">
       {/* Navigation Bar */}
       <nav className="flex justify-between items-center py-4 px-6 bg-zinc-900 sticky top-0 z-50 shadow-md border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
           <div className="bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
           <h1 className="text-lg font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
         </div>
@@ -381,6 +381,7 @@ export default function DecorMind() {
           <Link href="/redesign" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative" prefetch={true}>Redesign</Link>
           <Link href="/decormind" className="nav-link text-cyan-400 transition-colors duration-300 relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:bg-cyan-400" prefetch={true}>DecorMind</Link>
           <Link href="/pricing" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative" prefetch={true}>Pricing</Link>
+          <Link href="/contact-us" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300">Contact Us</Link>
         </div>
         <div>
           <UserButton afterSignOutUrl="/" />
@@ -394,7 +395,7 @@ export default function DecorMind() {
           <p className="text-lg text-white mb-6">
             Your AI interior design assistant that understands your style, preferences, and needs.
           </p>
-          <Button 
+          <Button
             className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-6 py-3 rounded-md font-medium transition-colors"
             onClick={handleTryDecorMind}
           >
@@ -474,13 +475,13 @@ export default function DecorMind() {
             Get unlimited access to DecorMind with our premium plans.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
+            <Button
               className="bg-cyan-400 text-slate-800 hover:bg-cyan-500"
               onClick={handleStartFreeTrial}
             >
               Start Free Trial
             </Button>
-            <Button 
+            <Button
               className="bg-transparent text-white border border-white hover:bg-white/10"
               onClick={handleViewPricingPlans}
             >

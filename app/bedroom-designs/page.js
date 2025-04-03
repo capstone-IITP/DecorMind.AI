@@ -28,11 +28,11 @@ function BedroomContent() {
         const style = document.createElement('style');
         style.textContent = `
             .highlight-section {
-                animation: highlightSection 1.5s ease-out;
+                animation: highlightSection 0.1s ease-out;
             }
             
             .section-fade-in {
-                animation: fadeIn 0.8s ease-out forwards;
+                animation: fadeIn 0.1s ease-out forwards;
             }
             
             .heading-highlight {
@@ -43,7 +43,7 @@ function BedroomContent() {
             }
             
             .icon-pulse {
-                animation: pulse 1.5s ease-out;
+                animation: pulse 0.1s ease-out;
             }
             
             @keyframes highlightSection {
@@ -131,48 +131,42 @@ function BedroomContent() {
             title: 'Modern Bedroom',
             description: 'Clean lines, minimal decoration, and neutral colors create a serene sleeping space.',
             style: 'Modern',
-            imageUrl: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/modern_bedroom.jpg',
         },
         {
             id: 2,
             title: 'Scandinavian Bedroom',
             description: 'Light colors, natural materials, and functional design for a bright, airy bedroom.',
             style: 'Scandinavian',
-            imageUrl: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1560185007-5f0bb1866cab?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/scandinavian-bedroom.jpg',
         },
         {
             id: 3,
             title: 'Minimalist Bedroom',
             description: 'Extreme simplicity, clean lines, and monochromatic palette for a serene environment.',
             style: 'Minimalist',
-            imageUrl: 'https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1615874694520-474822394e73?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/minimalist-bedroom.jpg',
         },
         {
             id: 4,
             title: 'Traditional Bedroom',
             description: 'Classic design with rich colors and ornate details for a timeless appeal.',
             style: 'Traditional',
-            imageUrl: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/traditional-bedroom.jpg',
         },
         {
             id: 5,
             title: 'Bohemian Bedroom',
             description: 'Eclectic, colorful, and artistic with global influences for a vibrant sleeping space.',
             style: 'Bohemian',
-            imageUrl: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1560185007-5f0bb1866cab?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/bohemian-bedroom.jpg',
         },
         {
             id: 6,
             title: 'Industrial Bedroom',
             description: 'Raw materials, exposed elements, and utilitarian objects for an urban loft feel.',
             style: 'Industrial',
-            imageUrl: 'https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1615874694520-474822394e73?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/industrial-bedroom.jpg',
         }
     ];
 
@@ -204,7 +198,7 @@ function BedroomContent() {
                     <h2 className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
                 </div>
                 <div className="flex items-center">
-                    <nav className="flex gap-6">
+                    <nav className="flex gap-6 absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
                             Home
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -280,6 +274,18 @@ function BedroomContent() {
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </nav>
+                    <div className="ml-6 flex gap-3">
+                        <Link href="/sign-in">
+                            <Button variant="ghost" className="text-white hover:text-cyan-400 hover:bg-zinc-800 transition-colors">
+                                Sign In
+                            </Button>
+                        </Link>
+                        <Link href="/sign-up">
+                            <Button className="bg-cyan-400 hover:bg-cyan-500 text-slate-800">
+                                Sign Up
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
             </div>
 
@@ -363,7 +369,7 @@ function BedroomContent() {
                             <div className="absolute inset-0 grid grid-cols-2 gap-2">
                                 <div className="relative">
                                     <Image
-                                        src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1400&auto=format&fit=crop"
+                                        src="/images/modern-bedroom-before.jpg"
                                         alt="Before"
                                         fill
                                         className="object-cover rounded-l-xl"
@@ -374,7 +380,7 @@ function BedroomContent() {
                                 </div>
                                 <div className="relative">
                                     <Image
-                                        src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1400&auto=format&fit=crop"
+                                        src="/images/modern_bedroom.jpg"
                                         alt="After"
                                         fill
                                         className="object-cover rounded-r-xl"

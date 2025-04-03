@@ -25,11 +25,11 @@ export default function DiningRoomDesigns() {
         const style = document.createElement('style');
         style.textContent = `
             .highlight-section {
-                animation: highlightSection 1.5s ease-out;
+                animation: highlightSection 0.1s ease-out;
             }
             
             .section-fade-in {
-                animation: fadeIn 0.8s ease-out forwards;
+                animation: fadeIn 0.1s ease-out forwards;
             }
             
             .heading-highlight {
@@ -40,7 +40,7 @@ export default function DiningRoomDesigns() {
             }
             
             .icon-pulse {
-                animation: pulse 1.5s ease-out;
+                animation: pulse 0.1s ease-out;
             }
             
             @keyframes highlightSection {
@@ -128,48 +128,42 @@ export default function DiningRoomDesigns() {
             title: 'Modern Dining Room',
             description: 'Clean lines, minimal decoration, and neutral colors create an elegant dining space.',
             style: 'Modern',
-            imageUrl: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/modern-dining-room.jpg',
         },
         {
             id: 2,
             title: 'Scandinavian Dining Room',
             description: 'Light colors, natural materials, and functional design for a bright, airy dining area.',
             style: 'Scandinavian',
-            imageUrl: 'https://images.unsplash.com/photo-1615968679312-9b7ed9f04e79?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/scandinavian-dining-room-1.jpg',
         },
         {
             id: 3,
             title: 'Industrial Dining Room',
             description: 'Raw materials, exposed elements, and utilitarian objects for an urban loft feel.',
             style: 'Industrial',
-            imageUrl: 'https://images.unsplash.com/photo-1597075687490-8f673c6c17f6?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/industrial-dining-room.jpg',
         },
         {
             id: 4,
             title: 'Traditional Dining Room',
             description: 'Classic design with rich colors and ornate details for a timeless appeal.',
             style: 'Traditional',
-            imageUrl: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/traditional-dining-room.jpg',
         },
         {
             id: 5,
             title: 'Bohemian Dining Room',
             description: 'Eclectic, colorful, and artistic with global influences for a vibrant dining space.',
             style: 'Bohemian',
-            imageUrl: 'https://images.unsplash.com/photo-1615968679312-9b7ed9f04e79?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/bohemian-dining-room.jpg',
         },
         {
             id: 6,
             title: 'Minimalist Dining Room',
             description: 'Extreme simplicity, clean lines, and monochromatic palette for a serene environment.',
             style: 'Minimalist',
-            imageUrl: 'https://images.unsplash.com/photo-1597075687490-8f673c6c17f6?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/minimalist-dining-room.jpg',
         }
     ];
 
@@ -203,7 +197,7 @@ export default function DiningRoomDesigns() {
                     <h2 className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
                 </div>
                 <div className="flex items-center">
-                    <nav className="flex gap-6">
+                    <nav className="flex gap-6 absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
                             Home
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -279,6 +273,18 @@ export default function DiningRoomDesigns() {
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </nav>
+                    <div className="ml-6 flex gap-3">
+                        <Link href="/sign-in">
+                            <Button variant="ghost" className="text-white hover:text-cyan-400 hover:bg-zinc-800 transition-colors">
+                                Sign In
+                            </Button>
+                        </Link>
+                        <Link href="/sign-up">
+                            <Button className="bg-cyan-400 hover:bg-cyan-500 text-slate-800">
+                                Sign Up
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
             </div>
 
@@ -375,7 +381,7 @@ export default function DiningRoomDesigns() {
                                 </div>
                                 <div className="relative">
                                     <Image
-                                        src="https://images.unsplash.com/photo-1617806118233-18e1de247200?q=80&w=1400&auto=format&fit=crop"
+                                        src="/images/dining-room.jpg"
                                         alt="After"
                                         fill
                                         className="object-cover rounded-r-xl"

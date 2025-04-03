@@ -25,11 +25,11 @@ export default function BathroomDesigns() {
         const style = document.createElement('style');
         style.textContent = `
             .highlight-section {
-                animation: highlightSection 1.5s ease-out;
+                animation: highlightSection 0.1s ease-out;
             }
             
             .section-fade-in {
-                animation: fadeIn 0.8s ease-out forwards;
+                animation: fadeIn 0.1s ease-out forwards;
             }
             
             .heading-highlight {
@@ -40,7 +40,7 @@ export default function BathroomDesigns() {
             }
             
             .icon-pulse {
-                animation: pulse 1.5s ease-out;
+                animation: pulse 0.1s ease-out;
             }
             
             @keyframes highlightSection {
@@ -128,8 +128,7 @@ export default function BathroomDesigns() {
             title: 'Modern Bathroom',
             description: 'Clean lines, minimal decoration, and neutral colors create a sleek, spa-like space.',
             style: 'Modern',
-            imageUrl: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/modern-bathroom.jpg',
         },
         {
             id: 2,
@@ -137,23 +136,20 @@ export default function BathroomDesigns() {
             description: 'Opulent materials, elegant fixtures, and sophisticated details for a high-end bathing experience.',
             style: 'Luxury',
             imageUrl: '/images/luxury-bathroom.jpg',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1400&auto=format&fit=crop'
         },
         {
             id: 3,
             title: 'Minimalist Bathroom',
             description: 'Extreme simplicity, clean lines, and monochromatic palette for a serene environment.',
             style: 'Minimalist',
-            imageUrl: 'https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1564540583246-934409427776?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/minimalist-bathroom.jpg',
         },
         {
             id: 4,
             title: 'Traditional Bathroom',
             description: 'Classic design with rich colors and ornate details for a timeless appeal.',
             style: 'Traditional',
-            imageUrl: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/traditional-bathroom.jpg',
         },
         {
             id: 5,
@@ -161,15 +157,13 @@ export default function BathroomDesigns() {
             description: 'Light colors, natural materials, and functional design for a bright, airy bathroom.',
             style: 'Scandinavian',
             imageUrl: '/images/luxury-bathroom.jpg',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1400&auto=format&fit=crop'
         },
         {
             id: 6,
             title: 'Industrial Bathroom',
             description: 'Raw materials, exposed elements, and utilitarian objects for an urban loft feel.',
             style: 'Industrial',
-            imageUrl: 'https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1400&auto=format&fit=crop',
-            beforeImageUrl: 'https://images.unsplash.com/photo-1564540583246-934409427776?q=80&w=1400&auto=format&fit=crop'
+            imageUrl: '/images/industrial-bathroom.jpg',
         }
     ];
 
@@ -201,7 +195,7 @@ export default function BathroomDesigns() {
                     <h2 className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
                 </div>
                 <div className="flex items-center">
-                    <nav className="flex gap-6">
+                    <nav className="flex gap-6 absolute left-1/2 transform -translate-x-1/2">
                         <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
                             Home
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -277,6 +271,18 @@ export default function BathroomDesigns() {
                             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </nav>
+                    <div className="ml-6 flex gap-3">
+                        <Link href="/sign-in">
+                            <Button variant="ghost" className="text-white hover:text-cyan-400 hover:bg-zinc-800 transition-colors">
+                                Sign In
+                            </Button>
+                        </Link>
+                        <Link href="/sign-up">
+                            <Button className="bg-cyan-400 hover:bg-cyan-500 text-slate-800">
+                                Sign Up
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
             </div>
 
@@ -360,7 +366,7 @@ export default function BathroomDesigns() {
                             <div className="absolute inset-0 grid grid-cols-2 gap-2">
                                 <div className="relative">
                                     <Image
-                                        src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?q=80&w=1400&auto=format&fit=crop"
+                                        src="/images/bathroom-before.jpg"
                                         alt="Before"
                                         fill
                                         className="object-cover rounded-l-xl"
@@ -371,7 +377,7 @@ export default function BathroomDesigns() {
                                 </div>
                                 <div className="relative">
                                     <Image
-                                        src="https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=1400&auto=format&fit=crop"
+                                        src="/images/bathroom-after.jpg"
                                         alt="After"
                                         fill
                                         className="object-cover rounded-r-xl"

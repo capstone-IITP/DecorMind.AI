@@ -9,11 +9,11 @@ import { useRouter } from "next/navigation";
 export default function Page() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const router = useRouter();
-  
+
   const handleLogoClick = () => {
     router.push('/');
   };
-  
+
   // Array of interior design images
   const images = [
     "https://images.unsplash.com/photo-1611095210561-67f0832b1ca3?q=80&w=2070&auto=format&fit=crop",
@@ -27,7 +27,7 @@ export default function Page() {
     "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1770&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?q=80&w=1770&auto=format&fit=crop"
   ];
-  
+
   // Effect to change the image every 2 seconds
   useEffect(() => {
     // Preload all images
@@ -35,11 +35,11 @@ export default function Page() {
       const img = new window.Image();
       img.src = src;
     });
-    
+
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 2000); // Changed from 3000ms to 2000ms (2 seconds)
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -49,11 +49,10 @@ export default function Page() {
       <div className="hidden md:block md:w-1/2 relative bg-zinc-900">
         <div className="absolute inset-0 overflow-hidden">
           {images.map((src, index) => (
-            <div 
+            <div
               key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                index === currentImageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-              }`}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+                }`}
             >
               <Image
                 src={src}
@@ -82,14 +81,14 @@ export default function Page() {
           </div>
         </div>
       </div>
-      
+
       {/* Right side - Sign Up Form */}
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <SignUp 
-            redirectUrl="/dashboard" 
-            routing="path" 
-            path="/sign-up" 
+          <SignUp
+            redirectUrl="/dashboard"
+            routing="path"
+            path="/sign-up"
             appearance={{
               elements: {
                 rootBox: 'mx-auto',
