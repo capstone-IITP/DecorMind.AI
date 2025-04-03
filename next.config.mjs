@@ -15,8 +15,7 @@ const nextConfig = {
   },
   // Disable development mode banner
   devIndicators: {
-    buildActivity: false,
-    buildActivityPosition: 'bottom-right',
+    position: 'bottom-right', // Updated from buildActivityPosition
   },
   // Enable optimized loading for better performance
   experimental: {

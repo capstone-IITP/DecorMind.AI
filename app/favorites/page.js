@@ -12,6 +12,8 @@ function FavoritesContent() {
   const { event } = useGoogleAnalytics();
   const [favorites, setFavorites] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedDesign, setSelectedDesign] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   
   // Load favorites from localStorage on component mount
   useEffect(() => {
@@ -48,9 +50,72 @@ function FavoritesContent() {
   
   // Open image in new tab
   const handleOpenImage = (imageUrl) => {
-    if (imageUrl) {
-      window.open(imageUrl, '_blank');
+    if (!imageUrl) {
+      console.error('Image URL is missing');
+      // Show an error message to the user
+      alert('Sorry, the image URL is missing or invalid. Please try again or create a new design.');
+      return;
     }
+    
+    // Verify if image URL is valid before opening in new tab
+    const img = new Image();
+    img.onload = function() {
+      // Image loaded successfully, open in new tab
+      window.open(imageUrl, '_blank');
+    };
+    img.onerror = function() {
+      // Image failed to load
+      console.error('Failed to load image:', imageUrl);
+      alert('Sorry, the image could not be loaded. It may no longer be available or the URL might be invalid.');
+    };
+    img.src = imageUrl;
+  };
+  
+  // Open detailed view modal
+  const handleViewDesign = (design) => {
+    setSelectedDesign(design);
+    setShowModal(true);
+    
+    // Track view event
+    event({
+      action: 'view_design_detail',
+      category: 'favorites',
+      label: 'design_detail_viewed'
+    });
+  };
+  
+  // Close modal
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+  
+  // Add a new function to download images
+  const handleDownloadImage = (imageUrl, roomType) => {
+    if (!imageUrl) {
+      console.error('Image URL is missing');
+      alert('Sorry, the image URL is missing or invalid.');
+      return;
+    }
+    
+    // Create a download link
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    
+    // Generate a filename based on the room type and date
+    const fileName = `${roomType.toLowerCase().replace(/\s+/g, '-')}-design-${Date.now()}.jpg`;
+    link.download = fileName;
+    
+    // Append to body, click programmatically, then remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Track download event
+    event({
+      action: 'design_downloaded',
+      category: 'favorites',
+      label: 'design_download'
+    });
   };
   
   return (
@@ -110,7 +175,7 @@ function FavoritesContent() {
                 <div 
                   key={`image-container-${favorite.id}`}
                   className="relative cursor-pointer h-48 overflow-hidden"
-                  onClick={() => handleOpenImage(favorite.imageUrl)}
+                  onClick={() => handleViewDesign(favorite)}
                 >
                   <img 
                     src={favorite.imageUrl} 
@@ -152,7 +217,7 @@ function FavoritesContent() {
                   <div key={`actions-${favorite.id}`} className="mt-4 flex justify-between">
                     <Button
                       key={`view-btn-${favorite.id}`}
-                      onClick={() => handleOpenImage(favorite.imageUrl)}
+                      onClick={() => handleViewDesign(favorite)}
                       className="bg-zinc-800 hover:bg-zinc-700 text-white transition-colors duration-300 text-sm"
                     >
                       View Design
@@ -172,6 +237,74 @@ function FavoritesContent() {
           </div>
         )}
       </div>
+      
+      {/* Detailed View Modal */}
+      {showModal && selectedDesign && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-zinc-800">
+              <h3 className="text-xl font-bold text-white">{selectedDesign.roomType} Design</h3>
+              <button 
+                onClick={handleCloseModal}
+                className="text-zinc-400 hover:text-white transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto flex-grow">
+              <div className="relative">
+                <img 
+                  src={selectedDesign.imageUrl} 
+                  alt={`${selectedDesign.roomType} design`}
+                  className="w-full h-auto max-h-[70vh] object-contain"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://via.placeholder.com/800x600?text=Image+Not+Available';
+                  }}
+                />
+              </div>
+              
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <h4 className="text-zinc-400 text-sm mb-1">Style</h4>
+                    <p className="text-white text-lg">{selectedDesign.style}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-zinc-400 text-sm mb-1">Saved On</h4>
+                    <p className="text-white">{new Date(selectedDesign.date).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between mt-6">
+                  <Button
+                    onClick={() => handleDownloadImage(selectedDesign.imageUrl, selectedDesign.roomType)}
+                    className="bg-zinc-800 hover:bg-zinc-700 text-white transition-colors duration-300 flex items-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download
+                  </Button>
+                  
+                  <Button
+                    onClick={() => {
+                      router.push('/redesign');
+                      handleCloseModal();
+                    }}
+                    className="bg-[#22d3ee] text-black hover:bg-[#22d3ee]/90 transition-all duration-300"
+                  >
+                    Create Similar Design
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
