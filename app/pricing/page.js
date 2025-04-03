@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { Button } from '../../components/ui/button';
 import { useRouter } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
+import PaymentButton from '../_components/PaymentButton';
 
 export default function Pricing() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState('INR');
   const [exchangeRates, setExchangeRates] = useState({
     USD: 1,
     EUR: 0.92,
@@ -77,6 +78,58 @@ export default function Pricing() {
           animation: highlightContactForm 2s ease-out;
         }
 
+        /* Success Popup Styles */
+        .success-popup {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .success-popup-content {
+          background-color: #18181b;
+          border: 2px solid #22d3ee;
+          border-radius: 12px;
+          padding: 20px 30px;
+          text-align: center;
+          max-width: 400px;
+          animation: popupAppear 0.3s ease-out forwards;
+        }
+
+        @keyframes popupAppear {
+          0% {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .success-popup button {
+          background-color: #22d3ee;
+          color: #000;
+          border: none;
+          border-radius: 50px;
+          padding: 10px 20px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          margin-top: 15px;
+        }
+
+        .success-popup button:hover {
+          background-color: #0cb8de;
+          transform: scale(1.05);
+        }
+        
         /* Section scroll animation */
         @keyframes sectionFadeIn {
           0% { 
@@ -452,7 +505,7 @@ export default function Pricing() {
               <div className="mb-6">
                 <h4 className="text-xl font-bold mb-2 text-white">Premium</h4>
                 <div className="flex items-end gap-1 mb-4">
-                  <span className="text-3xl font-bold text-white">{convertPrice(20)}</span>
+                  <span className="text-3xl font-bold text-white">{convertPrice(0.012)}</span>
                   <span className="text-white text-opacity-70 mb-1">/month</span>
                 </div>
                 <p className="text-white text-opacity-70 text-sm mb-6">For regular home designers</p>
@@ -479,12 +532,37 @@ export default function Pricing() {
                   <span>Priority support</span>
                 </li>
               </ul>
-              <Button 
-                className="w-full bg-cyan-400 text-slate-800 hover:bg-cyan-500"
-                onClick={() => router.push('/dashboard')}
-              >
-                Get Premium
-              </Button>
+              {/* Import PaymentButton component */}
+              {mounted && (
+                <PaymentButton 
+                  amount={Math.max(100, 0.012 * exchangeRates[currency] * 100)} // Ensure minimum amount and convert to paise
+                  buttonText="Get Premium"
+                  className="w-full bg-cyan-400 text-slate-800 hover:bg-cyan-500"
+                  onSuccess={(response) => {
+                    // Create custom popup instead of alert
+                    const popup = document.createElement('div');
+                    popup.className = 'success-popup';
+                    popup.innerHTML = `
+                      <div class="success-popup-content">
+                        <h3 style="color: #22d3ee; font-size: 24px; margin-bottom: 10px;">Payment Successful!</h3>
+                        <p style="color: white; margin-bottom: 20px;">You are now a Premium member.</p>
+                        <button>OK</button>
+                      </div>
+                    `;
+                    document.body.appendChild(popup);
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Add event listener to OK button
+                    popup.querySelector('button').addEventListener('click', () => {
+                      document.body.removeChild(popup);
+                      document.body.style.overflow = '';
+                      router.push('/dashboard');
+                    });
+                    
+                    console.log(response);
+                  }}
+                />
+              )}
             </div>
 
             {/* Pro Plan */}
@@ -492,7 +570,7 @@ export default function Pricing() {
               <div className="mb-6">
                 <h4 className="text-xl font-bold mb-2 text-white">Pro</h4>
                 <div className="flex items-end gap-1 mb-4">
-                  <span className="text-3xl font-bold text-white">{convertPrice(50)}</span>
+                  <span className="text-3xl font-bold text-white">{convertPrice(10)}</span>
                   <span className="text-white text-opacity-70 mb-1">/month</span>
                 </div>
                 <p className="text-white text-opacity-70 text-sm mb-6">For professional designers</p>
@@ -523,12 +601,37 @@ export default function Pricing() {
                   <span>White-label exports</span>
                 </li>
               </ul>
-              <Button 
-                className="w-full bg-transparent text-white border border-white hover:bg-white/10"
-                onClick={() => router.push('/dashboard')}
-              >
-                Get Pro
-              </Button>
+              {/* Pro Plan Payment Button */}
+              {mounted && (
+                <PaymentButton 
+                  amount={Math.max(100, 10 * exchangeRates[currency] * 100)} // Ensure minimum amount and convert to paise
+                  buttonText="Get Pro"
+                  className="w-full bg-transparent text-white border border-white hover:bg-white/10 hover:text-cyan-400"
+                  onSuccess={(response) => {
+                    // Create custom popup instead of alert
+                    const popup = document.createElement('div');
+                    popup.className = 'success-popup';
+                    popup.innerHTML = `
+                      <div class="success-popup-content">
+                        <h3 style="color: #22d3ee; font-size: 24px; margin-bottom: 10px;">Payment Successful!</h3>
+                        <p style="color: white; margin-bottom: 20px;">You are now a Pro member.</p>
+                        <button>OK</button>
+                      </div>
+                    `;
+                    document.body.appendChild(popup);
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Add event listener to OK button
+                    popup.querySelector('button').addEventListener('click', () => {
+                      document.body.removeChild(popup);
+                      document.body.style.overflow = '';
+                      router.push('/dashboard');
+                    });
+                    
+                    console.log(response);
+                  }}
+                />
+              )}
             </div>
           </div>
         </div>
