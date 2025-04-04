@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, Suspense } from 'react';
+import { useEffect, useRef, Suspense, useCallback } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 // Inner component that uses useSearchParams
@@ -21,13 +21,13 @@ function TopLoaderContent({
   const completedRef = useRef(false);
 
   // Clear all timers
-  const clearTimers = () => {
+  const clearTimers = useCallback(() => {
     timersRef.current.forEach(timer => clearTimeout(timer));
     timersRef.current = [];
-  };
+  }, []);
 
   // Function to complete loading animation
-  const completeLoading = () => {
+  const completeLoading = useCallback(() => {
     if (!isNavigatingRef.current || completedRef.current) return;
     
     completedRef.current = true;
@@ -51,10 +51,10 @@ function TopLoaderContent({
       
       timersRef.current.push(timer);
     }
-  };
+  }, []);
 
   // Function to start loading animation
-  const startLoading = () => {
+  const startLoading = useCallback(() => {
     // Don't start if already navigating
     if (isNavigatingRef.current) return;
     
@@ -106,7 +106,7 @@ function TopLoaderContent({
     }, 2000);
     
     timersRef.current = [timer1, timer2, timer3, timer4, timer5];
-  };
+  }, [showSpinner, clearTimers, completeLoading]);
 
   // Track route changes
   useEffect(() => {
@@ -131,7 +131,7 @@ function TopLoaderContent({
     
     // Clean up timers on unmount
     return () => clearTimers();
-  }, [pathname, searchParams, showSpinner]);
+  }, [pathname, searchParams, showSpinner, startLoading, completeLoading]);
 
   // Add global event listeners for navigation
   useEffect(() => {
@@ -167,7 +167,7 @@ function TopLoaderContent({
         clearTimers();
       };
     }
-  }, []);
+  }, [startLoading, completeLoading, clearTimers]);
 
   return (
     <>

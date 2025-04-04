@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { Button } from "../../components/ui/button";
 import { useRouter, useSearchParams } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
+import Image from 'next/image';
 
 // Setup IndexedDB for favorites storage
 const initIndexedDB = () => {
@@ -296,7 +297,7 @@ function FavoritesContent() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {favorites.map((favorite) => (
               <div key={favorite.id} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-xl transition-all duration-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:border-[#22d3ee]/50">
                 <div 
@@ -304,10 +305,12 @@ function FavoritesContent() {
                   className="relative cursor-pointer h-48 overflow-hidden"
                   onClick={() => handleViewDesign(favorite)}
                 >
-                  <img 
+                  <Image 
                     src={favorite.thumbnailUrl || favorite.imageUrl} 
                     alt={`${favorite.roomType} design`} 
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                    className="transition-transform duration-500 hover:scale-110"
+                    fill
+                    style={{ objectFit: 'cover' }}
                   />
                   <div key={`overlay-${favorite.id}`} className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
                     <div key={`caption-${favorite.id}`} className="p-4 w-full">
@@ -383,15 +386,18 @@ function FavoritesContent() {
             
             <div className="overflow-y-auto flex-grow">
               <div className="relative">
-                <img 
-                  src={selectedDesign.thumbnailUrl || selectedDesign.imageUrl} 
-                  alt={`${selectedDesign.roomType} design`}
-                  className="w-full h-auto max-h-[70vh] object-contain"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = 'https://via.placeholder.com/800x600?text=Image+Not+Available';
-                  }}
-                />
+                <div className="relative w-full h-[70vh]">
+                  <Image 
+                    src={selectedDesign.thumbnailUrl || selectedDesign.imageUrl} 
+                    alt={`${selectedDesign.roomType} design`}
+                    fill
+                    style={{ objectFit: 'contain' }}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://via.placeholder.com/800x600?text=Image+Not+Available';
+                    }}
+                  />
+                </div>
               </div>
               
               <div className="p-6">

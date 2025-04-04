@@ -41,7 +41,7 @@ export default function Page() {
     }, 2000); // Changed from 3000ms to 2000ms (2 seconds)
 
     return () => clearInterval(interval);
-  }, []);
+  }, [images]);
 
   return (
     <div className="min-h-screen bg-black flex flex-col md:flex-row">

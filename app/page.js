@@ -461,8 +461,11 @@ function HomeContent() {
 
       // Remove scroll event listener
       window.removeEventListener('scroll', highlightActiveSection);
+
+      // Cleanup the interval when component unmounts
+      clearInterval(interval);
     };
-  }, []);
+  }, [carouselImages]);
 
   // Show loading state until client-side rendering is ready
   if (!mounted) {

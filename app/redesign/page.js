@@ -5,6 +5,7 @@ import { Button } from "../../components/ui/button";
 import { useRouter } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
 import UpgradeModal from "@/components/UpgradeModal";
+import Image from 'next/image';
 
 // Plans for credit system
 const plans = {
@@ -618,7 +619,15 @@ export default function Redesign() {
       >
         {previewUrl ? (
           <div className="relative">
-            <img src={previewUrl} alt="Room preview" className="max-h-64 mx-auto rounded-lg" />
+            <div className="relative h-64 w-full">
+              <Image 
+                src={previewUrl} 
+                alt="Room preview" 
+                className="rounded-lg" 
+                fill
+                style={{ objectFit: 'contain' }}
+              />
+            </div>
             <button
               className="mt-4 bg-zinc-800 hover:bg-zinc-700 text-white py-2 px-4 rounded-lg transition-colors duration-300"
               onClick={(e) => {
@@ -876,7 +885,12 @@ export default function Redesign() {
               <p className="text-sm text-zinc-500 mb-1">Room Photo</p>
               {previewUrl && (
                 <div className="relative h-40 rounded-lg overflow-hidden">
-                  <img src={previewUrl} alt="Room preview" className="w-full h-full object-cover" />
+                  <Image 
+                    src={previewUrl} 
+                    alt="Room preview" 
+                    fill
+                    style={{ objectFit: 'cover' }}
+                  />
                 </div>
               )}
             </div>
@@ -1014,11 +1028,14 @@ export default function Redesign() {
         <div className="space-y-6">
           <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-xl">
             <div className="relative cursor-pointer" onClick={() => handleOpenImage(generatedDesign?.imageUrl)}>
-              <img
-                src={generatedDesign?.imageUrl}
-                alt="Redesigned room"
-                className="w-full h-auto"
-              />
+              <div className="relative w-full h-96">
+                <Image
+                  src={generatedDesign?.imageUrl}
+                  alt="Redesigned room"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                 <div className="flex justify-between items-center">
                   <div>

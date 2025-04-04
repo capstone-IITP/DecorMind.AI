@@ -55,6 +55,58 @@ export default function DecorMind() {
           animation: highlightContactForm 2s ease-out;
         }
 
+        /* Success Popup Styles */
+        .success-popup {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .success-popup-content {
+          background-color: #18181b;
+          border: 2px solid #22d3ee;
+          border-radius: 12px;
+          padding: 20px 30px;
+          text-align: center;
+          max-width: 400px;
+          animation: popupAppear 0.3s ease-out forwards;
+        }
+
+        @keyframes popupAppear {
+          0% {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .success-popup button {
+          background-color: #22d3ee;
+          color: #000;
+          border: none;
+          border-radius: 50px;
+          padding: 10px 20px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          margin-top: 15px;
+        }
+
+        .success-popup button:hover {
+          background-color: #0cb8de;
+          transform: scale(1.05);
+        }
+        
         /* Section scroll animation */
         @keyframes sectionFadeIn {
           0% { 
@@ -337,7 +389,7 @@ export default function DecorMind() {
       // Remove scroll event listener
       window.removeEventListener('scroll', highlightActiveSection);
     };
-  }, []);
+  }, [router]);
 
   // Add tracking for Try DecorMind Now button
   const handleTryDecorMind = () => {
