@@ -82,7 +82,11 @@ function HomeContent() {
     setMounted(true);
 
     // API call to fetch users
-    fetch(`/api/users`)
+    fetch(`/api/users`, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
       .then((res) => res.json())
       .then((data) => console.log(data))
       .catch((error) => console.error("Error fetching users:", error));
@@ -377,10 +381,18 @@ function HomeContent() {
     // Smooth scroll function with delay animation
     const handleSmoothScroll = (e) => {
       e.preventDefault();
-      const href = e.currentTarget.getAttribute("href");
+      const href = e.currentTarget?.getAttribute("href");
+      
+      // Skip smooth scroll for external links
+      if (href && (href.startsWith("/") || href.startsWith("http"))) {
+        router.push(href);
+        return;
+      }
 
       // Add a visual feedback to the clicked link
-      e.currentTarget.classList.add("nav-link-clicked");
+      if (e.currentTarget && e.currentTarget.classList) {
+        e.currentTarget.classList.add("nav-link-clicked");
+      }
 
       // Update active state immediately
       const navLinks = document.querySelectorAll('.nav-link');
@@ -398,7 +410,7 @@ function HomeContent() {
 
       // Delay the scroll action for a better visual effect
       setTimeout(() => {
-        const targetId = href.substring(1);
+        const targetId = href?.substring(1);
         const targetElement = document.getElementById(targetId);
 
         if (targetElement) {
@@ -419,7 +431,9 @@ function HomeContent() {
 
         // Remove the visual feedback class
         setTimeout(() => {
-          e.currentTarget.classList.remove("nav-link-clicked");
+          if (e.currentTarget && e.currentTarget.classList) {
+            e.currentTarget.classList.remove("nav-link-clicked");
+          }
         }, 300);
       }, 300); // 300ms delay before scrolling
     };
@@ -437,8 +451,11 @@ function HomeContent() {
         link.style.setProperty('--nav-underline-width', '100%');
       }
 
-      // Add click event listener
-      link.addEventListener("click", handleSmoothScroll);
+      // Add click event listener only to hash links (not to Link components)
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        link.addEventListener("click", handleSmoothScroll);
+      }
     });
 
     // Add scroll event listener to highlight active section
@@ -485,8 +502,8 @@ function HomeContent() {
           <a href="#features" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Features</a>
           <a href="#how-it-works" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">How it Works</a>
           <a href="#gallery" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Gallery</a>
-          <Link href="/pricing" className="nav-link text-cyan-400 transition-colors duration-300">Pricing</Link>
-          <Link href="/contact-us" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Contact Us</Link>
+          <Link href="/pricing" className="hover:text-cyan-400 text-white transition-colors duration-300 relative" onClick={() => router.push('/pricing')}>Pricing</Link>
+          <Link href="/contact-us" className="hover:text-cyan-400 text-white transition-colors duration-300 relative" onClick={() => router.push('/contact-us')}>Contact Us</Link>
         </div>
         <div className="flex gap-2">
           <button

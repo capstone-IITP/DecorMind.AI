@@ -554,10 +554,8 @@ export default function Redesign() {
         // Add the new favorite to the beginning
         favorites.unshift(newFavorite);
         
-        // Keep only 5 most recent favorites
-        if (favorites.length > 5) {
-          favorites.length = 5;
-        }
+        // No limit on the number of favorites
+        // Allow unlimited favorites storage
       } else {
         // Find and remove from favorites
         const roomTypeName = roomTypes.find(room => room.id === selectedRoom)?.name || 'Room';

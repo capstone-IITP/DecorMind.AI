@@ -384,53 +384,57 @@ function PricingComponent() {
     // Smooth scroll function with delay animation
     const handleSmoothScroll = (e) => {
       e.preventDefault();
-      const href = e.currentTarget.getAttribute("href");
+      const href = e.currentTarget?.getAttribute("href");
       
       // Add a visual feedback to the clicked link
-      if (e.currentTarget.classList && e.currentTarget.classList.add) {
+      if (e.currentTarget && e.currentTarget.classList) {
         e.currentTarget.classList.add("nav-link-clicked");
       }
       
       // Delay the scroll action for a better visual effect
       setTimeout(() => {
-        // If it's not a hash link, navigate to the page
-        if (!href || !href.startsWith("#")) {
-          router.push(href);
-          return;
-        }
-        
-        const targetId = href.substring(1);
-        const targetElement = document.getElementById(targetId);
-        
-        if (targetElement) {
-          // Special case for top - scroll to top
-          if (targetId === 'top') {
-            window.scrollTo({
-              top: 0,
-              behavior: 'smooth'
-            });
-          } else {
-            // Add extra offset for contact section
-            const offset = targetId === 'contact' ? 100 : 80;
-            
-            // Calculate the position to scroll to
-            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - offset;
-            
-            // Use the native smooth scrolling
-            window.scrollTo({
-              top: targetPosition,
-              behavior: 'smooth'
-            });
-            
-            // Add animations to the target section after scrolling
-            setTimeout(() => {
-              animateSection(targetElement);
-            }, 1000); // Wait for the scroll to complete
+        try {
+          // If it's not a hash link, navigate to the page
+          if (!href || !href.startsWith("#")) {
+            router.push(href);
+            return;
           }
+          
+          const targetId = href?.substring(1);
+          const targetElement = document.getElementById(targetId);
+          
+          if (targetElement) {
+            // Special case for top - scroll to top
+            if (targetId === 'top') {
+              window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+              });
+            } else {
+              // Add extra offset for contact section
+              const offset = targetId === 'contact' ? 100 : 80;
+              
+              // Calculate the position to scroll to
+              const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - offset;
+              
+              // Use the native smooth scrolling
+              window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+              });
+              
+              // Add animations to the target section after scrolling
+              setTimeout(() => {
+                animateSection(targetElement);
+              }, 1000); // Wait for the scroll to complete
+            }
+          }
+        } catch (error) {
+          console.error("Error in smooth scroll:", error);
         }
         
         // Remove the visual feedback class
-        if (e.currentTarget.classList && e.currentTarget.classList.remove) {
+        if (e.currentTarget && e.currentTarget.classList) {
           setTimeout(() => {
             e.currentTarget.classList.remove("nav-link-clicked");
           }, 300);
