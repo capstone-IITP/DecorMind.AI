@@ -13,10 +13,41 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
     if (window.Razorpay) {
       setIsRazorpayLoaded(true);
     }
+    
+    // Create overlay element if it doesn't exist
+    if (!document.querySelector('.razorpay-payment-overlay')) {
+      const overlay = document.createElement('div');
+      overlay.className = 'razorpay-payment-overlay';
+      document.body.appendChild(overlay);
+    }
+    
+    // Cleanup function to remove overlay when component unmounts
+    return () => {
+      const overlay = document.querySelector('.razorpay-payment-overlay');
+      if (overlay && overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
+    };
   }, []);
 
   const handleRazorpayLoad = () => {
     setIsRazorpayLoaded(true);
+  };
+
+  // Function to show the overlay
+  const showOverlay = () => {
+    const overlay = document.querySelector('.razorpay-payment-overlay');
+    if (overlay) {
+      overlay.classList.add('active');
+    }
+  };
+
+  // Function to hide the overlay
+  const hideOverlay = () => {
+    const overlay = document.querySelector('.razorpay-payment-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+    }
   };
 
   const handlePayment = async () => {
@@ -44,6 +75,9 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
 
       const data = await res.json();
 
+      // Show overlay before opening Razorpay
+      showOverlay();
+
       // Configure Razorpay options
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -53,6 +87,9 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
         description: "Interior Design AI Image",
         order_id: data.id,
         handler: function (response) {
+          // Hide overlay when payment is successful
+          hideOverlay();
+          
           // Handle successful payment
           setIsProcessing(false);
           
@@ -71,6 +108,8 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
         },
         modal: {
           ondismiss: function() {
+            // Hide overlay when Razorpay modal is dismissed
+            hideOverlay();
             setIsProcessing(false);
           }
         },
@@ -86,6 +125,8 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();
     } catch (error) {
+      // Hide overlay in case of error
+      hideOverlay();
       console.error("Payment error:", error);
       alert(`Payment initialization failed: ${error.message}`);
       setIsProcessing(false);

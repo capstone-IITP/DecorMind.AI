@@ -1,9 +1,17 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "../../components/ui/button";
 import { useRouter } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
+import UpgradeModal from "@/components/UpgradeModal";
+
+// Plans for credit system
+const plans = {
+  free: 2,      // Free plan users ke liye max 2 images
+  premium: 10,  // Premium users ke liye max 10 images
+  pro: Infinity // Pro users ke liye unlimited images
+};
 
 const styleOptions = [
   { id: 'modern', name: 'Modern', description: 'Clean lines, minimal decoration, and neutral colors' },
@@ -23,6 +31,105 @@ const roomTypes = [
   { id: 'dining', name: 'Dining Room' },
 ];
 
+// Setup IndexedDB for favorites storage
+const initIndexedDB = () => {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) {
+      console.error("Your browser doesn't support IndexedDB");
+      reject("IndexedDB not supported");
+      return;
+    }
+    
+    const request = indexedDB.open("DesignFavoritesDB", 1);
+    
+    request.onerror = (event) => {
+      console.error("IndexedDB error:", event.target.error);
+      reject("Error opening IndexedDB");
+    };
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains("favorites")) {
+        db.createObjectStore("favorites", { keyPath: "id" });
+      }
+    };
+    
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+      resolve(db);
+    };
+  });
+};
+
+// Save favorites to IndexedDB
+const saveFavoritesToIndexedDB = async (favorites) => {
+  try {
+    const db = await initIndexedDB();
+    const transaction = db.transaction(["favorites"], "readwrite");
+    const store = transaction.objectStore("favorites");
+    
+    // Clear existing data
+    store.clear();
+    
+    // Add each favorite as separate record
+    favorites.forEach(favorite => {
+      store.add(favorite);
+    });
+    
+    return new Promise((resolve, reject) => {
+      transaction.oncomplete = () => {
+        resolve(true);
+      };
+      
+      transaction.onerror = (event) => {
+        console.error("Transaction error:", event.target.error);
+        reject(event.target.error);
+      };
+    });
+  } catch (error) {
+    console.error("Error saving to IndexedDB:", error);
+    return false;
+  }
+};
+
+// Get favorites from IndexedDB
+const getFavoritesFromIndexedDB = async () => {
+  try {
+    const db = await initIndexedDB();
+    const transaction = db.transaction(["favorites"], "readonly");
+    const store = transaction.objectStore("favorites");
+    const request = store.getAll();
+    
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+      
+      request.onerror = (event) => {
+        console.error("Get request error:", event.target.error);
+        reject(event.target.error);
+      };
+    });
+  } catch (error) {
+    console.error("Error getting from IndexedDB:", error);
+    return [];
+  }
+};
+
+// Check if design is in favorites
+const checkIsFavorite = async (roomType, style) => {
+  try {
+    const favorites = await getFavoritesFromIndexedDB();
+    return favorites.some(fav => 
+      fav.roomType === roomType && 
+      fav.style === style
+    );
+  } catch (error) {
+    console.error("Error checking favorite status:", error);
+    return false;
+  }
+};
+
 export default function Redesign() {
   const router = useRouter();
   const { event } = useGoogleAnalytics();
@@ -41,6 +148,21 @@ export default function Redesign() {
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteSuccess, setFavoriteSuccess] = useState(false);
+  
+  // Credit system states
+  const [usedCredits, setUsedCredits] = useState(0);
+  const [userPlan, setUserPlan] = useState("free");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [remainingCredits, setRemainingCredits] = useState(0);
+
+  // Load user credits and plan from storage
+  useEffect(() => {
+    const storedCredits = parseInt(localStorage.getItem("usedCredits")) || 0;
+    const storedPlan = localStorage.getItem("userPlan") || "free";
+    setUsedCredits(storedCredits);
+    setUserPlan(storedPlan);
+    setRemainingCredits(plans[storedPlan] - storedCredits);
+  }, []);
 
   // Handle file upload
   const handleFileUpload = (e) => {
@@ -107,9 +229,24 @@ export default function Redesign() {
     setStep(5);
   };
 
-  // Handle design generation
+  // Handle design generation with credit check
   const handleGenerateDesign = async () => {
     if (!roomImage || !selectedStyle || !selectedRoom || !budget) {
+      return;
+    }
+
+    // Check if user has enough credits
+    if (usedCredits >= plans[userPlan]) {
+      // Show upgrade modal instead of directly navigating to pricing page
+      setShowUpgradeModal(true);
+      
+      // Track upgrade needed event
+      event({
+        action: 'credits_exceeded',
+        category: 'redesign',
+        label: userPlan
+      });
+      
       return;
     }
 
@@ -121,6 +258,7 @@ export default function Redesign() {
       category: 'redesign',
       label: `${selectedRoom}_${selectedStyle}_${budget}`
     });
+    
     try {
       // Get the style name and room type name for a better prompt
       const styleName = styleOptions.find(style => style.id === selectedStyle)?.name || selectedStyle;
@@ -219,6 +357,12 @@ export default function Redesign() {
       }
 
       setGeneratedDesign(generatedDesignData);
+
+      // ✅ Update used credits after successful generation
+      const newCredits = usedCredits + 1;
+      setUsedCredits(newCredits);
+      localStorage.setItem("usedCredits", newCredits);
+      setRemainingCredits(plans[userPlan] - newCredits);
 
       // Track successful generation
       event({
@@ -363,7 +507,7 @@ export default function Redesign() {
   };
 
   // Handle adding design to favorites
-  const handleAddToFavorites = (e) => {
+  const handleAddToFavorites = async (e) => {
     e.stopPropagation();
 
     // Toggle favorite status
@@ -384,46 +528,81 @@ export default function Redesign() {
       setFavoriteSuccess(false);
     }, 3000);
 
-    // In a real app, you would save this to a database or local storage
-    // For demo purposes, we'll just toggle the state
-    const favorites = JSON.parse(localStorage.getItem('favoriteDesigns') || '[]');
+    try {
+      // Get current favorites from IndexedDB
+      const favorites = await getFavoritesFromIndexedDB();
+      
+      if (!isFavorite) {
+        // Create a minimal object to save space
+        const imageUrl = generatedDesign?.imageUrl;
+        let thumbnailUrl = imageUrl;
+        
+        // If the URL contains a high-resolution image, use a smaller version
+        if (imageUrl && imageUrl.includes('unsplash.com')) {
+          thumbnailUrl = imageUrl.replace(/w=\d+/, 'w=200').replace(/q=\d+/, 'q=60');
+        }
+        
+        const newFavorite = {
+          id: Date.now(),
+          thumbnailUrl: thumbnailUrl,
+          roomType: roomTypes.find(room => room.id === selectedRoom)?.name || 'Room',
+          style: styleOptions.find(style => style.id === selectedStyle)?.name || 'Style',
+          date: new Date().toISOString()
+        };
 
-    if (!isFavorite) {
-      // Add to favorites
-      const newFavorite = {
-        id: Date.now(),
-        imageUrl: generatedDesign?.imageUrl,
-        roomType: roomTypes.find(room => room.id === selectedRoom)?.name || 'Room',
-        style: styleOptions.find(style => style.id === selectedStyle)?.name || 'Style',
-        date: new Date().toISOString()
-      };
+        // Add the new favorite to the beginning
+        favorites.unshift(newFavorite);
+        
+        // Keep only 5 most recent favorites
+        if (favorites.length > 5) {
+          favorites.length = 5;
+        }
+      } else {
+        // Find and remove from favorites
+        const roomTypeName = roomTypes.find(room => room.id === selectedRoom)?.name || 'Room';
+        const styleName = styleOptions.find(style => style.id === selectedStyle)?.name || 'Style';
+        
+        const index = favorites.findIndex(fav => 
+          fav.roomType === roomTypeName && 
+          fav.style === styleName
+        );
 
-      favorites.push(newFavorite);
-    } else {
-      // Remove from favorites - in a real app you would use a proper ID
-      const index = favorites.findIndex(fav =>
-        fav.roomType === (roomTypes.find(room => room.id === selectedRoom)?.name || 'Room') &&
-        fav.style === (styleOptions.find(style => style.id === selectedStyle)?.name || 'Style')
-      );
-
-      if (index !== -1) {
-        favorites.splice(index, 1);
+        if (index !== -1) {
+          favorites.splice(index, 1);
+        }
       }
+      
+      // Save to IndexedDB
+      await saveFavoritesToIndexedDB(favorites);
+      
+      // Also update localStorage reference with minimal data for compatibility
+      try {
+        // Just store IDs and dates in localStorage for compatibility
+        const minimalFavorites = favorites.map(fav => ({
+          id: fav.id,
+          roomType: fav.roomType,
+          style: fav.style,
+          date: fav.date
+        }));
+        localStorage.setItem('favoriteDesigns', JSON.stringify(minimalFavorites));
+      } catch (storageError) {
+        console.warn("Could not update localStorage reference:", storageError);
+      }
+      
+    } catch (error) {
+      console.error("Error handling favorites:", error);
     }
-
-    localStorage.setItem('favoriteDesigns', JSON.stringify(favorites));
   };
 
-  // Check if design is in favorites when generated
+  // Update useEffect to check if design is in favorites using IndexedDB
   React.useEffect(() => {
     if (generatedDesign && selectedRoom && selectedStyle) {
-      const favorites = JSON.parse(localStorage.getItem('favoriteDesigns') || '[]');
-      const isInFavorites = favorites.some(fav =>
-        fav.roomType === (roomTypes.find(room => room.id === selectedRoom)?.name || 'Room') &&
-        fav.style === (styleOptions.find(style => style.id === selectedStyle)?.name || 'Style')
-      );
-
-      setIsFavorite(isInFavorites);
+      const roomTypeName = roomTypes.find(room => room.id === selectedRoom)?.name || 'Room';
+      const styleName = styleOptions.find(style => style.id === selectedStyle)?.name || 'Style';
+      
+      checkIsFavorite(roomTypeName, styleName)
+        .then(result => setIsFavorite(result))
+        .catch(error => console.error("Error checking favorite status:", error));
     }
   }, [generatedDesign, selectedRoom, selectedStyle]);
 
@@ -790,21 +969,46 @@ export default function Redesign() {
     </div>
   );
 
-  // Render results
+  // Modify render results to show credit info
   const renderResults = () => (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80]">Your redesigned room</h2>
-        <button
-          onClick={handleStartOver}
-          className="text-zinc-400 hover:text-[#22d3ee] transition-colors text-sm flex items-center gap-1"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          Start over
-        </button>
+        <div className="flex items-center gap-4">
+          <div className="text-zinc-400 text-sm">
+            <span className="mr-2">Plan: <span className="text-white font-medium uppercase">{userPlan}</span></span>
+            <span>Credits: <span className="text-white font-medium">{remainingCredits}</span> remaining</span>
+          </div>
+          <button
+            onClick={handleStartOver}
+            className="text-zinc-400 hover:text-[#22d3ee] transition-colors text-sm flex items-center gap-1"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Start over
+          </button>
+        </div>
       </div>
+
+      {/* Show upgrade prompt if user is running low on credits */}
+      {remainingCredits === 0 && (
+        <div className="bg-amber-900/30 text-amber-200 p-4 rounded-lg mb-4 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
+          <div>
+            <p className="font-medium">You've used all your credits!</p>
+            <p className="text-sm">Upgrade your plan to create more designs.</p>
+          </div>
+          <Button
+            onClick={() => router.push('/pricing')}
+            className="ml-auto bg-amber-600 hover:bg-amber-700 text-white transition-colors duration-300"
+          >
+            Upgrade Now
+          </Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-6">
@@ -865,8 +1069,8 @@ export default function Redesign() {
             <div className="p-4 flex flex-col items-center">
               {downloadSuccess && (
                 <div className="bg-green-900/30 text-green-200 p-3 rounded-lg mb-4 text-sm flex items-center w-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                   Design downloaded successfully!
                 </div>
@@ -945,7 +1149,7 @@ export default function Redesign() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900 text-white">
-      <div className="container mx-auto px-4 py-8">
+      <div className={`container mx-auto px-4 py-8 transition-all duration-300 ${showUpgradeModal ? 'blur-sm filter brightness-50' : ''}`}>
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-transparent bg-clip-text">
             AI Room Redesign
@@ -954,7 +1158,16 @@ export default function Redesign() {
             Transform your space with AI-powered interior design recommendations tailored to your style and budget.
           </p>
 
-          <div className="mt-4 flex justify-center">
+          {/* Add credit information display */}
+          <div className="mt-4 flex justify-center gap-6">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-zinc-400">Plan:</span>
+              <span className="text-white font-medium uppercase">{userPlan}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-zinc-400">Remaining Credits:</span>
+              <span className="text-white font-medium">{remainingCredits}</span>
+            </div>
             <button
               onClick={() => router.push('/favorites')}
               className="text-[#22d3ee] hover:text-white transition-colors duration-300 flex items-center gap-1 text-sm"
@@ -1095,6 +1308,27 @@ export default function Redesign() {
           </div>
         )}
 
+        {/* Add credit warning before generation if user has only 1 credit left */}
+        {step === 5 && !generatedDesign && remainingCredits === 1 && (
+          <div className="max-w-4xl mx-auto mb-6">
+            <div className="bg-amber-900/30 text-amber-200 p-4 rounded-lg flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <div>
+                <p className="font-medium">This is your last credit for the {userPlan} plan</p>
+                <p className="text-sm">Consider upgrading for more design credits!</p>
+              </div>
+              <Button
+                onClick={() => router.push('/pricing')}
+                className="ml-auto bg-amber-600 hover:bg-amber-700 text-white transition-colors duration-300"
+              >
+                View Plans
+              </Button>
+            </div>
+          </div>
+        )}
+        
         {/* Main content */}
         <div className="max-w-4xl mx-auto">
           {step === 1 && renderStep1()}
@@ -1105,6 +1339,13 @@ export default function Redesign() {
           {generatedDesign && renderResults()}
         </div>
       </div>
+
+      {/* Add the UpgradeModal here */}
+      <UpgradeModal 
+        show={showUpgradeModal} 
+        onClose={() => setShowUpgradeModal(false)}
+        currentPlan={userPlan} 
+      />
 
       {/* Add shimmer animation styles */}
       <style jsx>{`

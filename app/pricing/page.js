@@ -3,12 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '../../components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
 import PaymentButton from '../_components/PaymentButton';
 
 export default function Pricing() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
   const [currency, setCurrency] = useState('INR');
   const [exchangeRates, setExchangeRates] = useState({
@@ -20,6 +21,9 @@ export default function Pricing() {
     AUD: 1.52,
     JPY: 150.45
   });
+  const [currentPlan, setCurrentPlan] = useState('free');
+  const [highlightedPlan, setHighlightedPlan] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Function to convert price to selected currency
   const convertPrice = (usdPrice) => {
@@ -34,6 +38,38 @@ export default function Pricing() {
       JPY: '¥'
     };
     return `${currencySymbols[currency]}${convertedPrice}`;
+  };
+
+  // Load user's current plan on component mount
+  useEffect(() => {
+    const storedPlan = localStorage.getItem('userPlan') || 'free';
+    setCurrentPlan(storedPlan);
+    
+    // Check if a specific plan is highlighted from URL params
+    const planParam = searchParams.get('plan');
+    if (planParam && ['premium', 'pro'].includes(planParam)) {
+      setHighlightedPlan(planParam);
+    }
+  }, [searchParams]);
+
+  // Handle plan upgrade
+  const handleUpgrade = (plan) => {
+    // Don't do anything if clicking on current plan
+    if (plan === currentPlan) return;
+    
+    setLoading(true);
+    
+    // In a real app, this would connect to a payment gateway
+    // For demo purposes, we'll just update localStorage
+    setTimeout(() => {
+      localStorage.setItem("userPlan", plan);
+      localStorage.setItem("usedCredits", "0"); // Reset used credits
+      setLoading(false);
+      
+      // Show success notification and redirect
+      alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
+      router.push("/redesign");
+    }, 1000); // Simulate API call
   };
 
   // Add CSS animations
@@ -415,324 +451,172 @@ export default function Pricing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Navigation Bar */}
-      <nav className="flex justify-between items-center py-4 px-6 bg-zinc-900 sticky top-0 z-50 shadow-md border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
-          <div className="bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
-          <h1 className="text-lg font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
+    <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900 text-white">
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-transparent bg-clip-text">
+            Choose Your Plan
+          </h1>
+          <p className="text-zinc-400 max-w-2xl mx-auto">
+            Unlock the full potential of AI-powered interior design with our premium plans. Choose the plan that suits your needs.
+          </p>
         </div>
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-8 text-sm">
-          <Link href="/dashboard" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300">Home</Link>
-          <Link href="/redesign" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300">Redesign</Link>
-          <Link href="/decormind" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300">DecorMind</Link>
-          <Link href="/pricing" className="nav-link text-cyan-400 transition-colors duration-300">Pricing</Link>
-          <Link href="/contact-us" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300">Contact Us</Link>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="bg-black/30 rounded-lg p-2 inline-flex items-center gap-2">
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="bg-zinc-800 text-white border border-zinc-700 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-cyan-400"
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {/* Free Plan */}
+          <div className={`bg-zinc-900 border ${currentPlan === 'free' ? 'border-zinc-600' : 'border-zinc-800'} ${highlightedPlan === 'free' ? 'ring-2 ring-[#22d3ee]' : ''} rounded-xl p-6 transition-all duration-300 hover:border-zinc-700`}>
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold mb-2">Free</h2>
+              <div className="text-3xl font-bold mb-2">{convertPrice(0)}</div>
+              <p className="text-zinc-500">Perfect for trying out</p>
+            </div>
+            
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>2 AI Design Generations</span>
+              </div>
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>Basic Room Styles</span>
+              </div>
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>Community Support</span>
+              </div>
+            </div>
+            
+            <Button
+              disabled={currentPlan === 'free' || loading}
+              onClick={() => handleUpgrade('free')}
+              className={`w-full ${currentPlan === 'free' ? 'bg-zinc-700 cursor-not-allowed' : 'bg-zinc-800 hover:bg-zinc-700'} text-white py-2 rounded-lg transition-colors`}
             >
-              <option value="USD">USD ($)</option>
-              <option value="EUR">EUR (€)</option>
-              <option value="GBP">GBP (£)</option>
-              <option value="INR">INR (₹)</option>
-              <option value="CAD">CAD (C$)</option>
-              <option value="AUD">AUD (A$)</option>
-              <option value="JPY">JPY (¥)</option>
-            </select>
+              {currentPlan === 'free' ? 'Current Plan' : 'Select Free Plan'}
+            </Button>
           </div>
-          <UserButton afterSignOutUrl="/" />
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <div className="relative px-6 py-16 bg-black flex flex-col items-center">
-        <div className="max-w-3xl text-center z-10">
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-4">Simple, Transparent Pricing</h2>
-          <p className="text-lg text-white mb-6">
-            Choose the plan that works best for your design needs
-          </p>
-        </div>
-      </div>
-
-      {/* Pricing Plans */}
-      <div className="py-16 px-6 bg-zinc-950">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Free Plan */}
-            <div className="bg-black border border-zinc-800 p-8 rounded-lg relative overflow-hidden">
-              <div className="mb-6">
-                <h4 className="text-xl font-bold mb-2 text-white">Free</h4>
-                <div className="flex items-end gap-1 mb-4">
-                  <span className="text-3xl font-bold text-white">{convertPrice(0)}</span>
-                  <span className="text-white text-opacity-70 mb-1">/month</span>
-                </div>
-                <p className="text-white text-opacity-70 text-sm mb-6">Perfect for trying out our platform</p>
+          
+          {/* Premium Plan */}
+          <div className={`bg-zinc-900 border ${highlightedPlan === 'premium' ? 'ring-4 ring-[#22d3ee]' : currentPlan === 'premium' ? 'border-zinc-600' : 'border-zinc-800'} rounded-xl p-6 transform ${highlightedPlan === 'premium' ? 'scale-105' : ''} transition-all duration-300 hover:border-[#22d3ee]/70 relative z-10`}>
+            {highlightedPlan === 'premium' && (
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-[#1e3a5c] to-[#22d3ee] text-white text-xs py-1 px-3 rounded-full font-medium">
+                RECOMMENDED
               </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>5 AI design credits</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>Basic room designs</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>Standard resolution images</span>
-                </li>
-              </ul>
-              <Button 
-                className="w-full bg-transparent text-white border border-white hover:bg-white/10"
-                onClick={() => router.push('/dashboard')}
-              >
-                Get Started
-              </Button>
+            )}
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold mb-2">Premium</h2>
+              <div className="flex items-center justify-center">
+                <div className="text-3xl font-bold">₹1</div>
+                <span className="text-zinc-500 ml-1">/month</span>
+              </div>
+              <p className="text-zinc-500">For regular users</p>
             </div>
-
-            {/* Premium Plan */}
-            <div className="bg-black border-2 border-cyan-400 p-8 rounded-lg relative overflow-hidden">
-              <div className="absolute top-0 right-0">
-                <div className="bg-cyan-400 text-slate-800 text-xs font-bold py-1 px-3 rounded-bl-lg">
-                  POPULAR
-                </div>
+            
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>10 AI Design Generations</span>
               </div>
-              <div className="mb-6">
-                <h4 className="text-xl font-bold mb-2 text-white">Premium</h4>
-                <div className="flex items-end gap-1 mb-4">
-                  <span className="text-3xl font-bold text-white">{convertPrice(0.012)}</span>
-                  <span className="text-white text-opacity-70 mb-1">/month</span>
-                </div>
-                <p className="text-white text-opacity-70 text-sm mb-6">For regular home designers</p>
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>All Room Styles</span>
               </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>50 AI design credits</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>Advanced room designs</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>High resolution images</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>DecorMind AI assistant</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>Priority support</span>
-                </li>
-              </ul>
-              {/* Import PaymentButton component */}
-              {mounted && (
-                <PaymentButton 
-                  amount={Math.max(100, 0.012 * exchangeRates[currency] * 100)} // Ensure minimum amount and convert to paise
-                  buttonText="Get Premium"
-                  className="w-full bg-cyan-400 text-slate-800 hover:bg-cyan-500"
-                  onSuccess={(response) => {
-                    // Create custom popup instead of alert
-                    const popup = document.createElement('div');
-                    popup.className = 'success-popup';
-                    popup.innerHTML = `
-                      <div class="success-popup-content">
-                        <h3 style="color: #22d3ee; font-size: 24px; margin-bottom: 10px;">Payment Successful!</h3>
-                        <p style="color: white; margin-bottom: 20px;">You are now a Premium member.</p>
-                        <button>OK</button>
-                      </div>
-                    `;
-                    document.body.appendChild(popup);
-                    document.body.style.overflow = 'hidden';
-                    
-                    // Add event listener to OK button
-                    popup.querySelector('button').addEventListener('click', () => {
-                      document.body.removeChild(popup);
-                      document.body.style.overflow = '';
-                      router.push('/dashboard');
-                    });
-                    
-                    console.log(response);
-                  }}
-                />
-              )}
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>High-Quality Generations</span>
+              </div>
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>Email Support</span>
+              </div>
             </div>
-
-            {/* Pro Plan */}
-            <div className="bg-black border border-zinc-800 p-8 rounded-lg relative overflow-hidden">
-              <div className="mb-6">
-                <h4 className="text-xl font-bold mb-2 text-white">Pro</h4>
-                <div className="flex items-end gap-1 mb-4">
-                  <span className="text-3xl font-bold text-white">{convertPrice(10)}</span>
-                  <span className="text-white text-opacity-70 mb-1">/month</span>
-                </div>
-                <p className="text-white text-opacity-70 text-sm mb-6">For professional designers</p>
+            
+            <Button
+              disabled={currentPlan === 'premium' || loading}
+              onClick={() => handleUpgrade('premium')}
+              className={`w-full ${currentPlan === 'premium' ? 'bg-zinc-700 cursor-not-allowed' : 'bg-gradient-to-r from-[#1e3a5c] to-[#22d3ee] hover:opacity-90'} text-white py-2 rounded-lg transition-all duration-300 shadow-lg`}
+            >
+              {loading && currentPlan !== 'premium' ? 'Processing...' : currentPlan === 'premium' ? 'Current Plan' : 'Upgrade to Premium'}
+            </Button>
+          </div>
+          
+          {/* Pro Plan */}
+          <div className={`bg-zinc-900 border ${highlightedPlan === 'pro' ? 'ring-4 ring-[#4ade80]' : currentPlan === 'pro' ? 'border-zinc-600' : 'border-zinc-800'} rounded-xl p-6 transition-all duration-300 hover:border-[#4ade80]/70`}>
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold mb-2">Pro</h2>
+              <div className="flex items-center justify-center">
+                <div className="text-3xl font-bold">{convertPrice(10)}</div>
+                <span className="text-zinc-500 ml-1">/month</span>
               </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>Unlimited AI design credits</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>Premium room designs</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>Ultra HD resolution images</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>Advanced DecorMind AI assistant</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>24/7 priority support</span>
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-cyan-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>White-label exports</span>
-                </li>
-              </ul>
-              {/* Pro Plan Payment Button */}
-              {mounted && (
-                <PaymentButton 
-                  amount={Math.max(100, 10 * exchangeRates[currency] * 100)} // Ensure minimum amount and convert to paise
-                  buttonText="Get Pro"
-                  className="w-full bg-transparent text-white border border-white hover:bg-white/10 hover:text-cyan-400"
-                  onSuccess={(response) => {
-                    // Create custom popup instead of alert
-                    const popup = document.createElement('div');
-                    popup.className = 'success-popup';
-                    popup.innerHTML = `
-                      <div class="success-popup-content">
-                        <h3 style="color: #22d3ee; font-size: 24px; margin-bottom: 10px;">Payment Successful!</h3>
-                        <p style="color: white; margin-bottom: 20px;">You are now a Pro member.</p>
-                        <button>OK</button>
-                      </div>
-                    `;
-                    document.body.appendChild(popup);
-                    document.body.style.overflow = 'hidden';
-                    
-                    // Add event listener to OK button
-                    popup.querySelector('button').addEventListener('click', () => {
-                      document.body.removeChild(popup);
-                      document.body.style.overflow = '';
-                      router.push('/dashboard');
-                    });
-                    
-                    console.log(response);
-                  }}
-                />
-              )}
+              <p className="text-zinc-500">For professional users</p>
             </div>
+            
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span className="font-medium">Unlimited AI Designs</span>
+              </div>
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span className="font-medium">Premium Styles & Features</span>
+              </div>
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span className="font-medium">4K Resolution</span>
+              </div>
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span className="font-medium">Priority Support</span>
+              </div>
+              <div className="flex items-center text-zinc-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span className="font-medium">Commercial License</span>
+              </div>
+            </div>
+            
+            <Button
+              disabled={currentPlan === 'pro' || loading}
+              onClick={() => handleUpgrade('pro')}
+              className={`w-full ${currentPlan === 'pro' ? 'bg-zinc-700 cursor-not-allowed' : 'bg-gradient-to-r from-[#22d3ee] to-[#4ade80] hover:opacity-90'} text-${currentPlan === 'pro' ? 'white' : 'black'} font-medium py-2 rounded-lg transition-all duration-300 shadow-lg`}
+            >
+              {loading && currentPlan !== 'pro' ? 'Processing...' : currentPlan === 'pro' ? 'Current Plan' : 'Upgrade to Pro'}
+            </Button>
           </div>
         </div>
-      </div>
-
-      {/* FAQ Section */}
-      <div className="py-16 px-6 bg-black">
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-12">Frequently Asked Questions</h3>
-          <div className="space-y-6">
-            <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
-              <h4 className="text-lg font-bold mb-2 text-white">Can I switch plans later?</h4>
-              <p className="text-white text-opacity-80">Yes, you can upgrade or downgrade your plan at any time. Changes will be applied at the start of your next billing cycle.</p>
-            </div>
-            <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
-              <h4 className="text-lg font-bold mb-2 text-white">What happens when I run out of credits?</h4>
-              <p className="text-white text-opacity-80">You can purchase additional credits or upgrade to a higher plan to get more credits. Free users can also earn credits by referring friends.</p>
-            </div>
-            <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
-              <h4 className="text-lg font-bold mb-2 text-white">Do unused credits roll over?</h4>
-              <p className="text-white text-opacity-80">Yes, your credits will roll over each month as long as your subscription remains active.</p>
-            </div>
-            <div className="bg-zinc-900 p-6 rounded-lg border border-zinc-800">
-              <h4 className="text-lg font-bold mb-2 text-white">Is there a refund policy?</h4>
-              <p className="text-white text-opacity-80">We offer a 7-day money-back guarantee for all new subscriptions. If you're not satisfied, contact our support team for a full refund.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="py-16 px-6 text-center bg-zinc-950">
-        <div className="max-w-3xl mx-auto">
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-4">Ready to Transform Your Space?</h3>
-          <p className="text-white mb-8">
-            Join thousands of happy customers who have reimagined their homes with DecorMind.
-          </p>
+        
+        <div className="mt-16 text-center">
+          <p className="text-zinc-500 mb-4">All plans include access to our basic features</p>
           <Button 
-            className="bg-cyan-400 text-slate-800 hover:bg-cyan-500"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/redesign')}
+            className="bg-zinc-800 hover:bg-zinc-700 text-white transition-colors duration-300"
           >
-            Get Started Today
+            Continue with Current Plan
           </Button>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-black py-10 px-6 border-t border-zinc-800">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
-            </div>
-          </div>
-          <div>
-            <h5 className="font-bold mb-4 text-white">Company</h5>
-            <ul className="space-y-2 text-sm text-white">
-              <li><Link href="#" className="hover:text-white text-white">About Us</Link></li>
-              <li><Link href="#" className="hover:text-white text-white">Careers</Link></li>
-              <li><Link href="/contact-us" className="hover:text-white text-white">Contact Us</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-bold mb-4 text-white">Resources</h5>
-            <ul className="space-y-2 text-sm text-white">
-              <li><Link href="#" className="hover:text-white text-white">Blog</Link></li>
-              <li><Link href="#" className="hover:text-white text-white">Design Tips</Link></li>
-              <li><Link href="#" className="hover:text-white text-white">FAQs</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-bold mb-4 text-white">Legal</h5>
-            <ul className="space-y-2 text-sm text-white">
-              <li><Link href="/terms-and-conditions" className="hover:text-white text-white">Terms and Conditions</Link></li>
-              <li><Link href="/privacy-policy" className="hover:text-white text-white">Privacy Policy</Link></li>
-              <li><Link href="/no-refund-policy" className="hover:text-white text-white">No Refund Policy</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="flex justify-between items-center pt-8 border-t border-zinc-800 text-sm text-white">
-          <p>© 2025 DecorMind. All rights reserved.</p>
-          <div className="flex gap-4">
-            <Link href="#" className="hover:text-white transform transition-transform duration-300 hover:-translate-y-1">
-              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 48 48">
-                <linearGradient id="Ld6sqrtcxMyckEl6xeDdMa_uLWV5A9vXIPu_gr1" x1="9.993" x2="40.615" y1="9.993" y2="40.615" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#2aa4f4"></stop><stop offset="1" stopColor="#007ad9"></stop></linearGradient><path fill="url(#Ld6sqrtcxMyckEl6xeDdMa_uLWV5A9vXIPu_gr1)" d="M24,4C12.954,4,4,12.954,4,24s8.954,20,20,20s20-8.954,20-20S35.046,4,24,4z"></path><path fill="#fff" d="M26.707,29.301h5.176l0.813-5.258h-5.989v-2.874c0-2.184,0.714-4.121,2.757-4.121h3.283V12.46 c-0.577-0.078-1.797-0.248-4.102-0.248c-4.814,0-7.636,2.542-7.636,8.334v3.498H16.06v5.258h4.948v14.452 C21.988,43.9,22.981,44,24,44c0.921,0,1.82-0.084,2.707-0.204V29.301z"></path>
-              </svg>
-            </Link>
-            <Link href="#" className="hover:text-white transform transition-transform duration-300 hover:-translate-y-1">
-              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 48 48">
-                <radialGradient id="yOrnnhliCrdS2gy~4tD8ma_Xy10Jcu1L2Su_gr1" cx="19.38" cy="42.035" r="44.899" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#fd5"></stop><stop offset=".328" stopColor="#ff543f"></stop><stop offset=".348" stopColor="#fc5245"></stop><stop offset=".504" stopColor="#e64771"></stop><stop offset=".643" stopColor="#d53e91"></stop><stop offset=".761" stopColor="#cc39a4"></stop><stop offset=".841" stopColor="#c837ab"></stop></radialGradient><path fill="url(#yOrnnhliCrdS2gy~4tD8ma_Xy10Jcu1L2Su_gr1)" d="M34.017,41.99l-20,0.019c-4.4,0.004-8.003-3.592-8.008-7.992l-0.019-20	c-0.004-4.4,3.592-8.003,7.992-8.008l20-0.019c4.4-0.004,8.003,3.592,8.008,7.992l0.019,20	C42.014,38.383,38.417,41.986,34.017,41.99z"></path><radialGradient id="yOrnnhliCrdS2gy~4tD8mb_Xy10Jcu1L2Su_gr2" cx="11.786" cy="5.54" r="29.813" gradientTransform="matrix(1 0 0 .6663 0 1.849)" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#4168c9"></stop><stop offset=".999" stopColor="#4168c9" stopOpacity="0"></stop></radialGradient><path fill="url(#yOrnnhliCrdS2gy~4tD8mb_Xy10Jcu1L2Su_gr2)" d="M34.017,41.99l-20,0.019c-4.4,0.004-8.003-3.592-8.008-7.992l-0.019-20	c-0.004-4.4,3.592-8.003,7.992-8.008l20-0.019c4.4-0.004,8.003,3.592,8.008,7.992l0.019,20	C42.014,38.383,38.417,41.986,34.017,41.99z"></path><path fill="#fff" d="M24,31c-3.859,0-7-3.14-7-7s3.141-7,7-7s7,3.14,7,7S27.859,31,24,31z M24,19c-2.757,0-5,2.243-5,5	s2.243,5,5,5s5-2.243,5-5S26.757,19,24,19z"></path><circle cx="31.5" cy="16.5" r="1.5" fill="#fff"></circle><path fill="#fff" d="M30,37H18c-3.859,0-7-3.14-7-7V18c0-3.86,3.141-7,7-7h12c3.859,0,7,3.14,7,7v12	C37,33.86,33.859,37,30,37z M18,13c-2.757,0-5,2.243-5,5v12c0,2.757,2.243,5,5,5h12c2.757,0,5-2.243,5-5V18c0-2.757-2.243-5-5-5H18z"></path>
-              </svg>
-            </Link>
-            <Link href="#" className="hover:text-white transform transition-transform duration-300 hover:-translate-y-1">
-              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 48 48">
-                <path fill="#212121" fillRule="evenodd" d="M38,42H10c-2.209,0-4-1.791-4-4V10c0-2.209,1.791-4,4-4h28	c2.209,0,4,1.791,4,4v28C42,40.209,40.209,42,38,42z" clipRule="evenodd"></path><path fill="#fff" d="M34.257,34h-6.437L13.829,14h6.437L34.257,34z M28.587,32.304h2.563L19.499,15.696h-2.563 L28.587,32.304z"></path><polygon fill="#fff" points="15.866,34 23.069,25.656 22.127,24.407 13.823,34"></polygon><polygon fill="#fff" points="24.45,21.721 25.355,23.01 33.136,14 31.136,14"></polygon>
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

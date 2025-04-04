@@ -5,6 +5,85 @@ import { Button } from "../../components/ui/button";
 import { useRouter, useSearchParams } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
 
+// Setup IndexedDB for favorites storage
+const initIndexedDB = () => {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) {
+      console.error("Your browser doesn't support IndexedDB");
+      reject("IndexedDB not supported");
+      return;
+    }
+    
+    const request = indexedDB.open("DesignFavoritesDB", 1);
+    
+    request.onerror = (event) => {
+      console.error("IndexedDB error:", event.target.error);
+      reject("Error opening IndexedDB");
+    };
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains("favorites")) {
+        db.createObjectStore("favorites", { keyPath: "id" });
+      }
+    };
+    
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+      resolve(db);
+    };
+  });
+};
+
+// Get favorites from IndexedDB
+const getFavoritesFromIndexedDB = async () => {
+  try {
+    const db = await initIndexedDB();
+    const transaction = db.transaction(["favorites"], "readonly");
+    const store = transaction.objectStore("favorites");
+    const request = store.getAll();
+    
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+      
+      request.onerror = (event) => {
+        console.error("Get request error:", event.target.error);
+        reject(event.target.error);
+      };
+    });
+  } catch (error) {
+    console.error("Error getting from IndexedDB:", error);
+    return [];
+  }
+};
+
+// Remove a favorite from IndexedDB
+const removeFavoriteFromIndexedDB = async (id) => {
+  try {
+    const db = await initIndexedDB();
+    const transaction = db.transaction(["favorites"], "readwrite");
+    const store = transaction.objectStore("favorites");
+    
+    return new Promise((resolve, reject) => {
+      const request = store.delete(id);
+      
+      request.onsuccess = () => {
+        resolve(true);
+      };
+      
+      request.onerror = (event) => {
+        console.error("Delete error:", event.target.error);
+        reject(event.target.error);
+      };
+    });
+  } catch (error) {
+    console.error("Error removing from IndexedDB:", error);
+    return false;
+  }
+};
+
 // Create a client component that uses useSearchParams
 function FavoritesContent() {
   const router = useRouter();
@@ -15,7 +94,7 @@ function FavoritesContent() {
   const [selectedDesign, setSelectedDesign] = useState(null);
   const [showModal, setShowModal] = useState(false);
   
-  // Load favorites from localStorage on component mount
+  // Load favorites from IndexedDB on component mount
   useEffect(() => {
     // Track page view
     event({
@@ -24,31 +103,72 @@ function FavoritesContent() {
       label: 'favorites_page'
     });
     
-    try {
-      const storedFavorites = JSON.parse(localStorage.getItem('favoriteDesigns') || '[]');
-      setFavorites(storedFavorites);
-    } catch (error) {
-      console.error('Error loading favorites:', error);
-    } finally {
-      setIsLoading(false);
+    async function loadFavorites() {
+      try {
+        // Try IndexedDB first
+        const indexedDBFavorites = await getFavoritesFromIndexedDB();
+        
+        if (indexedDBFavorites && indexedDBFavorites.length > 0) {
+          setFavorites(indexedDBFavorites);
+        } else {
+          // Fall back to localStorage for backward compatibility
+          const storedFavorites = JSON.parse(localStorage.getItem('favoriteDesigns') || '[]');
+          setFavorites(storedFavorites);
+        }
+      } catch (error) {
+        console.error('Error loading favorites:', error);
+        
+        // Fall back to localStorage
+        try {
+          const storedFavorites = JSON.parse(localStorage.getItem('favoriteDesigns') || '[]');
+          setFavorites(storedFavorites);
+        } catch (lsError) {
+          console.error('Failed to load from localStorage:', lsError);
+          setFavorites([]);
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
+    
+    loadFavorites();
   }, [event]);
   
   // Remove a design from favorites
-  const handleRemoveFavorite = (id) => {
-    const updatedFavorites = favorites.filter(fav => fav.id !== id);
-    setFavorites(updatedFavorites);
-    localStorage.setItem('favoriteDesigns', JSON.stringify(updatedFavorites));
-    
-    // Track removal event
-    event({
-      action: 'design_removed_from_favorites',
-      category: 'favorites',
-      label: 'removed_from_favorites_page'
-    });
+  const handleRemoveFavorite = async (id) => {
+    try {
+      // Remove from IndexedDB
+      await removeFavoriteFromIndexedDB(id);
+      
+      // Update state
+      const updatedFavorites = favorites.filter(fav => fav.id !== id);
+      setFavorites(updatedFavorites);
+      
+      // Also update localStorage for compatibility
+      try {
+        const minimalFavorites = updatedFavorites.map(fav => ({
+          id: fav.id,
+          roomType: fav.roomType,
+          style: fav.style,
+          date: fav.date
+        }));
+        localStorage.setItem('favoriteDesigns', JSON.stringify(minimalFavorites));
+      } catch (storageError) {
+        console.warn("Could not update localStorage reference:", storageError);
+      }
+      
+      // Track removal event
+      event({
+        action: 'design_removed_from_favorites',
+        category: 'favorites',
+        label: 'removed_from_favorites_page'
+      });
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+    }
   };
   
-  // Open image in new tab
+  // Handle opening image in new tab
   const handleOpenImage = (imageUrl) => {
     if (!imageUrl) {
       console.error('Image URL is missing');
@@ -57,18 +177,25 @@ function FavoritesContent() {
       return;
     }
     
+    // For thumbnails from our new storage approach, convert back to full size if possible
+    let fullSizeUrl = imageUrl;
+    if (imageUrl.includes('unsplash.com') && (imageUrl.includes('w=200') || imageUrl.includes('q=60'))) {
+      // Convert back to high quality
+      fullSizeUrl = imageUrl.replace(/w=200/, 'w=1400').replace(/q=60/, 'q=80');
+    }
+    
     // Verify if image URL is valid before opening in new tab
     const img = new Image();
     img.onload = function() {
       // Image loaded successfully, open in new tab
-      window.open(imageUrl, '_blank');
+      window.open(fullSizeUrl, '_blank');
     };
     img.onerror = function() {
       // Image failed to load
-      console.error('Failed to load image:', imageUrl);
+      console.error('Failed to load image:', fullSizeUrl);
       alert('Sorry, the image could not be loaded. It may no longer be available or the URL might be invalid.');
     };
-    img.src = imageUrl;
+    img.src = fullSizeUrl;
   };
   
   // Open detailed view modal
@@ -178,7 +305,7 @@ function FavoritesContent() {
                   onClick={() => handleViewDesign(favorite)}
                 >
                   <img 
-                    src={favorite.imageUrl} 
+                    src={favorite.thumbnailUrl || favorite.imageUrl} 
                     alt={`${favorite.roomType} design`} 
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                   />
@@ -257,7 +384,7 @@ function FavoritesContent() {
             <div className="overflow-y-auto flex-grow">
               <div className="relative">
                 <img 
-                  src={selectedDesign.imageUrl} 
+                  src={selectedDesign.thumbnailUrl || selectedDesign.imageUrl} 
                   alt={`${selectedDesign.roomType} design`}
                   className="w-full h-auto max-h-[70vh] object-contain"
                   onError={(e) => {
@@ -281,7 +408,7 @@ function FavoritesContent() {
                 
                 <div className="flex justify-between mt-6">
                   <Button
-                    onClick={() => handleDownloadImage(selectedDesign.imageUrl, selectedDesign.roomType)}
+                    onClick={() => handleDownloadImage(selectedDesign.thumbnailUrl || selectedDesign.imageUrl, selectedDesign.roomType)}
                     className="bg-zinc-800 hover:bg-zinc-700 text-white transition-colors duration-300 flex items-center gap-2"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
