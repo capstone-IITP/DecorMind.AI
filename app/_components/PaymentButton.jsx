@@ -39,7 +39,10 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
     const overlay = document.querySelector('.razorpay-payment-overlay');
     if (overlay) {
       overlay.classList.add('active');
+      // Add a small delay to ensure overlay is fully visible before opening Razorpay
+      return new Promise(resolve => setTimeout(resolve, 300));
     }
+    return Promise.resolve();
   };
 
   // Function to hide the overlay
@@ -59,6 +62,8 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
     try {
       setIsProcessing(true);
       
+      console.log("Creating Razorpay order with amount:", amount);
+      
       // Create order on the server
       const res = await fetch("/api/razorpay", {
         method: "POST",
@@ -74,17 +79,21 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
       }
 
       const data = await res.json();
+      console.log("Razorpay order created:", data);
 
       // Show overlay before opening Razorpay
-      showOverlay();
+      await showOverlay();
 
-      // Configure Razorpay options
+      // Log key for debugging (don't log in production)
+      console.log("Razorpay Key ID exists:", !!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
+
+      // Simplify Razorpay options
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: data.amount,
         currency: "INR",
         name: "Decormind AI",
-        description: "Interior Design AI Image",
+        description: "Interior Design AI Subscription",
         order_id: data.id,
         handler: function (response) {
           // Hide overlay when payment is successful
@@ -97,33 +106,44 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
           if (onSuccess && typeof onSuccess === 'function') {
             onSuccess(response);
           } else {
-            alert("Payment Successful!");
+            alert("Payment Successful! Your plan has been upgraded.");
             console.log(response);
           }
-        },
-        prefill: {
-          name: "User Name",
-          email: "user@example.com",
-          contact: "9999999999",
         },
         modal: {
           ondismiss: function() {
             // Hide overlay when Razorpay modal is dismissed
             hideOverlay();
             setIsProcessing(false);
-          }
-        },
-        notes: {
-          address: "Decormind AI Headquarters"
+          },
+          escape: true,
+          backdropclose: false
         },
         theme: {
           color: "#22d3ee" // Cyan color to match the site theme
         }
       };
 
+      console.log("Opening Razorpay with options:", {
+        key_exists: !!options.key,
+        amount: options.amount,
+        currency: options.currency,
+        order_id: options.order_id
+      });
+
       // Initialize Razorpay
       const paymentObject = new window.Razorpay(options);
-      paymentObject.open();
+      paymentObject.on('payment.failed', function (response){
+        console.error("Payment failed:", response.error);
+        alert(`Payment failed: ${response.error.description}`);
+        hideOverlay();
+        setIsProcessing(false);
+      });
+      
+      // Open the Razorpay dialog
+      setTimeout(() => {
+        paymentObject.open();
+      }, 100); // Short delay before opening
     } catch (error) {
       // Hide overlay in case of error
       hideOverlay();

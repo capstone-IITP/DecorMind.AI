@@ -68,19 +68,45 @@ function PricingComponent() {
     // Don't do anything if clicking on current plan
     if (plan === currentPlan) return;
     
-    setLoading(true);
-    
-    // In a real app, this would connect to a payment gateway
-    // For demo purposes, we'll just update localStorage
-    setTimeout(() => {
-      localStorage.setItem("userPlan", plan);
-      localStorage.setItem("usedCredits", "0"); // Reset used credits
-      setLoading(false);
+    // If it's the free plan, we can set it directly
+    if (plan === 'free') {
+      setLoading(true);
       
-      // Show success notification and redirect
-      alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
-      router.push("/redesign");
-    }, 1000); // Simulate API call
+      setTimeout(() => {
+        localStorage.setItem("userPlan", plan);
+        localStorage.setItem("usedCredits", "0"); // Reset used credits
+        setLoading(false);
+        
+        // Show success notification and redirect
+        alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
+        router.push("/redesign");
+      }, 1000); // Simulate API call
+    }
+    // For premium and pro plans, we'll handle it in the payment success callback
+  };
+
+  // Handle payment success
+  const handlePaymentSuccess = (plan, response) => {
+    console.log("Payment successful", response);
+    
+    // Update user plan and credits in localStorage
+    localStorage.setItem("userPlan", plan);
+    
+    // Set credits based on plan
+    if (plan === 'premium') {
+      localStorage.setItem("usedCredits", "0");
+      localStorage.setItem("totalCredits", "10");
+    } else if (plan === 'pro') {
+      localStorage.setItem("usedCredits", "0");
+      localStorage.setItem("totalCredits", "unlimited");
+    } else {
+      localStorage.setItem("usedCredits", "0");
+      localStorage.setItem("totalCredits", "2"); // Free plan
+    }
+    
+    // Show success notification and redirect
+    alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
+    router.push("/redesign");
   };
 
   // Add CSS animations
@@ -527,9 +553,8 @@ function PricingComponent() {
               <h2 className="text-2xl font-bold mb-2">Premium</h2>
               <div className="flex items-center justify-center">
                 <div className="text-3xl font-bold">₹1</div>
-                <span className="text-zinc-500 ml-1">/month</span>
               </div>
-              <p className="text-zinc-500">For regular users</p>
+              <p className="text-zinc-500">10 Credits</p>
             </div>
             
             <div className="space-y-4 mb-8">
@@ -562,10 +587,25 @@ function PricingComponent() {
             <Button
               disabled={currentPlan === 'premium' || loading}
               onClick={() => handleUpgrade('premium')}
-              className={`w-full ${currentPlan === 'premium' ? 'bg-zinc-700 cursor-not-allowed' : 'bg-gradient-to-r from-[#1e3a5c] to-[#22d3ee] hover:opacity-90'} text-white py-2 rounded-lg transition-all duration-300 shadow-lg`}
+              className={`w-full ${currentPlan === 'premium' ? 'bg-zinc-700 cursor-not-allowed' : 'bg-gradient-to-r from-[#1e3a5c] to-[#22d3ee] hover:opacity-90'} text-white py-2 rounded-lg transition-all duration-300 shadow-lg hidden`}
             >
               {loading && currentPlan !== 'premium' ? 'Processing...' : currentPlan === 'premium' ? 'Current Plan' : 'Upgrade to Premium'}
             </Button>
+            
+            {/* Use PaymentButton for premium plan */}
+            {currentPlan !== 'premium' && (
+              <PaymentButton 
+                amount={100} // 1 INR in paise
+                buttonText={loading ? 'Processing...' : 'Buy 10 Credits for ₹1'}
+                className={`w-full bg-gradient-to-r from-[#1e3a5c] to-[#22d3ee] hover:opacity-90 text-white py-2 rounded-lg transition-all duration-300 shadow-lg`}
+                onSuccess={(response) => handlePaymentSuccess('premium', response)}
+              />
+            )}
+            {currentPlan === 'premium' && (
+              <Button disabled className="w-full bg-zinc-700 cursor-not-allowed text-white py-2 rounded-lg">
+                Current Plan
+              </Button>
+            )}
           </div>
           
           {/* Pro Plan */}
@@ -615,10 +655,25 @@ function PricingComponent() {
             <Button
               disabled={currentPlan === 'pro' || loading}
               onClick={() => handleUpgrade('pro')}
-              className={`w-full ${currentPlan === 'pro' ? 'bg-zinc-700 cursor-not-allowed' : 'bg-gradient-to-r from-[#22d3ee] to-[#4ade80] hover:opacity-90'} text-${currentPlan === 'pro' ? 'white' : 'black'} font-medium py-2 rounded-lg transition-all duration-300 shadow-lg`}
+              className={`w-full ${currentPlan === 'pro' ? 'bg-zinc-700 cursor-not-allowed' : 'bg-gradient-to-r from-[#22d3ee] to-[#4ade80] hover:opacity-90'} text-${currentPlan === 'pro' ? 'white' : 'black'} font-medium py-2 rounded-lg transition-all duration-300 shadow-lg hidden`}
             >
               {loading && currentPlan !== 'pro' ? 'Processing...' : currentPlan === 'pro' ? 'Current Plan' : 'Upgrade to Pro'}
             </Button>
+            
+            {/* Use PaymentButton for pro plan */}
+            {currentPlan !== 'pro' && (
+              <PaymentButton 
+                amount={83500} // 835 INR in paise
+                buttonText={loading ? 'Processing...' : 'Buy Unlimited Credits for ₹835'}
+                className={`w-full bg-gradient-to-r from-[#22d3ee] to-[#4ade80] hover:opacity-90 text-black font-medium py-2 rounded-lg transition-all duration-300 shadow-lg`}
+                onSuccess={(response) => handlePaymentSuccess('pro', response)}
+              />
+            )}
+            {currentPlan === 'pro' && (
+              <Button disabled className="w-full bg-zinc-700 cursor-not-allowed text-white py-2 rounded-lg">
+                Current Plan
+              </Button>
+            )}
           </div>
         </div>
         
