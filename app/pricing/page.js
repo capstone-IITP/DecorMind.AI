@@ -12,7 +12,7 @@ export default function PricingPage() {
     <Suspense fallback={<div className="min-h-screen bg-black flex justify-center items-center">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#22d3ee]"></div>
     </div>}>
-      <PricingComponent />
+      <SimplifiedPricingComponent />
     </Suspense>
   );
 }
@@ -685,6 +685,139 @@ function PricingComponent() {
           >
             Continue with Current Plan
           </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// New simplified pricing component
+function SimplifiedPricingComponent() {
+  const [currentPlan, setCurrentPlan] = useState("premium"); // this should come from user data
+  
+  const plans = [
+    {
+      name: "Free",
+      price: "₹0.00",
+      features: ["2 AI Design Generations", "Basic Room Styles", "Community Support"],
+      planKey: "free",
+    },
+    {
+      name: "Premium",
+      price: "₹1",
+      features: ["10 AI Design Generations", "All Room Styles", "High-Quality Generations", "Email Support"],
+      planKey: "premium",
+    },
+    {
+      name: "Pro",
+      price: "₹835.00 /month",
+      features: ["Unlimited AI Designs", "Premium Styles & Features", "4K Resolution", "Priority Support", "Commercial License"],
+      planKey: "pro",
+    },
+  ];
+
+  useEffect(() => {
+    // Load user's current plan from localStorage
+    const storedPlan = localStorage.getItem('userPlan') || 'free';
+    setCurrentPlan(storedPlan);
+  }, []);
+
+  // Handle plan upgrade - similar to the existing component
+  const handleUpgrade = (plan) => {
+    // Don't do anything if clicking on current plan
+    if (plan === currentPlan) return;
+    
+    // If it's the free plan, we can set it directly
+    if (plan === 'free') {
+      localStorage.setItem("userPlan", plan);
+      localStorage.setItem("usedCredits", "0"); // Reset used credits
+      
+      // Show success notification and redirect
+      alert(`Successfully switched to ${plan.toUpperCase()} plan!`);
+      window.location.href = "/redesign";
+    }
+    // For premium and pro plans, we'll handle it in the payment success callback
+  };
+
+  // Handle payment success
+  const handlePaymentSuccess = (plan, response) => {
+    console.log("Payment successful", response);
+    
+    // Update user plan and credits in localStorage
+    localStorage.setItem("userPlan", plan);
+    
+    // Set credits based on plan
+    if (plan === 'premium') {
+      localStorage.setItem("usedCredits", "0");
+      localStorage.setItem("totalCredits", "10");
+    } else if (plan === 'pro') {
+      localStorage.setItem("usedCredits", "0");
+      localStorage.setItem("totalCredits", "unlimited");
+    }
+    
+    // Show success notification and redirect
+    alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
+    window.location.href = "/redesign";
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-transparent bg-clip-text">
+            Choose Your Plan
+          </h1>
+          <p className="text-zinc-400 max-w-2xl mx-auto">
+            Unlock the full potential of AI-powered interior design with our premium plans. Choose the plan that suits your needs.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {plans.map((plan) => {
+            const isCurrent = plan.planKey === currentPlan;
+            const isDisabled = currentPlan === "pro" || (currentPlan === "premium" && plan.planKey === "free");
+
+            return (
+              <div 
+                key={plan.planKey} 
+                className={`rounded-xl p-6 bg-zinc-900 text-white shadow-md ${
+                  isCurrent ? "border-2 border-cyan-400" : ""
+                } ${isDisabled ? "opacity-50 pointer-events-none" : ""}`}
+              >
+                <h2 className="text-2xl font-bold">{plan.name}</h2>
+                <p className="text-xl mt-2">{plan.price}</p>
+                <ul className="mt-4 space-y-2">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      ✅ {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                {isCurrent ? (
+                  <button className="mt-6 w-full bg-gray-700 text-white py-2 rounded-lg cursor-default" disabled>
+                    Current Plan
+                  </button>
+                ) : (
+                  plan.planKey === 'free' ? (
+                    <button 
+                      onClick={() => handleUpgrade('free')} 
+                      className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
+                    >
+                      Select {plan.name} Plan
+                    </button>
+                  ) : (
+                    <PaymentButton
+                      amount={plan.planKey === 'premium' ? 100 : 83500} // 1 or 835 INR in paise
+                      buttonText={plan.planKey === 'pro' ? "Buy Unlimited Credits" : `Select ${plan.name} Plan`}
+                      className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
+                      onSuccess={(response) => handlePaymentSuccess(plan.planKey, response)}
+                    />
+                  )
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -502,8 +502,8 @@ function HomeContent() {
           <a href="#features" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Features</a>
           <a href="#how-it-works" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">How it Works</a>
           <a href="#gallery" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Gallery</a>
-          <Link href="/pricing" className="hover:text-cyan-400 text-white transition-colors duration-300 relative" onClick={() => router.push('/pricing')}>Pricing</Link>
-          <Link href="/contact-us" className="hover:text-cyan-400 text-white transition-colors duration-300 relative" onClick={() => router.push('/contact-us')}>Contact Us</Link>
+          <Link href="/pricing" className="hover:text-cyan-400 text-white transition-colors duration-300 relative">Pricing</Link>
+          <Link href="/contact-us" className="hover:text-cyan-400 text-white transition-colors duration-300 relative">Contact Us</Link>
         </div>
         <div className="flex gap-2">
           <button
