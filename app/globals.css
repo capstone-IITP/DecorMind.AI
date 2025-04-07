@@ -159,4 +159,130 @@
   display: block;
   animation: fadeIn 0.3s ease-out;
 }
+
+/* Hide scrollbars for better mobile experience */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* Internet Explorer and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Responsive utility classes */
+@media (max-width: 640px) {
+  .mobile-p {
+    padding: 1rem;
+  }
+  
+  .mobile-text-center {
+    text-align: center;
+  }
+  
+  .mobile-w-full {
+    width: 100%;
+  }
+}
+
+/* For mobile navigation */
+.mobile-menu-open {
+  overflow: hidden;
+}
+
+/* Responsive padding utilities */
+.p-responsive {
+  padding: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .p-responsive {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .p-responsive {
+    padding: 2rem;
+  }
+}
+
+/* Mobile touch optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets for mobile */
+  button, 
+  a,
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Add active state styles for touch devices */
+  a:active,
+  button:active {
+    opacity: 0.7;
+  }
+  
+  /* Disable hover effects on mobile */
+  a:hover,
+  button:hover {
+    opacity: 1;
+  }
+  
+  /* Improve scrolling performance */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Fix for iOS 100vh issue */
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Fix for iOS input zooming */
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* Android specific fixes */
+@supports not (-webkit-touch-callout: none) {
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Mobile menu styles */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mobile-menu.active {
+  display: flex;
+}
+
+/* Desktop navigation styles */
+.desktop-nav {
+  display: none;
+}
+
+.desktop-nav-buttons {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktop-nav {
+    display: flex;
+  }
+  
+  .desktop-nav-buttons {
+    display: flex;
+  }
+}
  

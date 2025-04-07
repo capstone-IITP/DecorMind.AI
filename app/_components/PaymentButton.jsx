@@ -3,10 +3,14 @@
 import { useEffect, useState } from 'react';
 import { Button } from '../../components/ui/button';
 import Script from 'next/script';
+import { useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', onSuccess }) => {
   const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { isLoaded, isSignedIn } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     // Check if Razorpay is already loaded
@@ -54,6 +58,13 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
   };
 
   const handlePayment = async () => {
+    // Check if user is authenticated
+    if (!isLoaded || !isSignedIn) {
+      // Redirect to sign-in page if not authenticated
+      router.push('/sign-in');
+      return;
+    }
+
     if (!isRazorpayLoaded) {
       alert('Razorpay is still loading. Please try again in a moment.');
       return;

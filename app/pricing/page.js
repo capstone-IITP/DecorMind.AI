@@ -3,9 +3,10 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '../../components/ui/button';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
 import PaymentButton from '../_components/PaymentButton';
+import { useAuth } from '@clerk/nextjs';
 
 export default function PricingPage() {
   return (
@@ -35,6 +36,28 @@ function PricingComponent() {
   const [currentPlan, setCurrentPlan] = useState('free');
   const [highlightedPlan, setHighlightedPlan] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isLoaded, isSignedIn } = useAuth();
+
+  // Function to toggle mobile menu
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  // Function to close mobile menu
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  // Function to handle sign in
+  const handleSignIn = () => {
+    router.push('/sign-in');
+  };
+
+  // Function to handle sign up
+  const handleSignUp = () => {
+    router.push('/sign-up');
+  };
 
   // Function to convert price to selected currency
   const convertPrice = (usdPrice) => {
@@ -55,7 +78,7 @@ function PricingComponent() {
   useEffect(() => {
     const storedPlan = localStorage.getItem('userPlan') || 'free';
     setCurrentPlan(storedPlan);
-    
+
     // Check if a specific plan is highlighted from URL params
     const planParam = searchParams.get('plan');
     if (planParam && ['premium', 'pro'].includes(planParam)) {
@@ -65,18 +88,25 @@ function PricingComponent() {
 
   // Handle plan upgrade
   const handleUpgrade = (plan) => {
+    // Check if user is authenticated
+    if (!isLoaded || !isSignedIn) {
+      // Redirect to sign-in page if not authenticated
+      router.push('/sign-in');
+      return;
+    }
+
     // Don't do anything if clicking on current plan
     if (plan === currentPlan) return;
-    
+
     // If it's the free plan, we can set it directly
     if (plan === 'free') {
       setLoading(true);
-      
+
       setTimeout(() => {
         localStorage.setItem("userPlan", plan);
         localStorage.setItem("usedCredits", "0"); // Reset used credits
         setLoading(false);
-        
+
         // Show success notification and redirect
         alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
         router.push("/redesign");
@@ -87,11 +117,18 @@ function PricingComponent() {
 
   // Handle payment success
   const handlePaymentSuccess = (plan, response) => {
+    // Check if user is still authenticated
+    if (!isLoaded || !isSignedIn) {
+      // Redirect to sign-in page if not authenticated
+      router.push('/sign-in');
+      return;
+    }
+
     console.log("Payment successful", response);
-    
+
     // Update user plan and credits in localStorage
     localStorage.setItem("userPlan", plan);
-    
+
     // Set credits based on plan
     if (plan === 'premium') {
       localStorage.setItem("usedCredits", "0");
@@ -103,7 +140,7 @@ function PricingComponent() {
       localStorage.setItem("usedCredits", "0");
       localStorage.setItem("totalCredits", "2"); // Free plan
     }
-    
+
     // Show success notification and redirect
     alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
     router.push("/redesign");
@@ -113,7 +150,7 @@ function PricingComponent() {
   useEffect(() => {
     // Set mounted state to true
     setMounted(true);
-    
+
     // Add CSS for animations
     let style;
     if (typeof window !== 'undefined') {
@@ -344,6 +381,153 @@ function PricingComponent() {
         html {
           scroll-behavior: smooth;
         }
+
+        /* Navbar link animations */
+        @keyframes fadeInDown {
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .nav-link {
+          position: relative;
+          opacity: 0;
+          font-size: 0.875rem !important; /* much smaller equivalent */
+        }
+
+        .nav-link::after {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 2px;
+          bottom: -4px;
+          left: 0;
+          background-color: #22d3ee;
+          transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+          width: 100%;
+        }
+
+        .nav-link.active::after {
+          width: 100%;
+        }
+
+        /* Click animation */
+        @keyframes clickEffect {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(0.95);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .link-clicked {
+          animation: clickEffect 0.3s ease forwards;
+        }
+
+        .nav-link:nth-child(1) {
+          animation: fadeInDown 0.5s ease-out 0.1s forwards;
+        }
+
+        .nav-link:nth-child(2) {
+          animation: fadeInDown 0.5s ease-out 0.2s forwards;
+        }
+
+        .nav-link:nth-child(3) {
+          animation: fadeInDown 0.5s ease-out 0.3s forwards;
+        }
+
+        .nav-link:nth-child(4) {
+          animation: fadeInDown 0.5s ease-out 0.4s forwards;
+        }
+
+        .nav-link:nth-child(5) {
+          animation: fadeInDown 0.5s ease-out 0.5s forwards;
+        }
+
+        /* Navigation bar slide-down animation */
+        @keyframes slideDown {
+          0% {
+            transform: translateY(-100%);
+          }
+          100% {
+            transform: translateY(0);
+          }
+        }
+
+        .nav-slide-down {
+          animation: slideDown 0.5s ease-out forwards;
+        }
+
+        /* Logo animation */
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .logo-pulse:hover {
+          animation: pulse 1s infinite;
+        }
+        
+        /* Logo glow effect */
+        .logo-container {
+          position: relative;
+          transition: all 0.3s ease;
+        }
+        
+        .logo-container:hover::after {
+          content: '';
+          position: absolute;
+          top: -5px;
+          left: -5px;
+          right: -5px;
+          bottom: -5px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0) 70%);
+          z-index: -1;
+          animation: glow 1.5s infinite alternate;
+        }
+        
+        @keyframes glow {
+          0% {
+            opacity: 0.5;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+        
+        /* Sticky navbar effect */
+        .sticky-nav {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
+        }
+        
+        .sticky-nav.scrolled {
+          background-color: rgba(24, 24, 27, 0.8);
+          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+        }
       `;
       document.head.appendChild(style);
     }
@@ -351,50 +535,50 @@ function PricingComponent() {
     // Function to add animations to a section
     const animateSection = (section) => {
       if (!section) return;
-      
+
       // Add highlight animation to the section
       section.classList.add("highlight-section");
-      
+
       // Add fade-in animation to section elements
       const sectionElements = section.querySelectorAll('h2, h3, h4, p, .grid, .flex');
       sectionElements.forEach((element, index) => {
         // Stagger the animations
         setTimeout(() => {
           element.classList.add('section-fade-in');
-          
+
           // Remove the animation class after it completes
           setTimeout(() => {
             element.classList.remove('section-fade-in');
           }, 800);
         }, index * 100); // Stagger by 100ms
       });
-      
+
       // Add special highlight to headings
       const headings = section.querySelectorAll('h2, h3');
       headings.forEach((heading, index) => {
         setTimeout(() => {
           heading.classList.add('heading-highlight');
-          
+
           // Remove the animation class after some time
           setTimeout(() => {
             heading.classList.remove('heading-highlight');
           }, 2000);
         }, 300 + (index * 150)); // Stagger with delay
       });
-      
+
       // Add pulse animation to icons
       const icons = section.querySelectorAll('.w-10, .w-12, svg');
       icons.forEach((icon, index) => {
         setTimeout(() => {
           icon.classList.add('icon-pulse');
-          
+
           // Remove the animation class after it completes
           setTimeout(() => {
             icon.classList.remove('icon-pulse');
           }, 1500);
         }, 500 + (index * 200)); // Stagger with delay
       });
-      
+
       // Remove the highlight animation after some time
       setTimeout(() => {
         section.classList.remove("highlight-section");
@@ -411,12 +595,12 @@ function PricingComponent() {
     const handleSmoothScroll = (e) => {
       e.preventDefault();
       const href = e.currentTarget?.getAttribute("href");
-      
+
       // Add a visual feedback to the clicked link
       if (e.currentTarget && e.currentTarget.classList) {
         e.currentTarget.classList.add("nav-link-clicked");
       }
-      
+
       // Delay the scroll action for a better visual effect
       setTimeout(() => {
         try {
@@ -425,10 +609,10 @@ function PricingComponent() {
             router.push(href);
             return;
           }
-          
+
           const targetId = href?.substring(1);
           const targetElement = document.getElementById(targetId);
-          
+
           if (targetElement) {
             // Special case for top - scroll to top
             if (targetId === 'top') {
@@ -439,16 +623,16 @@ function PricingComponent() {
             } else {
               // Add extra offset for contact section
               const offset = targetId === 'contact' ? 100 : 80;
-              
+
               // Calculate the position to scroll to
               const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - offset;
-              
+
               // Use the native smooth scrolling
               window.scrollTo({
                 top: targetPosition,
                 behavior: 'smooth'
               });
-              
+
               // Add animations to the target section after scrolling
               setTimeout(() => {
                 animateSection(targetElement);
@@ -458,7 +642,7 @@ function PricingComponent() {
         } catch (error) {
           console.error("Error in smooth scroll:", error);
         }
-        
+
         // Remove the visual feedback class
         if (e.currentTarget && e.currentTarget.classList) {
           setTimeout(() => {
@@ -479,13 +663,13 @@ function PricingComponent() {
       if (style && style.parentNode) {
         document.head.removeChild(style);
       }
-      
+
       // Get all navigation links again for cleanup
       const navLinks = document.querySelectorAll('.nav-link');
       navLinks.forEach(link => {
         link.removeEventListener("click", handleSmoothScroll);
       });
-      
+
       // Remove scroll event listener
       window.removeEventListener('scroll', highlightActiveSection);
     };
@@ -493,6 +677,93 @@ function PricingComponent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900 text-white">
+      {/* Navigation Bar */}
+      <nav className="flex justify-between items-center py-4 px-6 bg-zinc-900 sticky top-0 z-50 shadow-md border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
+          <div className="bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
+        </div>
+
+        <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 items-center">
+          <nav className="flex gap-6" style={{ fontSize: '0.875rem' }}>
+            <Link
+              href="/dashboard"
+              className={`nav-link ${isActive('/dashboard') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/dashboard' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/dashboard')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
+              Home
+            </Link>
+            <Link
+              href="/redesign"
+              className={`nav-link ${isActive('/redesign') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/redesign' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/redesign')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
+              Redesign
+            </Link>
+            <Link
+              href="/decormind"
+              className={`nav-link ${isActive('/decormind') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/decormind' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/decormind')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
+              DecorMind
+            </Link>
+            <Link
+              href="/pricing"
+              className={`nav-link ${isActive('/pricing') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/pricing' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/pricing')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/contact-us"
+              className={`nav-link ${isActive('/contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/contact-us' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/contact-us')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
+              Contact Us
+            </Link>
+          </nav>
+        </div>
+
+        <div>
+          <UserButton afterSignOutUrl="/" />
+        </div>
+      </nav>
+
+      {/* Mobile Menu */}
+      <div className={`md:hidden fixed top-16 left-0 right-0 z-40 bg-zinc-900 shadow-md border-b border-zinc-800 transition-all duration-300 ${mobileMenuOpen ? 'block' : 'hidden'}`}>
+        <Link href="/" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300 " onClick={closeMobileMenu}>Home</Link>
+        <Link href="/#features" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Features</Link>
+        <Link href="/#how-it-works" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>How it Works</Link>
+        <Link href="/#gallery" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Gallery</Link>
+        <Link href="/pricing" className="block py-2 w-full text-center text-cyan-400 transition-colors duration-300" onClick={closeMobileMenu}>Pricing</Link>
+        <Link href="/contact-us" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Contact Us</Link>
+        <div className="flex gap-2 mt-4 w-full justify-center pb-4">
+          <button
+            className="text-white border border-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm transition-colors"
+            onClick={() => {
+              closeMobileMenu();
+              handleSignIn();
+            }}
+          >
+            Sign In
+          </button>
+          <button
+            className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-4 py-2 rounded-md text-sm font-bold transition-colors"
+            onClick={() => {
+              closeMobileMenu();
+              handleSignUp();
+            }}
+          >
+            Sign Up
+          </button>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-transparent bg-clip-text">
@@ -511,7 +782,7 @@ function PricingComponent() {
               <div className="text-3xl font-bold mb-2">{convertPrice(0)}</div>
               <p className="text-zinc-500">Perfect for trying out</p>
             </div>
-            
+
             <div className="space-y-4 mb-8">
               <div className="flex items-center text-zinc-300">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
@@ -532,7 +803,7 @@ function PricingComponent() {
                 <span>Community Support</span>
               </div>
             </div>
-            
+
             <Button
               disabled={currentPlan === 'free' || loading}
               onClick={() => handleUpgrade('free')}
@@ -541,7 +812,7 @@ function PricingComponent() {
               {currentPlan === 'free' ? 'Current Plan' : 'Select Free Plan'}
             </Button>
           </div>
-          
+
           {/* Premium Plan */}
           <div className={`bg-zinc-900 border ${highlightedPlan === 'premium' ? 'ring-4 ring-[#22d3ee]' : currentPlan === 'premium' ? 'border-zinc-600' : 'border-zinc-800'} rounded-xl p-6 transform ${highlightedPlan === 'premium' ? 'scale-105' : ''} transition-all duration-300 hover:border-[#22d3ee]/70 relative z-10`}>
             {highlightedPlan === 'premium' && (
@@ -556,7 +827,7 @@ function PricingComponent() {
               </div>
               <p className="text-zinc-500">10 Credits</p>
             </div>
-            
+
             <div className="space-y-4 mb-8">
               <div className="flex items-center text-zinc-300">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
@@ -583,7 +854,7 @@ function PricingComponent() {
                 <span>Email Support</span>
               </div>
             </div>
-            
+
             <Button
               disabled={currentPlan === 'premium' || loading}
               onClick={() => handleUpgrade('premium')}
@@ -591,10 +862,10 @@ function PricingComponent() {
             >
               {loading && currentPlan !== 'premium' ? 'Processing...' : currentPlan === 'premium' ? 'Current Plan' : 'Upgrade to Premium'}
             </Button>
-            
+
             {/* Use PaymentButton for premium plan */}
             {currentPlan !== 'premium' && (
-              <PaymentButton 
+              <PaymentButton
                 amount={100} // 1 INR in paise
                 buttonText={loading ? 'Processing...' : 'Buy 10 Credits for ₹1'}
                 className={`w-full bg-gradient-to-r from-[#1e3a5c] to-[#22d3ee] hover:opacity-90 text-white py-2 rounded-lg transition-all duration-300 shadow-lg`}
@@ -607,7 +878,7 @@ function PricingComponent() {
               </Button>
             )}
           </div>
-          
+
           {/* Pro Plan */}
           <div className={`bg-zinc-900 border ${highlightedPlan === 'pro' ? 'ring-4 ring-[#4ade80]' : currentPlan === 'pro' ? 'border-zinc-600' : 'border-zinc-800'} rounded-xl p-6 transition-all duration-300 hover:border-[#4ade80]/70`}>
             <div className="text-center mb-6">
@@ -618,7 +889,7 @@ function PricingComponent() {
               </div>
               <p className="text-zinc-500">For professional users</p>
             </div>
-            
+
             <div className="space-y-4 mb-8">
               <div className="flex items-center text-zinc-300">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
@@ -651,7 +922,7 @@ function PricingComponent() {
                 <span className="font-medium">Commercial License</span>
               </div>
             </div>
-            
+
             <Button
               disabled={currentPlan === 'pro' || loading}
               onClick={() => handleUpgrade('pro')}
@@ -659,10 +930,10 @@ function PricingComponent() {
             >
               {loading && currentPlan !== 'pro' ? 'Processing...' : currentPlan === 'pro' ? 'Current Plan' : 'Upgrade to Pro'}
             </Button>
-            
+
             {/* Use PaymentButton for pro plan */}
             {currentPlan !== 'pro' && (
-              <PaymentButton 
+              <PaymentButton
                 amount={83500} // 835 INR in paise
                 buttonText={loading ? 'Processing...' : 'Buy Unlimited Credits for ₹835'}
                 className={`w-full bg-gradient-to-r from-[#22d3ee] to-[#4ade80] hover:opacity-90 text-black font-medium py-2 rounded-lg transition-all duration-300 shadow-lg`}
@@ -676,10 +947,10 @@ function PricingComponent() {
             )}
           </div>
         </div>
-        
+
         <div className="mt-16 text-center">
           <p className="text-zinc-500 mb-4">All plans include access to our basic features</p>
-          <Button 
+          <Button
             onClick={() => router.push('/redesign')}
             className="bg-zinc-800 hover:bg-zinc-700 text-white transition-colors duration-300"
           >
@@ -690,11 +961,265 @@ function PricingComponent() {
     </div>
   );
 }
-
 // New simplified pricing component
 function SimplifiedPricingComponent() {
   const [currentPlan, setCurrentPlan] = useState("premium"); // this should come from user data
-  
+  const router = useRouter();
+  const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [activeLink, setActiveLink] = useState(null);
+  const { isLoaded, isSignedIn } = useAuth();
+
+  // Function to toggle mobile menu
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  // Function to close mobile menu
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  // Function to check if a link is active
+  const isActive = (path) => {
+    return pathname === path;
+  };
+
+  // Function to handle link clicks
+  const handleLinkClick = (path) => {
+    setActiveLink(path);
+  };
+
+  // Handle plan upgrade
+  const handleUpgrade = (plan) => {
+    // Check if user is authenticated
+    if (!isLoaded || !isSignedIn) {
+      // Redirect to sign-in page if not authenticated
+      router.push('/sign-in');
+      return;
+    }
+
+    // Don't do anything if clicking on current plan
+    if (plan === currentPlan) return;
+
+    // If it's the free plan, we can set it directly
+    if (plan === 'free') {
+      localStorage.setItem("userPlan", plan);
+      localStorage.setItem("usedCredits", "0"); // Reset used credits
+
+      // Show success notification and redirect
+      alert(`Successfully switched to ${plan.toUpperCase()} plan!`);
+      window.location.href = "/redesign";
+    }
+    // For premium and pro plans, we'll handle it in the payment success callback
+  };
+
+  // Handle payment success
+  const handlePaymentSuccess = (plan, response) => {
+    // Check if user is still authenticated
+    if (!isLoaded || !isSignedIn) {
+      // Redirect to sign-in page if not authenticated
+      router.push('/sign-in');
+      return;
+    }
+
+    console.log("Payment successful", response);
+
+    // Update user plan and credits in localStorage
+    localStorage.setItem("userPlan", plan);
+
+    // Set credits based on plan
+    if (plan === 'premium') {
+      localStorage.setItem("usedCredits", "0");
+      localStorage.setItem("totalCredits", "10");
+    } else if (plan === 'pro') {
+      localStorage.setItem("usedCredits", "0");
+      localStorage.setItem("totalCredits", "unlimited");
+    }
+
+    // Show success notification and redirect
+    alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
+    window.location.href = "/redesign";
+  };
+
+  // Add CSS animations when component mounts
+  useEffect(() => {
+    setMounted(true);
+
+    // Create a style element
+    const style = document.createElement('style');
+    style.innerHTML = `
+      /* Navbar link animations */
+      @keyframes fadeInDown {
+        0% {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .nav-link {
+        position: relative;
+        opacity: 0;
+        font-size: 0.65rem !important; /* much smaller equivalent */
+      }
+
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -4px;
+        left: 0;
+        background-color: #22d3ee;
+        transition: width 0.3s ease;
+      }
+      
+      .nav-link:hover::after {
+        width: 100%;
+      }
+
+      .nav-link.active::after {
+        width: 100%;
+      }
+
+      /* Click animation */
+      @keyframes clickEffect {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(0.95);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .link-clicked {
+        animation: clickEffect 0.3s ease forwards;
+      }
+
+      .nav-link:nth-child(1) {
+        animation: fadeInDown 0.5s ease-out 0.1s forwards;
+      }
+
+      .nav-link:nth-child(2) {
+        animation: fadeInDown 0.5s ease-out 0.2s forwards;
+      }
+
+      .nav-link:nth-child(3) {
+        animation: fadeInDown 0.5s ease-out 0.3s forwards;
+      }
+
+      .nav-link:nth-child(4) {
+        animation: fadeInDown 0.5s ease-out 0.4s forwards;
+      }
+
+      .nav-link:nth-child(5) {
+        animation: fadeInDown 0.5s ease-out 0.5s forwards;
+      }
+
+      /* Navigation bar slide-down animation */
+      @keyframes slideDown {
+        0% {
+          transform: translateY(-100%);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      .nav-slide-down {
+        animation: slideDown 0.5s ease-out forwards;
+      }
+
+      /* Logo animation */
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .logo-pulse:hover {
+        animation: pulse 1s infinite;
+      }
+      
+      /* Logo glow effect */
+      .logo-container {
+        position: relative;
+        transition: all 0.3s ease;
+      }
+      
+      .logo-container:hover::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0) 70%);
+        z-index: -1;
+        animation: glow 1.5s infinite alternate;
+      }
+      
+      @keyframes glow {
+        0% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      
+      /* Sticky navbar effect */
+      .sticky-nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+      }
+      
+      .sticky-nav.scrolled {
+        background-color: rgba(24, 24, 27, 0.8);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Add scroll event for sticky navbar effect
+    const handleScroll = () => {
+      const navbar = document.querySelector('.sticky-nav');
+      if (navbar) {
+        if (window.scrollY > 10) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Cleanup function
+    return () => {
+      document.head.removeChild(style);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   const plans = [
     {
       name: "Free",
@@ -722,46 +1247,113 @@ function SimplifiedPricingComponent() {
     setCurrentPlan(storedPlan);
   }, []);
 
-  // Handle plan upgrade - similar to the existing component
-  const handleUpgrade = (plan) => {
-    // Don't do anything if clicking on current plan
-    if (plan === currentPlan) return;
-    
-    // If it's the free plan, we can set it directly
-    if (plan === 'free') {
-      localStorage.setItem("userPlan", plan);
-      localStorage.setItem("usedCredits", "0"); // Reset used credits
-      
-      // Show success notification and redirect
-      alert(`Successfully switched to ${plan.toUpperCase()} plan!`);
-      window.location.href = "/redesign";
-    }
-    // For premium and pro plans, we'll handle it in the payment success callback
-  };
-
-  // Handle payment success
-  const handlePaymentSuccess = (plan, response) => {
-    console.log("Payment successful", response);
-    
-    // Update user plan and credits in localStorage
-    localStorage.setItem("userPlan", plan);
-    
-    // Set credits based on plan
-    if (plan === 'premium') {
-      localStorage.setItem("usedCredits", "0");
-      localStorage.setItem("totalCredits", "10");
-    } else if (plan === 'pro') {
-      localStorage.setItem("usedCredits", "0");
-      localStorage.setItem("totalCredits", "unlimited");
-    }
-    
-    // Show success notification and redirect
-    alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
-    window.location.href = "/redesign";
-  };
-
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Navigation Bar */}
+      <nav className="p-5 shadow-sm flex justify-between items-center bg-zinc-900 border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down sticky-nav">
+        <div
+          className="flex gap-2 items-center cursor-pointer hover:opacity-80 transition-opacity logo-pulse"
+          onClick={() => router.push('/')}
+        >
+          <div className="logo-container bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
+          <h2 className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
+        </div>
+
+        <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 items-center">
+          <nav className="flex gap-6">
+            <Link
+              href="/dashboard"
+              className={`nav-link ${isActive('/dashboard') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/dashboard' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/dashboard')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
+              Home
+            </Link>
+            <Link
+              href="/redesign"
+              className={`nav-link ${isActive('/redesign') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/redesign' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/redesign')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
+              Redesign
+            </Link>
+            <Link
+              href="/decormind"
+              className={`nav-link ${isActive('/decormind') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/decormind' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/decormind')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
+              DecorMind
+            </Link>
+            <Link
+              href="/pricing"
+              className={`nav-link ${isActive('/pricing') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/pricing' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/pricing')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/contact-us"
+              className={`nav-link ${isActive('/contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/contact-us' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/contact-us')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
+              Contact Us
+            </Link>
+          </nav>
+        </div>
+
+        <div className="md:block">
+          <UserButton afterSignOutUrl="/" />
+        </div>
+
+        <button className="md:hidden text-white" onClick={toggleMobileMenu}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+        </button>
+      </nav>
+
+      {/* Mobile Menu */}
+      <div className={`md:hidden fixed top-16 left-0 right-0 z-40 bg-zinc-900 shadow-md border-b border-zinc-800 transition-all duration-300 ${mobileMenuOpen ? 'block' : 'hidden'}`}>
+        <Link
+          href="/dashboard"
+          className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+          onClick={closeMobileMenu}
+        >
+          Home
+        </Link>
+        <Link
+          href="/redesign"
+          className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+          onClick={closeMobileMenu}
+        >
+          Redesign
+        </Link>
+        <Link
+          href="/decormind"
+          className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+          onClick={closeMobileMenu}
+        >
+          DecorMind
+        </Link>
+        <Link
+          href="/pricing"
+          className="block py-2 w-full text-center text-cyan-400 transition-colors duration-300"
+          onClick={closeMobileMenu}
+        >
+          Pricing
+        </Link>
+        <Link
+          href="/contact-us"
+          className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+          onClick={closeMobileMenu}
+        >
+          Contact Us
+        </Link>
+      </div>
+
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-transparent bg-clip-text">
@@ -778,11 +1370,10 @@ function SimplifiedPricingComponent() {
             const isDisabled = currentPlan === "pro" || (currentPlan === "premium" && plan.planKey === "free");
 
             return (
-              <div 
-                key={plan.planKey} 
-                className={`rounded-xl p-6 bg-zinc-900 text-white shadow-md ${
-                  isCurrent ? "border-2 border-cyan-400" : ""
-                } ${isDisabled ? "opacity-50 pointer-events-none" : ""}`}
+              <div
+                key={plan.planKey}
+                className={`rounded-xl p-6 bg-zinc-900 text-white shadow-md ${isCurrent ? "border-2 border-cyan-400" : ""
+                  } ${isDisabled ? "opacity-50 pointer-events-none" : ""}`}
               >
                 <h2 className="text-2xl font-bold">{plan.name}</h2>
                 <p className="text-xl mt-2">{plan.price}</p>
@@ -800,8 +1391,8 @@ function SimplifiedPricingComponent() {
                   </button>
                 ) : (
                   plan.planKey === 'free' ? (
-                    <button 
-                      onClick={() => handleUpgrade('free')} 
+                    <button
+                      onClick={() => handleUpgrade('free')}
                       className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
                     >
                       Select {plan.name} Plan

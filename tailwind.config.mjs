@@ -54,7 +54,26 @@ export default {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+      screens: {
+        'xs': '375px',
+        // => @media (min-width: 375px) { ... } for smaller mobile screens
+        
+        'sm': '640px',
+        // => @media (min-width: 640px) { ... } for larger mobile screens
+        
+        'md': '768px',
+        // => @media (min-width: 768px) { ... } for tablets
+        
+        'lg': '1024px',
+        // => @media (min-width: 1024px) { ... } for smaller desktops
+        
+        'xl': '1280px',
+        // => @media (min-width: 1280px) { ... } for medium desktops
+        
+        '2xl': '1536px',
+        // => @media (min-width: 1536px) { ... } for large desktops
+      }
   	}
   },
   plugins: [require("tailwindcss-animate")],

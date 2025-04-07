@@ -1,7 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Using a more specific route matcher to avoid static route warnings
-const isProtectedRoute = createRouteMatcher(["/dashboard", "/dashboard/(.*)"])
+const isProtectedRoute = createRouteMatcher([
+  "/dashboard", 
+  "/dashboard/(.*)",
+  "/pricing",  // Add pricing route to protected routes
+  "/redesign"  // Also protect redesign route since it's mentioned in the flow
+])
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) await auth.protect()

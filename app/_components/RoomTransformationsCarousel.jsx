@@ -16,6 +16,7 @@ const RoomTransformationsCarousel = ({ onSeeMoreClick }) => {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [activeRoomType, setActiveRoomType] = useState('kitchen');
+  const [isMobile, setIsMobile] = useState(false);
 
   // Room transformations data
   const roomTransformations = {
@@ -172,6 +173,17 @@ const RoomTransformationsCarousel = ({ onSeeMoreClick }) => {
   useEffect(() => {
     setMounted(true);
 
+    // Check if we're on mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Listen for resize events
+    window.addEventListener('resize', checkMobile);
+
     // Add optimized styles for the carousel with minimal animations
     const style = document.createElement('style');
     style.textContent = `
@@ -220,11 +232,26 @@ const RoomTransformationsCarousel = ({ onSeeMoreClick }) => {
       .room-type-tab.active {
         color: #22d3ee;
       }
+
+      /* Mobile styles */
+      @media (max-width: 767px) {
+        .room-carousel .swiper-button-next,
+        .room-carousel .swiper-button-prev {
+          width: 30px;
+          height: 30px;
+        }
+        
+        .room-carousel .swiper-button-next:after,
+        .room-carousel .swiper-button-prev:after {
+          font-size: 14px;
+        }
+      }
     `;
     document.head.appendChild(style);
 
     return () => {
       document.head.removeChild(style);
+      window.removeEventListener('resize', checkMobile);
     };
   }, []);
 
@@ -264,20 +291,20 @@ const RoomTransformationsCarousel = ({ onSeeMoreClick }) => {
   };
 
   return (
-    <div className="room-carousel">
-      <div className="text-center mb-12 fade-in scale-in">
-        <h2 className="text-3xl font-bold text-white mb-4">{getRoomTypeTitle()} Transformations</h2>
-        <p className="text-zinc-400 max-w-2xl mx-auto">
+    <div className="room-carousel px-4 md:px-0">
+      <div className="text-center mb-8 md:mb-12 fade-in scale-in">
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 md:mb-4">{getRoomTypeTitle()} Transformations</h2>
+        <p className="text-zinc-400 max-w-2xl mx-auto text-sm md:text-base">
           {getRoomTypeDescription()}
         </p>
       </div>
 
-      {/* Room type tabs */}
-      <div className="flex justify-center gap-6 mb-8">
+      {/* Room type tabs - Scrollable on mobile */}
+      <div className="flex overflow-x-auto md:justify-center gap-4 md:gap-6 mb-6 md:mb-8 pb-2 md:pb-0 hide-scrollbar">
         {roomTypes.map((type) => (
           <button
             key={type.id}
-            className={`room-type-tab px-2 py-1 text-lg font-medium ${activeRoomType === type.id ? 'active text-cyan-400' : 'text-white'}`}
+            className={`room-type-tab px-2 py-1 text-base md:text-lg font-medium whitespace-nowrap ${activeRoomType === type.id ? 'active text-cyan-400' : 'text-white'}`}
             onClick={() => {
               // Add animation class to the content when switching room types
               const contentElement = document.querySelector('.room-content');
@@ -306,13 +333,13 @@ const RoomTransformationsCarousel = ({ onSeeMoreClick }) => {
           pagination={{ clickable: true }}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
           loop={true}
-          className="mb-10"
+          className="mb-8 md:mb-10"
           key={activeRoomType} // Force re-render when room type changes
         >
           {roomTransformations[activeRoomType].map((item) => (
             <SwiperSlide key={item.id}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="relative h-80 rounded-xl overflow-hidden group">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                <div className="relative h-64 sm:h-72 md:h-80 rounded-xl overflow-hidden group">
                   <Image
                     src={item.beforeImage}
                     alt={`${item.beforeTitle} Before`}
@@ -322,14 +349,14 @@ const RoomTransformationsCarousel = ({ onSeeMoreClick }) => {
                     className="object-cover rounded-xl transition-all duration-300 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
-                    <div className="p-6">
-                      <span className="bg-cyan-400 text-slate-800 px-3 py-1 rounded-full text-sm font-medium">Before</span>
-                      <h3 className="text-xl font-bold text-white mt-2">{item.beforeTitle}</h3>
+                    <div className="p-4 md:p-6">
+                      <span className="bg-cyan-400 text-slate-800 px-2 py-1 rounded-full text-xs md:text-sm font-medium">Before</span>
+                      <h3 className="text-lg md:text-xl font-bold text-white mt-2">{item.beforeTitle}</h3>
                     </div>
                   </div>
                 </div>
 
-                <div className="relative h-80 rounded-xl overflow-hidden group">
+                <div className="relative h-64 sm:h-72 md:h-80 rounded-xl overflow-hidden group">
                   <Image
                     src={item.afterImage}
                     alt={`${item.afterTitle} After`}
@@ -339,9 +366,9 @@ const RoomTransformationsCarousel = ({ onSeeMoreClick }) => {
                     className="object-cover rounded-xl transition-all duration-300 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
-                    <div className="p-6">
-                      <span className="bg-cyan-400 text-slate-800 px-3 py-1 rounded-full text-sm font-medium">After</span>
-                      <h3 className="text-xl font-bold text-white mt-2">{item.afterTitle}</h3>
+                    <div className="p-4 md:p-6">
+                      <span className="bg-cyan-400 text-slate-800 px-2 py-1 rounded-full text-xs md:text-sm font-medium">After</span>
+                      <h3 className="text-lg md:text-xl font-bold text-white mt-2">{item.afterTitle}</h3>
                     </div>
                   </div>
                 </div>
@@ -349,12 +376,11 @@ const RoomTransformationsCarousel = ({ onSeeMoreClick }) => {
             </SwiperSlide>
           ))}
         </Swiper>
-
       </div>
 
       <div className="text-center fade-in">
         <Button
-          className="bg-cyan-400 text-slate-800 hover:bg-cyan-500"
+          className="w-full sm:w-auto bg-cyan-400 text-slate-800 hover:bg-cyan-500"
           onClick={() => onSeeMoreClick(activeRoomType)}
         >
           {getButtonText()}

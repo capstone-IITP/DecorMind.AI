@@ -614,6 +614,40 @@ export default function Redesign() {
       <div
         className="border-2 border-dashed border-zinc-700 hover:border-[#22d3ee] rounded-lg p-8 text-center cursor-pointer transition-all duration-300 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
         onClick={() => fileInputRef.current?.click()}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.currentTarget.classList.add('border-[#22d3ee]', 'shadow-[0_0_15px_rgba(34,211,238,0.3)]');
+        }}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.currentTarget.classList.add('border-[#22d3ee]', 'shadow-[0_0_15px_rgba(34,211,238,0.3)]');
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.currentTarget.classList.remove('border-[#22d3ee]', 'shadow-[0_0_15px_rgba(34,211,238,0.3)]');
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.currentTarget.classList.remove('border-[#22d3ee]', 'shadow-[0_0_15px_rgba(34,211,238,0.3)]');
+          const file = e.dataTransfer.files[0];
+          if (file && file.type.startsWith('image/')) {
+            setRoomImage(file);
+            const url = URL.createObjectURL(file);
+            setPreviewUrl(url);
+            // Track file upload event
+            event({
+              action: 'room_image_upload',
+              category: 'redesign',
+              label: file.type
+            });
+            // Move to next step automatically
+            setStep(2);
+          }
+        }}
       >
         {previewUrl ? (
           <div className="relative">
@@ -1158,7 +1192,40 @@ export default function Redesign() {
   // Add a function to handle opening the image in a new page
   const handleOpenImage = (imageUrl) => {
     if (imageUrl) {
-      window.open(imageUrl, '_blank');
+      // Create a temporary window to display the image
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head>
+              <title>Room Design Preview</title>
+              <style>
+                body { 
+                  margin: 0; 
+                  padding: 0; 
+                  background-color: #000;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  min-height: 100vh;
+                }
+                img { 
+                  max-width: 100%; 
+                  max-height: 100vh;
+                  object-fit: contain;
+                }
+              </style>
+            </head>
+            <body>
+              <img src="${imageUrl}" alt="Room Design" />
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      } else {
+        // Fallback if popup is blocked
+        window.location.href = imageUrl;
+      }
     }
   };
 

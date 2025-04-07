@@ -76,6 +76,33 @@ function HomeContent() {
     router.push('/sign-up');
   };
 
+  // Function to handle mobile menu toggle
+  const toggleMobileMenu = () => {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const body = document.body;
+    
+    if (mobileMenu) {
+      // Toggle the active class instead of hidden/flex
+      mobileMenu.classList.toggle('active');
+      
+      // Toggle body scroll
+      body.classList.toggle('mobile-menu-open');
+    }
+  };
+
+  // Function to close mobile menu (for when clicking a link)
+  const closeMobileMenu = () => {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const body = document.body;
+    
+    if (mobileMenu && mobileMenu.classList.contains('active')) {
+      mobileMenu.classList.remove('active');
+      
+      // Re-enable body scroll
+      body.classList.remove('mobile-menu-open');
+    }
+  };
+
   // Set mounted to true on client and setup image carousel
   useEffect(() => {
     // Set mounted state to true
@@ -492,12 +519,19 @@ function HomeContent() {
   return (
     <div className="min-h-screen bg-black text-white" id="top">
       {/* Navigation Bar */}
-      <nav className="flex justify-between items-center py-4 px-6 bg-zinc-900 sticky top-0 z-50 shadow-md border-b border-zinc-800 rounded-bl-2xl rounded-br-2xl nav-slide-down">
+      <nav className="flex justify-between items-center py-4 px-4 md:px-6 bg-zinc-900 sticky top-0 z-50 shadow-md border-b border-zinc-800 rounded-bl-2xl rounded-br-2xl nav-slide-down">
         <div className="flex items-center gap-2">
           <div className="bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
           <h1 className="text-lg font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
         </div>
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-8 text-sm">
+        {/* Mobile Menu Button */}
+        <button className="md:hidden flex flex-col space-y-1" onClick={toggleMobileMenu}>
+          <span className="w-6 h-0.5 bg-white"></span>
+          <span className="w-6 h-0.5 bg-white"></span>
+          <span className="w-6 h-0.5 bg-white"></span>
+        </button>
+        {/* Desktop Navigation */}
+        <div className="desktop-nav absolute left-1/2 transform -translate-x-1/2 gap-8 text-sm">
           <a href="#top" className="nav-link text-cyan-400 transition-colors duration-300 relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:bg-cyan-400">Home</a>
           <a href="#features" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Features</a>
           <a href="#how-it-works" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">How it Works</a>
@@ -505,7 +539,8 @@ function HomeContent() {
           <Link href="/pricing" className="hover:text-cyan-400 text-white transition-colors duration-300 relative">Pricing</Link>
           <Link href="/contact-us" className="hover:text-cyan-400 text-white transition-colors duration-300 relative">Contact Us</Link>
         </div>
-        <div className="flex gap-2">
+        {/* Desktop Buttons */}
+        <div className="desktop-nav-buttons gap-2">
           <button
             className="text-white border border-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm transition-colors"
             onClick={handleSignIn}
@@ -521,22 +556,52 @@ function HomeContent() {
         </div>
       </nav>
 
+      {/* Mobile Menu */}
+      <div id="mobile-menu" className="mobile-menu py-4 bg-zinc-900 fixed top-16 left-0 right-0 z-40 shadow-md border-b border-zinc-800">
+        <a href="#top" className="py-2 w-full text-center nav-link text-cyan-400 transition-colors duration-300" onClick={closeMobileMenu}>Home</a>
+        <a href="#features" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Features</a>
+        <a href="#how-it-works" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>How it Works</a>
+        <a href="#gallery" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Gallery</a>
+        <Link href="/pricing" className="py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Pricing</Link>
+        <Link href="/contact-us" className="py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Contact Us</Link>
+        <div className="flex gap-2 mt-4 w-full justify-center">
+          <button
+            className="text-white border border-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm transition-colors"
+            onClick={() => {
+              closeMobileMenu();
+              handleSignIn();
+            }}
+          >
+            Sign In
+          </button>
+          <button
+            className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-4 py-2 rounded-md text-sm font-bold transition-colors"
+            onClick={() => {
+              closeMobileMenu();
+              handleSignUp();
+            }}
+          >
+            Sign Up
+          </button>
+        </div>
+      </div>
+
       {/* Hero Section */}
-      <div className="relative px-6 py-12 bg-black flex flex-col md:flex-row">
-        <div className="max-w-3xl z-10 md:w-1/2 md:pr-8">
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-4">Transform Your Space with AI</h2>
-          <p className="text-lg text-white mb-6">
+      <div className="relative px-4 md:px-6 py-8 md:py-12 bg-black flex flex-col md:flex-row">
+        <div className="w-full max-w-3xl z-10 md:w-1/2 md:pr-8 mb-8 md:mb-0">
+          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-4">Transform Your Space with AI</h2>
+          <p className="text-base md:text-lg text-white mb-6">
             Design your dream interior in minutes, not months. Our AI-powered platform creates stunning, personalized room designs tailored to your style and budget.
           </p>
-          <div className="flex gap-4 mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 mb-8 md:mb-12">
             <button
-              className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-4 py-2 rounded-md font-medium transition-colors"
+              className="w-full sm:w-auto bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-4 py-2 rounded-md font-medium transition-colors"
               onClick={() => router.push('/sign-up')}
             >
               Get Started Free
             </button>
             <button
-              className="text-white border border-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md font-medium transition-colors"
+              className="w-full sm:w-auto text-white border border-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md font-medium transition-colors"
               onClick={() => {
                 const howItWorksSection = document.getElementById('how-it-works');
                 if (howItWorksSection) {
@@ -575,7 +640,7 @@ function HomeContent() {
             <p className="text-sm text-white">Design generated in 45 seconds</p>
           </div>
         </div>
-        <div className="absolute top-0 right-0 w-full md:w-1/2 h-full">
+        <div className="relative md:absolute md:top-0 md:right-0 w-full md:w-1/2 h-64 sm:h-80 md:h-full">
           <div className="relative w-full h-full overflow-hidden">
             {carouselImages.map((src, index) => (
               <div
@@ -592,7 +657,7 @@ function HomeContent() {
                 />
               </div>
             ))}
-            <div className="absolute inset-0 bg-gradient-to-r from-black to-transparent md:via-transparent z-20"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 md:via-transparent to-transparent md:to-transparent z-20"></div>
           </div>
         </div>
       </div>
