@@ -80,11 +80,11 @@ function HomeContent() {
   const toggleMobileMenu = () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const body = document.body;
-    
+
     if (mobileMenu) {
       // Toggle the active class instead of hidden/flex
       mobileMenu.classList.toggle('active');
-      
+
       // Toggle body scroll
       body.classList.toggle('mobile-menu-open');
     }
@@ -94,10 +94,10 @@ function HomeContent() {
   const closeMobileMenu = () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const body = document.body;
-    
+
     if (mobileMenu && mobileMenu.classList.contains('active')) {
       mobileMenu.classList.remove('active');
-      
+
       // Re-enable body scroll
       body.classList.remove('mobile-menu-open');
     }
@@ -409,7 +409,7 @@ function HomeContent() {
     const handleSmoothScroll = (e) => {
       e.preventDefault();
       const href = e.currentTarget?.getAttribute("href");
-      
+
       // Skip smooth scroll for external links
       if (href && (href.startsWith("/") || href.startsWith("http"))) {
         router.push(href);
@@ -535,6 +535,7 @@ function HomeContent() {
           <a href="#top" className="nav-link text-cyan-400 transition-colors duration-300 relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:bg-cyan-400">Home</a>
           <a href="#features" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Features</a>
           <a href="#how-it-works" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">How it Works</a>
+          <a href="#Tutorial Video" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Tutorial Video</a>
           <a href="#gallery" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Gallery</a>
           <Link href="/pricing" className="hover:text-cyan-400 text-white transition-colors duration-300 relative">Pricing</Link>
           <Link href="/contact-us" className="hover:text-cyan-400 text-white transition-colors duration-300 relative">Contact Us</Link>
@@ -561,6 +562,7 @@ function HomeContent() {
         <a href="#top" className="py-2 w-full text-center nav-link text-cyan-400 transition-colors duration-300" onClick={closeMobileMenu}>Home</a>
         <a href="#features" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Features</a>
         <a href="#how-it-works" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>How it Works</a>
+        <a href="#Tutorial Video" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Tutorial Video</a>
         <a href="#gallery" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Gallery</a>
         <Link href="/pricing" className="py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Pricing</Link>
         <Link href="/contact-us" className="py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Contact Us</Link>
@@ -762,6 +764,24 @@ function HomeContent() {
         </div>
       </div>
 
+      {/* Video Tutorial Section */}
+      <div className="py-16 px-6 bg-black transition-all duration-300" id="Tutorial Video">
+        <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-8">Watch How It Works</h3>
+        <p className="text-center text-white mb-8 max-w-2xl mx-auto">See DecorMind in action with our step-by-step tutorial video</p>
+        <div className="max-w-4xl mx-auto aspect-video relative rounded-lg overflow-hidden border border-zinc-800">
+          <video 
+            className="w-full h-full"
+            src="/videos/tutorial-video.mp4" 
+            title="DecorMind Tutorial Video"
+            controls
+            autoPlay={false}
+            playsInline
+            poster="/images/video-thumbnail.jpg">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+
       {/* Stunning Transformations Section */}
       <div className="py-16 px-6 bg-black transition-all duration-300" id="gallery">
         <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-8">Stunning Transformations</h3>
@@ -833,11 +853,6 @@ function HomeContent() {
               <p className="text-xs text-white">41 seconds</p>
             </div>
           </div>
-        </div>
-        <div className="text-center mt-10">
-          <Button className="bg-black text-white hover:bg-zinc-900 border border-zinc-800">
-            Create Your Design
-          </Button>
         </div>
       </div>
 

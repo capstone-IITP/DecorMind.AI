@@ -9,10 +9,22 @@ import { useRouter } from "next/navigation";
 export default function Page() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const router = useRouter();
+  const [redirectUrl, setRedirectUrl] = useState('/dashboard');
 
   const handleLogoClick = () => {
     router.push('/');
   };
+
+  // Get the redirectUrl from the URL query parameter
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const redirectParam = params.get('redirectUrl');
+      if (redirectParam) {
+        setRedirectUrl(redirectParam);
+      }
+    }
+  }, []);
 
   // Array of interior design images
   const images = [
@@ -86,7 +98,7 @@ export default function Page() {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <SignIn
-            redirectUrl="/dashboard"
+            redirectUrl={redirectUrl}
             routing="path"
             path="/sign-in"
             appearance={{

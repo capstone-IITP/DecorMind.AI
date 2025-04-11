@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Button } from "../../components/ui/button";
 import { UserButton } from '@clerk/nextjs';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
+import { useUser } from '@clerk/nextjs';
 
 export default function ContactUs() {
   const router = useRouter();
@@ -13,15 +14,71 @@ export default function ContactUs() {
   const [mounted, setMounted] = useState(false);
   const { event } = useGoogleAnalytics();
   const [activeLink, setActiveLink] = useState(null);
+  const { isLoaded, isSignedIn, user } = useUser();
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupAction, setPopupAction] = useState(null);
+  const [isSuccessPopup, setIsSuccessPopup] = useState(false);
+
+  // Custom popup component
+  const CustomPopup = ({ message, onClose, onAction, isSuccess }) => (
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/80">
+      <div className={`bg-zinc-900 border-2 ${isSuccess ? 'border-green-400' : 'border-cyan-400'} rounded-xl p-8 max-w-md w-full mx-4 ${isSuccess ? 'shadow-[0_0_15px_rgba(74,222,128,0.3)]' : 'shadow-[0_0_15px_rgba(34,211,238,0.3)]'} animate-fade-in-scale`}>
+        <div className="text-center">
+          <div className={`mx-auto w-12 h-12 ${isSuccess ? 'bg-green-400' : 'bg-cyan-400'} rounded-full flex items-center justify-center text-slate-800 mb-4`}>
+            {isSuccess ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+          </div>
+          <h3 className="text-xl font-semibold text-white mb-2">{isSuccess ? 'Success' : 'Notice'}</h3>
+          <p className="text-zinc-300 mb-6">{message}</p>
+          <div className="flex justify-center">
+            <button 
+              onClick={() => {
+                onClose();
+                window.location.href = '/sign-in?redirectUrl=/redesign';
+              }}
+              className={`popup-btn bg-gradient-to-r ${isSuccess ? 'from-green-500 to-green-400' : 'from-cyan-500 to-cyan-400'} text-slate-800 font-medium px-10 py-2 rounded-md hover:opacity-90 transition-colors`}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Function to show popup
+  const showCustomPopup = (message, action = null, isSuccess = false) => {
+    setPopupMessage(message);
+    setPopupAction(action);
+    setShowPopup(true);
+    setIsSuccessPopup(isSuccess);
+  };
 
   // Handle link click animation
   const handleLinkClick = (path) => {
     setActiveLink(path);
 
+    // If user is trying to go to redesign page and isn't signed in, show popup
+    if (path === '/redesign' && !isSignedIn) {
+      showCustomPopup("Please sign in to access the redesign page");
+      return;
+    }
+
     // Reset active link after animation completes
     setTimeout(() => {
       setActiveLink(null);
     }, 300);
+
+    // Navigate to the page
+    window.location.href = path;
   };
 
   // Function to check if the link is active
@@ -47,6 +104,57 @@ export default function ContactUs() {
         
         .fade-in {
           animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        /* Popup animations */
+        @keyframes fade-in-scale {
+          0% {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        
+        .animate-fade-in-scale {
+          animation: fade-in-scale 0.2s ease-out forwards;
+        }
+        
+        /* Button hover effect */
+        .popup-btn {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .popup-btn:after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 5px;
+          height: 5px;
+          background: rgba(255, 255, 255, 0.3);
+          opacity: 0;
+          border-radius: 100%;
+          transform: scale(1, 1) translate(-50%);
+          transform-origin: 50% 50%;
+        }
+        
+        .popup-btn:hover:after {
+          animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+          0% {
+            transform: scale(0, 0);
+            opacity: 0.5;
+          }
+          100% {
+            transform: scale(20, 20);
+            opacity: 0;
+          }
         }
         
         /* Navbar link animations */
@@ -284,6 +392,15 @@ export default function ContactUs() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {showPopup && (
+        <CustomPopup 
+          message={popupMessage} 
+          onClose={() => setShowPopup(false)} 
+          onAction={popupAction}
+          isSuccess={isSuccessPopup}
+        />
+      )}
+      
       {/* Navigation Bar */}
       <nav className="flex justify-between items-center py-4 px-6 bg-zinc-900 sticky top-0 z-50 shadow-md border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down">
         <div
@@ -306,7 +423,10 @@ export default function ContactUs() {
             <Link
               href="/redesign"
               className={`nav-link ${isActive('/redesign') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/redesign' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/redesign')}
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('/redesign');
+              }}
             >
               Redesign
             </Link>
@@ -445,7 +565,7 @@ export default function ContactUs() {
                     </a>
                     <a href="#" className="text-white hover:text-cyan-400 transform transition-transform duration-300 hover:-translate-y-1">
                       <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 48 48">
-                        <radialGradient id="yOrnnhliCrdS2gy~4tD8ma_Xy10Jcu1L2Su_gr1" cx="19.38" cy="42.035" r="44.899" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#fd5"></stop><stop offset=".328" stopColor="#ff543f"></stop><stop offset=".348" stopColor="#fc5245"></stop><stop offset=".504" stopColor="#e64771"></stop><stop offset=".643" stopColor="#d53e91"></stop><stop offset=".761" stopColor="#cc39a4"></stop><stop offset=".841" stopColor="#c837ab"></stop></radialGradient><path fill="url(#yOrnnhliCrdS2gy~4tD8ma_Xy10Jcu1L2Su_gr1)" d="M34.017,41.99l-20,0.019c-4.4,0.004-8.003-3.592-8.008-7.992l-0.019-20 c-0.004-4.4,3.592-8.003,7.992-8.008l20-0.019c4.4-0.004,8.003,3.592,8.008,7.992l0.019,20 C42.014,38.383,38.417,41.986,34.017,41.99z"></path><radialGradient id="yOrnnhliCrdS2gy~4tD8mb_Xy10Jcu1L2Su_gr2" cx="11.786" cy="5.54" r="29.813" gradientTransform="matrix(1 0 0 .6663 0 1.849)" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#4168c9"></stop><stop offset=".999" stopColor="#4168c9" stopOpacity="0"></stop></radialGradient><path fill="url(#yOrnnhliCrdS2gy~4tD8mb_Xy10Jcu1L2Su_gr2)" d="M34.017,41.99l-20,0.019c-4.4,0.004-8.003-3.592-8.008-7.992l-0.019-20 c-0.004-4.4,3.592-8.003,7.992-8.008l20-0.019c4.4-0.004,8.003,3.592,8.008,7.992l0.019,20 C42.014,38.383,38.417,41.986,34.017,41.99z"></path><path fill="#fff" d="M24,31c-3.859,0-7-3.14-7-7s3.141-7,7-7s7,3.14,7,7S27.859,31,24,31z M24,19c-2.757,0-5,2.243-5,5 s2.243,5,5,5s5-2.243,5-5S26.757,19,24,19z"></path><circle cx="31.5" cy="16.5" r="1.5" fill="#fff"></circle><path fill="#fff" d="M30,37H18c-3.859,0-7-3.14-7-7V18c0-3.86,3.141-7,7-7h12c3.859,0,7,3.14,7,7v12 C37,33.86,33.859,37,30,37z M18,13c-2.757,0-5,2.243-5,5v12c0,2.757,2.243,5,5,5h12c2.757,0,5-2.243,5-5V18c0-2.757-2.243-5-5-5H18z"></path>
+                        <radialGradient id="yOrnnhliCrdS2gy~4tD8ma_Xy10Jcu1L2Su_gr1" cx="19.38" cy="42.035" r="44.899" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#fd5"></stop><stop offset=".328" stopColor="#ff543f"></stop><stop offset=".348" stopColor="#fc5245"></stop><stop offset=".504" stopColor="#e64771"></stop><stop offset=".643" stopColor="#d53e91"></stop><stop offset=".761" stopColor="#cc39a4"></stop><stop offset=".841" stopColor="#c837ab"></stop></radialGradient><path fill="url(#yOrnnhliCrdS2gy~4tD8ma_Xy10Jcu1L2Su_gr1)" d="M34.017,41.99l-20,0.019c-4.4,0.004-8.003-3.592-8.008-7.992l-0.019-20 c-0.004-4.4,3.592-8.003,7.992-8.008l20-0.019c4.4-0.004,8.003,3.592,8.008,7.992l0.019,20 C42.014,38.383,38.417,41.986,34.017,41.99z"></path><radialGradient id="yOrnnhliCrdS2gy~4tD8mb_Xy10Jcu1L2Su_gr2" cx="11.786" cy="5.54" r="29.813" gradientTransform="matrix(1 0 0 .6663 0 1.849)" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#4168c9"></stop><stop offset=".999" stopColor="#4168c9" stopOpacity="0"></stop></radialGradient><path fill="url(#yOrnnhliCrdS2gy~4tD8mb_Xy10Jcu1L2Su_gr2)" d="M34.017,41.99l-20,0.019c-4.4,0.004-8.003-3.592-8.008-7.992l-0.019-20	c-0.004-4.4,3.592-8.003,7.992-8.008l20-0.019c4.4-0.004,8.003,3.592,8.008,7.992l0.019,20	C42.014,38.383,38.417,41.986,34.017,41.99z"></path><path fill="#fff" d="M24,31c-3.859,0-7-3.14-7-7s3.141-7,7-7s7,3.14,7,7S27.859,31,24,31z M24,19c-2.757,0-5,2.243-5,5	s2.243,5,5,5s5-2.243,5-5S26.757,19,24,19z"></path><circle cx="31.5" cy="16.5" r="1.5" fill="#fff"></circle><path fill="#fff" d="M30,37H18c-3.859,0-7-3.14-7-7V18c0-3.86,3.141-7,7-7h12c3.859,0,7,3.14,7,7v12	C37,33.86,33.859,37,30,37z M18,13c-2.757,0-5,2.243-5,5v12c0,2.757,2.243,5,5,5h12c2.757,0,5-2.243,5-5V18c0-2.757-2.243-5-5-5H18z"></path>
                       </svg>
                     </a>
                     <a href="#" className="text-white hover:text-cyan-400 transform transition-transform duration-300 hover:-translate-y-1">

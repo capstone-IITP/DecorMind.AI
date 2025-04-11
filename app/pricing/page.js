@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/button';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
 import PaymentButton from '../_components/PaymentButton';
-import { useAuth } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 
 export default function PricingPage() {
   return (
@@ -37,7 +37,6 @@ function PricingComponent() {
   const [highlightedPlan, setHighlightedPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isLoaded, isSignedIn } = useAuth();
 
   // Function to toggle mobile menu
   const toggleMobileMenu = () => {
@@ -88,42 +87,30 @@ function PricingComponent() {
 
   // Handle plan upgrade
   const handleUpgrade = (plan) => {
-    // Check if user is authenticated
-    if (!isLoaded || !isSignedIn) {
-      // Redirect to sign-in page if not authenticated
-      router.push('/sign-in');
-      return;
-    }
-
     // Don't do anything if clicking on current plan
     if (plan === currentPlan) return;
 
+    // Check if user is signed in
+    if (!isSignedIn) {
+      showCustomPopup("Please sign in to upgrade your plan");
+      return;
+    }
+
     // If it's the free plan, we can set it directly
     if (plan === 'free') {
-      setLoading(true);
+      localStorage.setItem("userPlan", plan);
+      localStorage.setItem("usedCredits", "0"); // Reset used credits
 
-      setTimeout(() => {
-        localStorage.setItem("userPlan", plan);
-        localStorage.setItem("usedCredits", "0"); // Reset used credits
-        setLoading(false);
-
-        // Show success notification and redirect
-        alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
-        router.push("/redesign");
-      }, 1000); // Simulate API call
+      // Show success notification and redirect
+      showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
+        window.location.href = "/redesign";
+      }, true);
     }
     // For premium and pro plans, we'll handle it in the payment success callback
   };
 
   // Handle payment success
   const handlePaymentSuccess = (plan, response) => {
-    // Check if user is still authenticated
-    if (!isLoaded || !isSignedIn) {
-      // Redirect to sign-in page if not authenticated
-      router.push('/sign-in');
-      return;
-    }
-
     console.log("Payment successful", response);
 
     // Update user plan and credits in localStorage
@@ -136,14 +123,12 @@ function PricingComponent() {
     } else if (plan === 'pro') {
       localStorage.setItem("usedCredits", "0");
       localStorage.setItem("totalCredits", "unlimited");
-    } else {
-      localStorage.setItem("usedCredits", "0");
-      localStorage.setItem("totalCredits", "2"); // Free plan
     }
 
     // Show success notification and redirect
-    alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
-    router.push("/redesign");
+    showCustomPopup(`Successfully upgraded to ${plan.toUpperCase()} plan!`, () => {
+      window.location.href = "/redesign";
+    }, true);
   };
 
   // Add CSS animations
@@ -695,9 +680,12 @@ function PricingComponent() {
               Home
             </Link>
             <Link
-              href="/redesign"
+              href="#"
               className={`nav-link ${isActive('/redesign') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/redesign' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/redesign')}
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('/redesign');
+              }}
               style={{ fontSize: '0.875rem !important' }}
             >
               Redesign
@@ -963,13 +951,134 @@ function PricingComponent() {
 }
 // New simplified pricing component
 function SimplifiedPricingComponent() {
-  const [currentPlan, setCurrentPlan] = useState("premium"); // this should come from user data
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [activeLink, setActiveLink] = useState(null);
-  const { isLoaded, isSignedIn } = useAuth();
+  const [activeLink, setActiveLink] = useState('');
+  const [currentPlan, setCurrentPlan] = useState('free');
+  const { isLoaded, isSignedIn, user } = useUser();
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupAction, setPopupAction] = useState(null);
+  const [isSuccessPopup, setIsSuccessPopup] = useState(false);
+
+  // Add CSS animations when component mounts
+  useEffect(() => {
+    // Load user's current plan from localStorage
+    const storedPlan = localStorage.getItem('userPlan') || 'free';
+    setCurrentPlan(storedPlan);
+
+    // Add CSS for popup animations
+    let style;
+    if (typeof window !== 'undefined') {
+      style = document.createElement('style');
+      style.innerHTML = `
+        /* Popup animations */
+        @keyframes fade-in-scale {
+          0% {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        
+        .animate-fade-in-scale {
+          animation: fade-in-scale 0.2s ease-out forwards;
+        }
+        
+        /* Button hover effect */
+        .popup-btn {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .popup-btn:after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 5px;
+          height: 5px;
+          background: rgba(255, 255, 255, 0.3);
+          opacity: 0;
+          border-radius: 100%;
+          transform: scale(1, 1) translate(-50%);
+          transform-origin: 50% 50%;
+        }
+        
+        .popup-btn:hover:after {
+          animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+          0% {
+            transform: scale(0, 0);
+            opacity: 0.5;
+          }
+          100% {
+            transform: scale(20, 20);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    return () => {
+      if (style && style.parentNode) {
+        document.head.removeChild(style);
+      }
+    };
+  }, []);
+
+  // Custom popup component
+  const CustomPopup = ({ message, onClose, onAction, isSuccess }) => (
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/80">
+      <div className={`bg-zinc-900 border-2 ${isSuccess ? 'border-green-400' : 'border-cyan-400'} rounded-xl p-8 max-w-md w-full mx-4 ${isSuccess ? 'shadow-[0_0_15px_rgba(74,222,128,0.3)]' : 'shadow-[0_0_15px_rgba(34,211,238,0.3)]'} animate-fade-in-scale`}>
+        <div className="text-center">
+          <div className={`mx-auto w-12 h-12 ${isSuccess ? 'bg-green-400' : 'bg-cyan-400'} rounded-full flex items-center justify-center text-slate-800 mb-4`}>
+            {isSuccess ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+          </div>
+          <h3 className="text-xl font-semibold text-white mb-2">{isSuccess ? 'Success' : 'Notice'}</h3>
+          <p className="text-zinc-300 mb-6">{message}</p>
+          <div className="flex justify-center">
+            <button 
+              onClick={() => {
+                onClose();
+                if (!isSuccess && !isSignedIn) {
+                  window.location.href = '/sign-in?redirectUrl=/redesign';
+                } else if (onAction) {
+                  onAction();
+                }
+              }}
+              className={`popup-btn bg-gradient-to-r ${isSuccess ? 'from-green-500 to-green-400' : 'from-cyan-500 to-cyan-400'} text-slate-800 font-medium px-10 py-2 rounded-md hover:opacity-90 transition-colors`}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Function to show popup
+  const showCustomPopup = (message, action = null, isSuccess = false) => {
+    setPopupMessage(message);
+    setPopupAction(action);
+    setShowPopup(true);
+    setIsSuccessPopup(isSuccess);
+  };
 
   // Function to toggle mobile menu
   const toggleMobileMenu = () => {
@@ -981,27 +1090,43 @@ function SimplifiedPricingComponent() {
     setMobileMenuOpen(false);
   };
 
-  // Function to check if a link is active
-  const isActive = (path) => {
-    return pathname === path;
-  };
-
-  // Function to handle link clicks
+  // Handle link click animation
   const handleLinkClick = (path) => {
     setActiveLink(path);
-  };
 
-  // Handle plan upgrade
-  const handleUpgrade = (plan) => {
-    // Check if user is authenticated
-    if (!isLoaded || !isSignedIn) {
-      // Redirect to sign-in page if not authenticated
-      router.push('/sign-in');
+    // If user is trying to go to redesign page and isn't signed in, redirect to login first
+    if (path === '/redesign' && !isSignedIn) {
+      showCustomPopup("Please sign in to access the redesign page");
       return;
     }
 
+    // Otherwise proceed with normal navigation
+    window.location.href = path;
+
+    // Reset active link after animation completes
+    setTimeout(() => {
+      setActiveLink(null);
+    }, 300);
+  };
+
+  // Function to check if the link is active
+  const isActive = (path) => {
+    if (!isLoaded) return false;
+    return pathname === path;
+  };
+
+  // Handle plan upgrade - similar to the existing component
+  const handleUpgrade = (plan) => {
     // Don't do anything if clicking on current plan
     if (plan === currentPlan) return;
+
+    // Check if user is signed in
+    if (!isSignedIn) {
+      showCustomPopup("Please sign in to upgrade your plan", () => {
+        window.location.href = '/sign-in';
+      });
+      return;
+    }
 
     // If it's the free plan, we can set it directly
     if (plan === 'free') {
@@ -1009,21 +1134,20 @@ function SimplifiedPricingComponent() {
       localStorage.setItem("usedCredits", "0"); // Reset used credits
 
       // Show success notification and redirect
-      alert(`Successfully switched to ${plan.toUpperCase()} plan!`);
-      window.location.href = "/redesign";
+      showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
+        // Redirect to redesign page only if signed in
+        if (isSignedIn) {
+          window.location.href = "/redesign";
+        } else {
+          window.location.href = '/sign-in';
+        }
+      });
     }
     // For premium and pro plans, we'll handle it in the payment success callback
   };
 
   // Handle payment success
   const handlePaymentSuccess = (plan, response) => {
-    // Check if user is still authenticated
-    if (!isLoaded || !isSignedIn) {
-      // Redirect to sign-in page if not authenticated
-      router.push('/sign-in');
-      return;
-    }
-
     console.log("Payment successful", response);
 
     // Update user plan and credits in localStorage
@@ -1039,186 +1163,56 @@ function SimplifiedPricingComponent() {
     }
 
     // Show success notification and redirect
-    alert(`Successfully upgraded to ${plan.toUpperCase()} plan!`);
-    window.location.href = "/redesign";
+    showCustomPopup(`Successfully upgraded to ${plan.toUpperCase()} plan!`, () => {
+      // Redirect to redesign page only if signed in
+      if (isSignedIn) {
+        window.location.href = "/redesign";
+      } else {
+        window.location.href = '/sign-in';
+      }
+    });
   };
 
-  // Add CSS animations when component mounts
-  useEffect(() => {
-    setMounted(true);
-
-    // Create a style element
-    const style = document.createElement('style');
-    style.innerHTML = `
-      /* Navbar link animations */
-      @keyframes fadeInDown {
-        0% {
-          opacity: 0;
-          transform: translateY(-10px);
-        }
-        100% {
-          opacity: 1;
-          transform: translateY(0);
-        }
+  // Add a check before showing payment button
+  const renderActionButton = (plan, isCurrent, isDisabled) => {
+    if (isCurrent) {
+      return (
+        <button className="mt-6 w-full bg-gray-700 text-white py-2 rounded-lg cursor-default" disabled>
+          Current Plan
+        </button>
+      );
+    } else if (plan.planKey === 'free') {
+      return (
+        <button
+          onClick={() => handleUpgrade('free')}
+          className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
+        >
+          Select {plan.name} Plan
+        </button>
+      );
+    } else {
+      // Check if user is signed in
+      if (!isSignedIn) {
+        return (
+          <button
+            onClick={() => window.location.href = '/sign-in?redirectUrl=/redesign'}
+            className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg"
+          >
+            Sign in to upgrade
+          </button>
+        );
+      } else {
+        return (
+          <PaymentButton
+            amount={plan.planKey === 'premium' ? 100 : 83500} // 1 or 835 INR in paise
+            buttonText={plan.planKey === 'pro' ? "Buy Unlimited Credits" : `Select ${plan.name} Plan`}
+            className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
+            onSuccess={(response) => handlePaymentSuccess(plan.planKey, response)}
+          />
+        );
       }
-
-      .nav-link {
-        position: relative;
-        opacity: 0;
-        font-size: 0.65rem !important; /* much smaller equivalent */
-      }
-
-      .nav-link::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        bottom: -4px;
-        left: 0;
-        background-color: #22d3ee;
-        transition: width 0.3s ease;
-      }
-      
-      .nav-link:hover::after {
-        width: 100%;
-      }
-
-      .nav-link.active::after {
-        width: 100%;
-      }
-
-      /* Click animation */
-      @keyframes clickEffect {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(0.95);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
-
-      .link-clicked {
-        animation: clickEffect 0.3s ease forwards;
-      }
-
-      .nav-link:nth-child(1) {
-        animation: fadeInDown 0.5s ease-out 0.1s forwards;
-      }
-
-      .nav-link:nth-child(2) {
-        animation: fadeInDown 0.5s ease-out 0.2s forwards;
-      }
-
-      .nav-link:nth-child(3) {
-        animation: fadeInDown 0.5s ease-out 0.3s forwards;
-      }
-
-      .nav-link:nth-child(4) {
-        animation: fadeInDown 0.5s ease-out 0.4s forwards;
-      }
-
-      .nav-link:nth-child(5) {
-        animation: fadeInDown 0.5s ease-out 0.5s forwards;
-      }
-
-      /* Navigation bar slide-down animation */
-      @keyframes slideDown {
-        0% {
-          transform: translateY(-100%);
-        }
-        100% {
-          transform: translateY(0);
-        }
-      }
-
-      .nav-slide-down {
-        animation: slideDown 0.5s ease-out forwards;
-      }
-
-      /* Logo animation */
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.05);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
-
-      .logo-pulse:hover {
-        animation: pulse 1s infinite;
-      }
-      
-      /* Logo glow effect */
-      .logo-container {
-        position: relative;
-        transition: all 0.3s ease;
-      }
-      
-      .logo-container:hover::after {
-        content: '';
-        position: absolute;
-        top: -5px;
-        left: -5px;
-        right: -5px;
-        bottom: -5px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0) 70%);
-        z-index: -1;
-        animation: glow 1.5s infinite alternate;
-      }
-      
-      @keyframes glow {
-        0% {
-          opacity: 0.5;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
-      
-      /* Sticky navbar effect */
-      .sticky-nav {
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-      }
-      
-      .sticky-nav.scrolled {
-        background-color: rgba(24, 24, 27, 0.8);
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Add scroll event for sticky navbar effect
-    const handleScroll = () => {
-      const navbar = document.querySelector('.sticky-nav');
-      if (navbar) {
-        if (window.scrollY > 10) {
-          navbar.classList.add('scrolled');
-        } else {
-          navbar.classList.remove('scrolled');
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
-    // Cleanup function
-    return () => {
-      document.head.removeChild(style);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+    }
+  };
 
   const plans = [
     {
@@ -1241,14 +1235,17 @@ function SimplifiedPricingComponent() {
     },
   ];
 
-  useEffect(() => {
-    // Load user's current plan from localStorage
-    const storedPlan = localStorage.getItem('userPlan') || 'free';
-    setCurrentPlan(storedPlan);
-  }, []);
-
   return (
     <div className="min-h-screen bg-black text-white">
+      {showPopup && (
+        <CustomPopup 
+          message={popupMessage} 
+          onClose={() => setShowPopup(false)} 
+          onAction={popupAction}
+          isSuccess={isSuccessPopup}
+        />
+      )}
+      
       {/* Navigation Bar */}
       <nav className="p-5 shadow-sm flex justify-between items-center bg-zinc-900 border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down sticky-nav">
         <div
@@ -1270,9 +1267,12 @@ function SimplifiedPricingComponent() {
               Home
             </Link>
             <Link
-              href="/redesign"
+              href="#"
               className={`nav-link ${isActive('/redesign') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/redesign' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/redesign')}
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('/redesign');
+              }}
               style={{ fontSize: '0.875rem !important' }}
             >
               Redesign
@@ -1325,9 +1325,13 @@ function SimplifiedPricingComponent() {
           Home
         </Link>
         <Link
-          href="/redesign"
+          href="#"
           className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
-          onClick={closeMobileMenu}
+          onClick={(e) => {
+            e.preventDefault();
+            handleLinkClick('/redesign');
+            closeMobileMenu();
+          }}
         >
           Redesign
         </Link>
@@ -1385,27 +1389,7 @@ function SimplifiedPricingComponent() {
                   ))}
                 </ul>
 
-                {isCurrent ? (
-                  <button className="mt-6 w-full bg-gray-700 text-white py-2 rounded-lg cursor-default" disabled>
-                    Current Plan
-                  </button>
-                ) : (
-                  plan.planKey === 'free' ? (
-                    <button
-                      onClick={() => handleUpgrade('free')}
-                      className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
-                    >
-                      Select {plan.name} Plan
-                    </button>
-                  ) : (
-                    <PaymentButton
-                      amount={plan.planKey === 'premium' ? 100 : 83500} // 1 or 835 INR in paise
-                      buttonText={plan.planKey === 'pro' ? "Buy Unlimited Credits" : `Select ${plan.name} Plan`}
-                      className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
-                      onSuccess={(response) => handlePaymentSuccess(plan.planKey, response)}
-                    />
-                  )
-                )}
+                {renderActionButton(plan, isCurrent, isDisabled)}
               </div>
             );
           })}

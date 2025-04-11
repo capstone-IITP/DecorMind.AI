@@ -1,8 +1,15 @@
 import Razorpay from "razorpay";
+import { auth } from "@clerk/nextjs";
 
 export async function POST(req) {
   if (req.method !== "POST") {
     return Response.json({ message: "Method Not Allowed" }, { status: 405 });
+  }
+
+  // Check if user is authenticated
+  const { userId } = auth();
+  if (!userId) {
+    return Response.json({ error: "Authentication required" }, { status: 401 });
   }
 
   const razorpay = new Razorpay({
@@ -28,6 +35,9 @@ export async function POST(req) {
       amount: amount, // Amount in paise
       currency: "INR",
       receipt: `order_rcptid_${Math.random().toString(36).substring(2, 15)}`,
+      notes: {
+        userId: userId // Store user ID in order notes for reference
+      }
     };
 
     const order = await razorpay.orders.create(options);

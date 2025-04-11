@@ -4,8 +4,9 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 const isProtectedRoute = createRouteMatcher([
   "/dashboard", 
   "/dashboard/(.*)",
-  "/pricing",  // Add pricing route to protected routes
-  "/redesign"  // Also protect redesign route since it's mentioned in the flow
+  "/pricing/(.*)",  // Add pricing routes as protected
+  "/api/razorpay",  // Protect the payment API route
+  "/redesign/(.*)"  // Protect redesign routes
 ])
 
 export default clerkMiddleware(async (auth, req) => {

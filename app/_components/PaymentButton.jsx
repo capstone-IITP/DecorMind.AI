@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react';
 import { Button } from '../../components/ui/button';
 import Script from 'next/script';
-import { useAuth } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
 const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', onSuccess }) => {
   const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn, user } = useUser();
   const router = useRouter();
 
   useEffect(() => {
@@ -58,9 +58,9 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
   };
 
   const handlePayment = async () => {
-    // Check if user is authenticated
-    if (!isLoaded || !isSignedIn) {
-      // Redirect to sign-in page if not authenticated
+    // Check if user is signed in before proceeding with payment
+    if (!isSignedIn) {
+      alert('Please sign in to continue with payment');
       router.push('/sign-in');
       return;
     }
