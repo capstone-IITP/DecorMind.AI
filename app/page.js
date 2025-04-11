@@ -386,7 +386,14 @@ function HomeContent() {
         }
       });
 
-      // Update active nav link
+      // Reset all links to inactive first
+      navLinks.forEach(link => {
+        link.classList.remove('text-cyan-400');
+        link.classList.add('text-white');
+        link.style.setProperty('--nav-underline-width', '0');
+      });
+
+      // Set only the current section's link to active
       navLinks.forEach(link => {
         const href = link.getAttribute('href');
         if (href === `#${currentSectionId}`) {
@@ -397,10 +404,6 @@ function HomeContent() {
           link.classList.add('text-cyan-400');
           link.classList.remove('text-white');
           link.style.setProperty('--nav-underline-width', '100%');
-        } else {
-          link.classList.remove('text-cyan-400');
-          link.classList.add('text-white');
-          link.style.setProperty('--nav-underline-width', '0');
         }
       });
     };
@@ -421,19 +424,20 @@ function HomeContent() {
         e.currentTarget.classList.add("nav-link-clicked");
       }
 
-      // Update active state immediately
+      // Reset all links to inactive state first
       const navLinks = document.querySelectorAll('.nav-link');
       navLinks.forEach(link => {
-        if (link === e.currentTarget) {
-          link.classList.add('text-cyan-400');
-          link.classList.remove('text-white');
-          link.style.setProperty('--nav-underline-width', '100%');
-        } else {
-          link.classList.remove('text-cyan-400');
-          link.classList.add('text-white');
-          link.style.setProperty('--nav-underline-width', '0');
-        }
+        link.classList.remove('text-cyan-400');
+        link.classList.add('text-white');
+        link.style.setProperty('--nav-underline-width', '0');
       });
+
+      // Set only the clicked link to active
+      if (e.currentTarget) {
+        e.currentTarget.classList.add('text-cyan-400');
+        e.currentTarget.classList.remove('text-white');
+        e.currentTarget.style.setProperty('--nav-underline-width', '100%');
+      }
 
       // Delay the scroll action for a better visual effect
       setTimeout(() => {
