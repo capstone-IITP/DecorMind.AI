@@ -757,193 +757,64 @@ function PricingComponent() {
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-transparent bg-clip-text">
             Choose Your Plan
           </h1>
-          <p className="text-zinc-400 max-w-2xl mx-auto">
+          <p className="text-zinc-400 max-w-2xl mx-auto mb-6">
             Unlock the full potential of AI-powered interior design with our premium plans. Choose the plan that suits your needs.
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Free Plan */}
-          <div className={`bg-zinc-900 border ${currentPlan === 'free' ? 'border-zinc-600' : 'border-zinc-800'} ${highlightedPlan === 'free' ? 'ring-2 ring-[#22d3ee]' : ''} rounded-xl p-6 transition-all duration-300 hover:border-zinc-700`}>
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">Free</h2>
-              <div className="text-3xl font-bold mb-2">{convertPrice(0)}</div>
-              <p className="text-zinc-500">Perfect for trying out</p>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span>2 AI Design Generations</span>
-              </div>
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span>Basic Room Styles</span>
-              </div>
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span>Community Support</span>
-              </div>
-            </div>
-
-            <Button
-              disabled={currentPlan === 'free' || loading}
-              onClick={() => handleUpgrade('free')}
-              className={`w-full ${currentPlan === 'free' ? 'bg-zinc-700 cursor-not-allowed' : 'bg-zinc-800 hover:bg-zinc-700'} text-white py-2 rounded-lg transition-colors`}
+          
+          {/* Currency Selector */}
+          <div className="flex justify-center items-center space-x-2 mb-8">
+            <span className="text-zinc-400">Select Currency:</span>
+            <select 
+              className="bg-zinc-800 text-white rounded-md border border-zinc-700 py-1 px-2 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
             >
-              {currentPlan === 'free' ? 'Current Plan' : 'Select Free Plan'}
-            </Button>
-          </div>
-
-          {/* Premium Plan */}
-          <div className={`bg-zinc-900 border ${highlightedPlan === 'premium' ? 'ring-4 ring-[#22d3ee]' : currentPlan === 'premium' ? 'border-zinc-600' : 'border-zinc-800'} rounded-xl p-6 transform ${highlightedPlan === 'premium' ? 'scale-105' : ''} transition-all duration-300 hover:border-[#22d3ee]/70 relative z-10`}>
-            {highlightedPlan === 'premium' && (
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-[#1e3a5c] to-[#22d3ee] text-white text-xs py-1 px-3 rounded-full font-medium">
-                RECOMMENDED
-              </div>
-            )}
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">Premium</h2>
-              <div className="flex items-center justify-center">
-                <div className="text-3xl font-bold">₹1</div>
-              </div>
-              <p className="text-zinc-500">10 Credits</p>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span>10 AI Design Generations</span>
-              </div>
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span>All Room Styles</span>
-              </div>
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span>High-Quality Generations</span>
-              </div>
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#22d3ee]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span>Email Support</span>
-              </div>
-            </div>
-
-            <Button
-              disabled={currentPlan === 'premium' || loading}
-              onClick={() => handleUpgrade('premium')}
-              className={`w-full ${currentPlan === 'premium' ? 'bg-zinc-700 cursor-not-allowed' : 'bg-gradient-to-r from-[#1e3a5c] to-[#22d3ee] hover:opacity-90'} text-white py-2 rounded-lg transition-all duration-300 shadow-lg hidden`}
-            >
-              {loading && currentPlan !== 'premium' ? 'Processing...' : currentPlan === 'premium' ? 'Current Plan' : 'Upgrade to Premium'}
-            </Button>
-
-            {/* Use PaymentButton for premium plan */}
-            {currentPlan !== 'premium' && (
-              <PaymentButton
-                amount={100} // 1 INR in paise
-                buttonText={loading ? 'Processing...' : 'Buy 10 Credits for ₹1'}
-                className={`w-full bg-gradient-to-r from-[#1e3a5c] to-[#22d3ee] hover:opacity-90 text-white py-2 rounded-lg transition-all duration-300 shadow-lg`}
-                onSuccess={(response) => handlePaymentSuccess('premium', response)}
-              />
-            )}
-            {currentPlan === 'premium' && (
-              <Button disabled className="w-full bg-zinc-700 cursor-not-allowed text-white py-2 rounded-lg">
-                Current Plan
-              </Button>
-            )}
-          </div>
-
-          {/* Pro Plan */}
-          <div className={`bg-zinc-900 border ${highlightedPlan === 'pro' ? 'ring-4 ring-[#4ade80]' : currentPlan === 'pro' ? 'border-zinc-600' : 'border-zinc-800'} rounded-xl p-6 transition-all duration-300 hover:border-[#4ade80]/70`}>
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">Pro</h2>
-              <div className="flex items-center justify-center">
-                <div className="text-3xl font-bold">{convertPrice(10)}</div>
-                <span className="text-zinc-500 ml-1">/month</span>
-              </div>
-              <p className="text-zinc-500">For professional users</p>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span className="font-medium">Unlimited AI Designs</span>
-              </div>
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span className="font-medium">Premium Styles & Features</span>
-              </div>
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span className="font-medium">4K Resolution</span>
-              </div>
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span className="font-medium">Priority Support</span>
-              </div>
-              <div className="flex items-center text-zinc-300">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#4ade80]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span className="font-medium">Commercial License</span>
-              </div>
-            </div>
-
-            <Button
-              disabled={currentPlan === 'pro' || loading}
-              onClick={() => handleUpgrade('pro')}
-              className={`w-full ${currentPlan === 'pro' ? 'bg-zinc-700 cursor-not-allowed' : 'bg-gradient-to-r from-[#22d3ee] to-[#4ade80] hover:opacity-90'} text-${currentPlan === 'pro' ? 'white' : 'black'} font-medium py-2 rounded-lg transition-all duration-300 shadow-lg hidden`}
-            >
-              {loading && currentPlan !== 'pro' ? 'Processing...' : currentPlan === 'pro' ? 'Current Plan' : 'Upgrade to Pro'}
-            </Button>
-
-            {/* Use PaymentButton for pro plan */}
-            {currentPlan !== 'pro' && (
-              <PaymentButton
-                amount={83500} // 835 INR in paise
-                buttonText={loading ? 'Processing...' : 'Buy Unlimited Credits for ₹835'}
-                className={`w-full bg-gradient-to-r from-[#22d3ee] to-[#4ade80] hover:opacity-90 text-black font-medium py-2 rounded-lg transition-all duration-300 shadow-lg`}
-                onSuccess={(response) => handlePaymentSuccess('pro', response)}
-              />
-            )}
-            {currentPlan === 'pro' && (
-              <Button disabled className="w-full bg-zinc-700 cursor-not-allowed text-white py-2 rounded-lg">
-                Current Plan
-              </Button>
-            )}
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="CAD">CAD (C$)</option>
+              <option value="AUD">AUD (A$)</option>
+              <option value="JPY">JPY (¥)</option>
+            </select>
           </div>
         </div>
 
-        <div className="mt-16 text-center">
-          <p className="text-zinc-500 mb-4">All plans include access to our basic features</p>
-          <Button
-            onClick={() => router.push('/redesign')}
-            className="bg-zinc-800 hover:bg-zinc-700 text-white transition-colors duration-300"
-          >
-            Continue with Current Plan
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {plans.map((plan) => {
+            const isCurrent = plan.planKey === currentPlan;
+            const isDisabled = currentPlan === "pro" || (currentPlan === "premium" && plan.planKey === "free");
+            
+            // Convert prices based on currency
+            let price;
+            if (plan.planKey === 'free') {
+              price = currency === 'INR' ? '₹0.00' : convertPrice(0);
+            } else if (plan.planKey === 'premium') {
+              price = currency === 'INR' ? '₹1.00' : convertPrice(0.012); // Approximately 1 INR in USD
+            } else {
+              price = currency === 'INR' ? '₹835.00 /month' : `${convertPrice(10)} /month`; // Approximately 835 INR in USD
+            }
+
+            return (
+              <div
+                key={plan.planKey}
+                className={`rounded-xl p-6 bg-zinc-900 text-white shadow-md ${isCurrent ? "border-2 border-cyan-400" : ""
+                  } ${isDisabled ? "opacity-50 pointer-events-none" : ""}`}
+              >
+                <h2 className="text-2xl font-bold">{plan.name}</h2>
+                <p className="text-xl mt-2">{price}</p>
+                <ul className="mt-4 space-y-2">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      ✅ {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                {renderActionButton(plan, isCurrent, isDisabled)}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -961,6 +832,31 @@ function SimplifiedPricingComponent() {
   const [popupMessage, setPopupMessage] = useState('');
   const [popupAction, setPopupAction] = useState(null);
   const [isSuccessPopup, setIsSuccessPopup] = useState(false);
+  const [currency, setCurrency] = useState('INR');
+  const [exchangeRates, setExchangeRates] = useState({
+    USD: 1,
+    EUR: 0.92,
+    GBP: 0.79,
+    INR: 83.50,
+    CAD: 1.37,
+    AUD: 1.52,
+    JPY: 150.45
+  });
+
+  // Function to convert price to selected currency
+  const convertPrice = (usdPrice) => {
+    const convertedPrice = (usdPrice * exchangeRates[currency]).toFixed(2);
+    const currencySymbols = {
+      USD: '$',
+      EUR: '€',
+      GBP: '£',
+      INR: '₹',
+      CAD: 'C$',
+      AUD: 'A$',
+      JPY: '¥'
+    };
+    return `${currencySymbols[currency]}${convertedPrice}`;
+  };
 
   // Add CSS animations when component mounts
   useEffect(() => {
@@ -1363,15 +1259,43 @@ function SimplifiedPricingComponent() {
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-transparent bg-clip-text">
             Choose Your Plan
           </h1>
-          <p className="text-zinc-400 max-w-2xl mx-auto">
+          <p className="text-zinc-400 max-w-2xl mx-auto mb-6">
             Unlock the full potential of AI-powered interior design with our premium plans. Choose the plan that suits your needs.
           </p>
+          
+          {/* Currency Selector */}
+          <div className="flex justify-center items-center space-x-2 mb-8">
+            <span className="text-zinc-400">Select Currency:</span>
+            <select 
+              className="bg-zinc-800 text-white rounded-md border border-zinc-700 py-1 px-2 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="CAD">CAD (C$)</option>
+              <option value="AUD">AUD (A$)</option>
+              <option value="JPY">JPY (¥)</option>
+            </select>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {plans.map((plan) => {
             const isCurrent = plan.planKey === currentPlan;
             const isDisabled = currentPlan === "pro" || (currentPlan === "premium" && plan.planKey === "free");
+            
+            // Convert prices based on currency
+            let price;
+            if (plan.planKey === 'free') {
+              price = currency === 'INR' ? '₹0.00' : convertPrice(0);
+            } else if (plan.planKey === 'premium') {
+              price = currency === 'INR' ? '₹1.00' : convertPrice(0.012); // Approximately 1 INR in USD
+            } else {
+              price = currency === 'INR' ? '₹835.00 /month' : `${convertPrice(10)} /month`; // Approximately 835 INR in USD
+            }
 
             return (
               <div
@@ -1380,7 +1304,7 @@ function SimplifiedPricingComponent() {
                   } ${isDisabled ? "opacity-50 pointer-events-none" : ""}`}
               >
                 <h2 className="text-2xl font-bold">{plan.name}</h2>
-                <p className="text-xl mt-2">{plan.price}</p>
+                <p className="text-xl mt-2">{price}</p>
                 <ul className="mt-4 space-y-2">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-center gap-2">

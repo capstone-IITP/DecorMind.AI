@@ -5,11 +5,13 @@ import { Button } from '../../components/ui/button';
 import Script from 'next/script';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
 
 const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', onSuccess }) => {
   const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const { isLoaded, isSignedIn, user } = useUser();
+  const { getToken } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -75,16 +77,32 @@ const PaymentButton = ({ amount = 500, buttonText = 'Pay Now', className = '', o
       
       console.log("Creating Razorpay order with amount:", amount);
       
+      // Get auth token
+      const token = await getToken();
+      
       // Create order on the server
       const res = await fetch("/api/razorpay", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        credentials: 'include',
         body: JSON.stringify({ 
           amount: Math.max(100, Math.round(amount)) // Ensure minimum 1 INR (100 paise) and round to integer
         }),
       });
 
       if (!res.ok) {
+        // Handle authentication errors specifically
+        if (res.status === 401) {
+          alert('Your session has expired. Please sign in again.');
+          hideOverlay();
+          setIsProcessing(false);
+          router.push('/sign-in?redirectUrl=' + encodeURIComponent(window.location.pathname));
+          return; // Return early instead of throwing an error
+        }
+        
         const errorData = await res.json();
         throw new Error(errorData.error || 'Failed to create payment order');
       }
