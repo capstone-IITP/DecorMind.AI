@@ -1,5 +1,5 @@
 import Razorpay from "razorpay";
-import { auth } from "@clerk/nextjs";
+import { auth } from '@clerk/nextjs/server';
 
 export async function POST(req) {
   if (req.method !== "POST") {
@@ -19,18 +19,18 @@ export async function POST(req) {
 
   try {
     const body = await req.json();
-    
+
     if (!body.amount) {
       return Response.json({ error: "Amount is required" }, { status: 400 });
     }
-    
+
     // Ensure amount is a valid integer
     const amount = Math.max(100, Math.round(Number(body.amount)));
-    
+
     if (isNaN(amount) || amount < 100) {
       return Response.json({ error: "Invalid amount. Minimum amount is 100 paise (1 INR)" }, { status: 400 });
     }
-    
+
     const options = {
       amount: amount, // Amount in paise
       currency: "INR",
