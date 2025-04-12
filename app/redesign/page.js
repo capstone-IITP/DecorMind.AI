@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "../../components/ui/button";
 import { useRouter } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
-import UpgradeModal from "@/components/UpgradeModal";
+import UpgradeModal from "../../components/UpgradeModal";
 import Image from 'next/image';
 
 // Plans for credit system

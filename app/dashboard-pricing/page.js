@@ -706,17 +706,17 @@ function PricingComponent() {
               DecorMind
             </Link>
             <Link
-              href="/pricing"
-              className={`nav-link ${isActive('/pricing') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/pricing' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/pricing')}
+              href="/dashboard-pricing"
+              className={`nav-link ${isActive('/dashboard-pricing') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/dashboard-pricing' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/dashboard-pricing')}
               style={{ fontSize: '0.875rem !important' }}
             >
               Pricing
             </Link>
             <Link
-              href="/contact-us"
-              className={`nav-link ${isActive('/contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/contact-us' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/contact-us')}
+              href="/dashboard-contact-us"
+              className={`nav-link ${isActive('/dashboard-contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/dashboard-contact-us' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/dashboard-contact-us')}
               style={{ fontSize: '0.875rem !important' }}
             >
               Contact Us
