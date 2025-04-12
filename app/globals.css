@@ -1,7 +1,8 @@
-/* Tailwind CSS directives */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CSS imports */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 /* Hide Next.js development mode banner */
 #__next-build-watcher,
@@ -43,6 +44,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -69,135 +71,281 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
 
-@layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
+
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
-/* Animation keyframes */
+/* Animation keyframes - outside of layers for better compatibility */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes slideDown {
-  from { transform: translateY(-10px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Custom styles for the app */
-.gradient-text {
-  @apply bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text;
+@keyframes swiper {
+  0% {
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
-.btn-primary {
-  @apply bg-cyan-400 text-slate-800 hover:bg-cyan-500 transition-colors;
+@layer components {
+
+  /* Custom styles for the app */
+  .gradient-text {
+    background-image: linear-gradient(to right, #1e293b, #22d3ee, #4ade80);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .btn-primary {
+    background-color: #22d3ee;
+    color: #1e293b;
+    transition-property: background-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  .btn-primary:hover {
+    background-color: #06b6d4;
+  }
+
+  .btn-secondary {
+    background-color: #18181b;
+    color: #ffffff;
+    transition-property: background-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  .btn-secondary:hover {
+    background-color: #3f3f46;
+  }
+
+  .card {
+    background-color: #18181b;
+    border-width: 1px;
+    border-color: #27272a;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+  }
+
+  /* Razorpay Payment Modal Overlay */
+  .razorpay-payment-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(0.5px);
+    z-index: 50;
+    display: none;
+  }
+
+  .razorpay-payment-overlay.active {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Loader styles */
+  #loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: #0ef;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: top 0.5s ease-in-out;
+    overflow: hidden;
+  }
+
+  #loader h1 {
+    color: #000;
+    font-size: 4vw;
+    font-weight: 700;
+    font-family: "Poppins", sans-serif;
+    position: absolute;
+    opacity: 0;
+    animation-name: swiper;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+  }
+
+  #loader h1:nth-child(1) {
+    animation-delay: 1s;
+  }
+
+  #loader h1:nth-child(2) {
+    animation-delay: 2s;
+  }
+
+  #loader h1:nth-child(3) {
+    animation-delay: 3s;
+  }
+
+  /* Mobile menu styles */
+  .mobile-menu {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mobile-menu.active {
+    display: flex;
+  }
+
+  /* Desktop navigation styles */
+  .desktop-nav {
+    display: none;
+  }
+
+  .desktop-nav-buttons {
+    display: none;
+  }
 }
 
-.btn-secondary {
-  @apply bg-zinc-800 text-white hover:bg-zinc-700 transition-colors;
-}
+@layer utilities {
 
-.card {
-  @apply bg-zinc-900 border border-zinc-800 rounded-lg p-6;
-}
+  /* Animation utility classes */
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-in-out;
+  }
 
-/* Animation utility classes */
-.animate-fadeIn {
-  animation: fadeIn 0.5s ease-in-out;
-}
+  .animate-pulse-custom {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 
-.animate-pulse-custom {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
 
-.animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
+  .animate-slideDown {
+    animation: slideDown 0.3s ease-out;
+  }
 
-.animate-slideDown {
-  animation: slideDown 0.3s ease-out;
-}
+  /* Hide scrollbars for better mobile experience */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    /* Internet Explorer and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
 
-/* Razorpay Payment Modal Overlay */
-.razorpay-payment-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(0.5px);
-  z-index: 50;
-  display: none;
-}
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
+  }
 
-.razorpay-payment-overlay.active {
-  display: block;
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* Hide scrollbars for better mobile experience */
-.hide-scrollbar {
-  -ms-overflow-style: none;  /* Internet Explorer and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
-}
-
-/* Responsive utility classes */
-@media (max-width: 640px) {
+  /* Responsive utility classes */
   .mobile-p {
     padding: 1rem;
   }
-  
+
   .mobile-text-center {
     text-align: center;
   }
-  
+
   .mobile-w-full {
     width: 100%;
   }
+
+  /* For mobile navigation */
+  .mobile-menu-open {
+    overflow: hidden;
+  }
+
+  /* Responsive padding utilities */
+  .p-responsive {
+    padding: 0.75rem;
+  }
 }
 
-/* For mobile navigation */
-.mobile-menu-open {
-  overflow: hidden;
-}
-
-/* Responsive padding utilities */
-.p-responsive {
-  padding: 0.75rem;
-}
-
+/* Media queries - these can't be in @layer */
 @media (min-width: 768px) {
   .p-responsive {
     padding: 1.5rem;
+  }
+
+  .desktop-nav {
+    display: flex;
+  }
+
+  .desktop-nav-buttons {
+    display: flex;
   }
 }
 
@@ -207,82 +355,69 @@
   }
 }
 
-/* Mobile touch optimizations */
+@media (max-width: 640px) {
+  .mobile-p {
+    padding: 1rem;
+  }
+
+  .mobile-text-center {
+    text-align: center;
+  }
+
+  .mobile-w-full {
+    width: 100%;
+  }
+}
+
+/* Mobile touch optimizations - these need to be outside layers */
 @media (hover: none) and (pointer: coarse) {
+
   /* Larger touch targets for mobile */
-  button, 
+  button,
   a,
   input[type="button"],
   input[type="submit"] {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Add active state styles for touch devices */
   a:active,
   button:active {
     opacity: 0.7;
   }
-  
+
   /* Disable hover effects on mobile */
   a:hover,
   button:hover {
     opacity: 1;
   }
-  
+
   /* Improve scrolling performance */
   * {
     -webkit-tap-highlight-color: transparent;
   }
 }
 
-/* iOS specific fixes */
+/* iOS specific fixes - these need to be outside layers */
 @supports (-webkit-touch-callout: none) {
+
   /* Fix for iOS 100vh issue */
   .min-h-screen {
     min-height: -webkit-fill-available;
   }
-  
+
   /* Fix for iOS input zooming */
-  input, select, textarea {
+  input,
+  select,
+  textarea {
     font-size: 16px;
   }
 }
 
-/* Android specific fixes */
+/* Android specific fixes - these need to be outside layers */
 @supports not (-webkit-touch-callout: none) {
   body {
     overflow-x: hidden;
   }
 }
-
-/* Mobile menu styles */
-.mobile-menu {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-}
-
-.mobile-menu.active {
-  display: flex;
-}
-
-/* Desktop navigation styles */
-.desktop-nav {
-  display: none;
-}
-
-.desktop-nav-buttons {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .desktop-nav {
-    display: flex;
-  }
-  
-  .desktop-nav-buttons {
-    display: flex;
-  }
-}
- 

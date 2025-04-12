@@ -11,12 +11,7 @@ import RoomTransformationsCarousel from './_components/RoomTransformationsCarous
 
 // Simple loading component
 const Loading = () => (
-  <div className="min-h-screen bg-black text-white flex items-center justify-center">
-    <div className="text-center">
-      <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-white">Loading DecorMind...</p>
-    </div>
-  </div>
+  <div id="loader"></div>
 );
 
 // Client-side only component with no SSR
@@ -773,9 +768,9 @@ function HomeContent() {
         <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-8">Watch How It Works</h3>
         <p className="text-center text-white mb-8 max-w-2xl mx-auto">See DecorMind in action with our step-by-step tutorial video</p>
         <div className="max-w-4xl mx-auto aspect-video relative rounded-lg overflow-hidden border border-zinc-800">
-          <video 
+          <video
             className="w-full h-full"
-            src="/videos/tutorial-video.mp4" 
+            src="/videos/tutorial-video.mp4"
             title="DecorMind Tutorial Video"
             controls
             autoPlay={false}

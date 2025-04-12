@@ -26,6 +26,26 @@ export const viewport = {
   userScalable: false,
 };
 
+// Client component for loader
+const LoaderScript = () => {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          document.addEventListener('DOMContentLoaded', function() {
+            var loader = document.querySelector('#loader');
+            if (loader) {
+              setTimeout(function() {
+                loader.style.top = '-100%';
+              }, 4000);
+            }
+          });
+        `,
+      }}
+    />
+  );
+};
+
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider
@@ -36,18 +56,24 @@ export default function RootLayout({ children }) {
       <html lang="en">
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+          <LoaderScript />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           suppressHydrationWarning={true}
         >
-          <NextTopLoader 
+          <NextTopLoader
             color="#22d3ee"
             showSpinner={false}
             height={3}
             shadow={true}
           />
           <GoogleAnalytics />
+          <div id="loader">
+            <h1>Welcome</h1>
+            <h1>To</h1>
+            <h1>DecorMind</h1>
+          </div>
           {children}
         </body>
       </html>

@@ -73,6 +73,41 @@ export default {
         
         '2xl': '1536px',
         // => @media (min-width: 1536px) { ... } for large desktops
+      },
+      keyframes: {
+        fadeIn: {
+          'from': { opacity: '0' },
+          'to': { opacity: '1' }
+        },
+        pulse: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.7' }
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' }
+        },
+        slideDown: {
+          'from': { 
+            transform: 'translateY(-10px)',
+            opacity: '0'
+          },
+          'to': { 
+            transform: 'translateY(0)',
+            opacity: '1'
+          }
+        },
+        spin: {
+          'from': { transform: 'rotate(0deg)' },
+          'to': { transform: 'rotate(360deg)' }
+        }
+      },
+      animation: {
+        'fadeIn': 'fadeIn 0.5s ease-in-out',
+        'pulse-custom': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'shimmer': 'shimmer 1.5s infinite',
+        'slideDown': 'slideDown 0.3s ease-out',
+        'spin': 'spin 1s linear infinite'
       }
   	}
   },
