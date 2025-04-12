@@ -93,7 +93,7 @@ function PricingComponent() {
     // Check if user is signed in
     if (!isSignedIn) {
       showCustomPopup("Please sign in to upgrade your plan", () => {
-        window.location.href = '/sign-in?redirectUrl=/pricing';
+        window.location.href = '/sign-in?redirectUrl=/pricing-d';
       });
       return;
     }
@@ -133,7 +133,7 @@ function PricingComponent() {
       if (isSignedIn) {
         window.location.href = "/redesign";
       } else {
-        window.location.href = '/sign-in?redirectUrl=/pricing';
+        window.location.href = '/sign-in?redirectUrl=/pricing-d';
       }
     });
   };
@@ -960,7 +960,7 @@ function SimplifiedPricingComponent() {
               onClick={() => {
                 onClose();
                 if (!isSuccess && !isSignedIn) {
-                  window.location.href = '/sign-in?redirectUrl=/pricing';
+                  window.location.href = '/sign-in?redirectUrl=/pricing-d';
                 } else if (onAction) {
                   onAction();
                 }
@@ -1026,7 +1026,7 @@ function SimplifiedPricingComponent() {
     // Check if user is signed in
     if (!isSignedIn) {
       showCustomPopup("Please sign in to upgrade your plan", () => {
-        window.location.href = '/sign-in?redirectUrl=/pricing';
+        window.location.href = '/sign-in?redirectUrl=/pricing-d';
       });
       return;
     }
@@ -1071,7 +1071,7 @@ function SimplifiedPricingComponent() {
       if (isSignedIn) {
         window.location.href = "/redesign";
       } else {
-        window.location.href = '/sign-in?redirectUrl=/pricing';
+        window.location.href = '/sign-in?redirectUrl=/pricing-d';
       }
     });
   };
@@ -1098,7 +1098,7 @@ function SimplifiedPricingComponent() {
       if (!isSignedIn) {
         return (
           <button
-            onClick={() => window.location.href = '/sign-in?redirectUrl=/pricing'}
+            onClick={() => window.location.href = '/sign-in?redirectUrl=/pricing-d'}
             className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg"
           >
             Sign in to upgrade
@@ -1160,64 +1160,49 @@ function SimplifiedPricingComponent() {
         </div>
 
         <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 items-center">
-          <nav className="flex gap-4 md:gap-6 mx-auto justify-center flex-wrap" style={{ fontSize: '0.875rem' }}>
-            <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
+          <nav className="flex gap-6" style={{ fontSize: '0.875rem' }}>
+            <Link
+              href="/dashboard"
+              className={`nav-link ${isActive('/dashboard') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/dashboard' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/dashboard')}
+              style={{ fontSize: '0.875rem !important' }}
+            >
               Home
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
-              href="/#features"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              href="#"
+              className={`nav-link ${isActive('/redesign') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/redesign' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
               onClick={(e) => {
                 e.preventDefault();
-                router.push('/');
+                handleLinkClick('/redesign');
               }}
+              style={{ fontSize: '0.875rem !important' }}
             >
-              Features
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+              Redesign
             </Link>
             <Link
-              href="/#how-it-works"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push('/');
-              }}
+              href="/decormind"
+              className={`nav-link ${isActive('/decormind') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/decormind' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/decormind')}
+              style={{ fontSize: '0.875rem !important' }}
             >
-              How it Works
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-            <Link
-              href="/#gallery"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push('/');
-              }}
-            >
-              Gallery
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-            <Link
-              href="/tutorial-video"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
-            >
-              Tutorial Video
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+              DecorMind
             </Link>
             <Link
               href="/pricing"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className={`nav-link ${isActive('/pricing') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/pricing' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/pricing')}
+              style={{ fontSize: '0.875rem !important' }}
             >
               Pricing
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/contact-us"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className={`nav-link ${isActive('/contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/contact-us' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/contact-us')}
+              style={{ fontSize: '0.875rem !important' }}
             >
               Contact Us
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
           </nav>
         </div>

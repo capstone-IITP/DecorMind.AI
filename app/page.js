@@ -780,7 +780,7 @@ function HomeContent() {
             controls
             autoPlay={false}
             playsInline
-            poster="/images/video-thumbnail.jpg">
+            poster="/images/cover-page.jpg">
             Your browser does not support the video tag.
           </video>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "../../components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
 import { useUser } from '@clerk/nextjs';
 import { Suspense } from 'react';
+import { UserButton } from '@clerk/nextjs';
 
 // Create a client component that uses useSearchParams
 function BedroomContent() {
@@ -15,6 +16,7 @@ function BedroomContent() {
     const { event } = useGoogleAnalytics();
     const { isSignedIn } = useUser();
     const searchParams = useSearchParams();
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Track page view when component mounts
     React.useEffect(() => {
@@ -170,6 +172,26 @@ function BedroomContent() {
         }
     ];
 
+    // Toggle mobile menu
+    const toggleMobileMenu = () => {
+        setMobileMenuOpen(!mobileMenuOpen);
+    };
+
+    // Close mobile menu
+    const closeMobileMenu = () => {
+        setMobileMenuOpen(false);
+    };
+
+    // Sign in handler
+    const handleSignIn = () => {
+        router.push('/sign-in');
+    };
+    
+    // Sign up handler
+    const handleSignUp = () => {
+        router.push('/sign-up');
+    };
+
     // Handle redesign button click
     const handleRedesignClick = () => {
         event({
@@ -189,103 +211,98 @@ function BedroomContent() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900 text-white">
             {/* Header with navigation */}
-            <div className="p-5 shadow-sm flex justify-between items-center bg-zinc-900 border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl">
+            <div className="p-5 shadow-sm flex flex-col md:flex-row justify-between items-center bg-zinc-900 border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl">
                 <div
-                    className="flex gap-2 items-center cursor-pointer hover:opacity-80 transition-opacity"
+                    className="flex gap-2 items-center cursor-pointer hover:opacity-80 transition-opacity mb-4 md:mb-0"
                     onClick={() => router.push('/')}
                 >
                     <div className="bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
                     <h2 className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
                 </div>
-                <div className="flex items-center">
-                    <nav className="flex gap-6 absolute left-1/2 transform -translate-x-1/2">
-                        <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
-                            Home
-                            <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
-                        <Link
-                            href="/#features"
-                            className="text-white hover:text-cyan-400 transition-colors relative group"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                router.push('/');
-                                setTimeout(() => {
-                                    const featuresSection = document.getElementById('features');
-                                    if (featuresSection) {
-                                        featuresSection.scrollIntoView({ behavior: 'smooth' });
-                                        // Add animation to the section after scrolling
-                                        setTimeout(() => {
-                                            animateSection(featuresSection);
-                                        }, 1000); // Wait for the scroll to complete
-                                    }
-                                }, 300); // Small delay to ensure navigation completes
-                            }}
-                        >
-                            Features
-                            <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
-                        <Link
-                            href="/#how-it-works"
-                            className="text-white hover:text-cyan-400 transition-colors relative group"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                router.push('/');
-                                setTimeout(() => {
-                                    const featuresSection = document.getElementById('how-it-works');
-                                    if (featuresSection) {
-                                        featuresSection.scrollIntoView({ behavior: 'smooth' });
-                                        // Add animation to the section after scrolling
-                                        setTimeout(() => {
-                                            animateSection(featuresSection);
-                                        }, 1000); // Wait for the scroll to complete
-                                    }
-                                }, 300); // Small delay to ensure navigation completes
-                            }}
-                        >
-                            How it Works
-                            <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
-                        <Link
-                            href="/#gallery"
-                            className="text-white hover:text-cyan-400 transition-colors relative group"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                router.push('/');
-                                setTimeout(() => {
-                                    const featuresSection = document.getElementById('gallery');
-                                    if (featuresSection) {
-                                        featuresSection.scrollIntoView({ behavior: 'smooth' });
-                                        // Add animation to the section after scrolling
-                                        setTimeout(() => {
-                                            animateSection(featuresSection);
-                                        }, 1000); // Wait for the scroll to complete
-                                    }
-                                }, 300); // Small delay to ensure navigation completes
-                            }}
-                        >
-                            Gallery
-                            <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
-                        <Link
-                            href="/contact-us"
-                            className="text-white hover:text-cyan-400 transition-colors relative group"
-                        >
-                            Contact Us
-                            <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
-                    </nav>
-                    <div className="ml-6 flex gap-3">
-                        <Link href="/sign-in">
-                            <Button variant="ghost" className="text-white hover:text-cyan-400 hover:bg-zinc-800 transition-colors">
-                                Sign In
-                            </Button>
-                        </Link>
-                        <Link href="/sign-up">
-                            <Button className="bg-cyan-400 hover:bg-cyan-500 text-slate-800">
-                                Sign Up
-                            </Button>
-                        </Link>
-                    </div>
+
+                <nav className="flex gap-4 md:gap-6 mx-auto justify-center flex-wrap" style={{ fontSize: '0.875rem' }}>
+                    <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
+                        Home
+                        <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+                    </Link>
+                    <Link
+                        href="/#features"
+                        className="text-white hover:text-cyan-400 transition-colors relative group"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            router.push('/');
+                        }}
+                    >
+                        Features
+                        <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+                    </Link>
+                    <Link
+                        href="/#how-it-works"
+                        className="text-white hover:text-cyan-400 transition-colors relative group"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            router.push('/');
+                        }}
+                    >
+                        How it Works
+                        <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+                    </Link>
+                    <Link
+                        href="/#gallery"
+                        className="text-white hover:text-cyan-400 transition-colors relative group"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            router.push('/');
+                        }}
+                    >
+                        Gallery
+                        <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+                    </Link>
+                    <Link
+                        href="/tutorial-video"
+                        className="text-white hover:text-cyan-400 transition-colors relative group"
+                    >
+                        Tutorial Video
+                        <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+                    </Link>
+                    <Link
+                        href="/pricing"
+                        className="text-white hover:text-cyan-400 transition-colors relative group"
+                    >
+                        Pricing
+                        <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+                    </Link>
+                    <Link
+                        href="/contact-us"
+                        className="text-white hover:text-cyan-400 transition-colors relative group"
+                    >
+                        Contact Us
+                        <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+                    </Link>
+                </nav>
+
+                <div className="flex items-center gap-2 mt-4 md:mt-0">
+                    {!isSignedIn ? (
+                        <>
+                            <Link href="/sign-in">
+                                <Button variant="ghost" className="text-white hover:text-cyan-400 hover:bg-zinc-800 transition-colors">
+                                    Sign In
+                                </Button>
+                            </Link>
+                            <Link href="/sign-up">
+                                <Button className="bg-cyan-400 hover:bg-cyan-500 text-slate-800">
+                                    Sign Up
+                                </Button>
+                            </Link>
+                        </>
+                    ) : (
+                        <UserButton afterSignOutUrl="/" />
+                    )}
+                    <button className="md:hidden ml-2 text-white" onClick={toggleMobileMenu}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 

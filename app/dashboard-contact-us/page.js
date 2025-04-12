@@ -39,7 +39,7 @@ export default function ContactUs() {
           <h3 className="text-xl font-semibold text-white mb-2">{isSuccess ? 'Success' : 'Notice'}</h3>
           <p className="text-zinc-300 mb-6">{message}</p>
           <div className="flex justify-center">
-            <button
+            <button 
               onClick={() => {
                 onClose();
                 window.location.href = '/sign-in?redirectUrl=/redesign';
@@ -393,14 +393,14 @@ export default function ContactUs() {
   return (
     <div className="min-h-screen bg-black text-white">
       {showPopup && (
-        <CustomPopup
-          message={popupMessage}
-          onClose={() => setShowPopup(false)}
+        <CustomPopup 
+          message={popupMessage} 
+          onClose={() => setShowPopup(false)} 
           onAction={popupAction}
           isSuccess={isSuccessPopup}
         />
       )}
-
+      
       {/* Navigation Bar */}
       <nav className="flex justify-between items-center py-4 px-6 bg-zinc-900 sticky top-0 z-50 shadow-md border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down">
         <div
@@ -412,64 +412,44 @@ export default function ContactUs() {
         </div>
 
         <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-8 text-sm">
-          <nav className="flex gap-4 md:gap-6 mx-auto justify-center flex-wrap" style={{ fontSize: '0.875rem' }}>
-            <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
+          <nav className="flex gap-6">
+            <Link
+              href="/dashboard"
+              className={`nav-link ${isActive('/dashboard') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/dashboard' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/dashboard')}
+            >
               Home
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
-              href="/#features"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              href="/redesign"
+              className={`nav-link ${isActive('/redesign') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/redesign' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
               onClick={(e) => {
                 e.preventDefault();
-                router.push('/');
+                handleLinkClick('/redesign');
               }}
             >
-              Features
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+              Redesign
             </Link>
             <Link
-              href="/#how-it-works"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push('/');
-              }}
+              href="/decormind"
+              className={`nav-link ${isActive('/decormind') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/decormind' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/decormind')}
             >
-              How it Works
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-            <Link
-              href="/#gallery"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push('/');
-              }}
-            >
-              Gallery
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-            <Link
-              href="/tutorial-video"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
-            >
-              Tutorial Video
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+              DecorMind
             </Link>
             <Link
               href="/pricing"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className={`nav-link ${isActive('/pricing') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/pricing' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/pricing')}
             >
               Pricing
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/contact-us"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className={`nav-link ${isActive('/contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/contact-us' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/contact-us')}
             >
               Contact Us
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
           </nav>
         </div>
