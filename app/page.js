@@ -231,6 +231,7 @@ function HomeContent() {
           position: relative;
           transition: all 0.3s ease;
           --nav-underline-width: 0;
+          opacity: 1; /* Set links to be visible by default */
         }
         
         .nav-link::after {
@@ -286,6 +287,16 @@ function HomeContent() {
 
         .nav-link:nth-child(5) {
           animation: fadeInDown 0.5s ease-out 0.5s forwards;
+          opacity: 0;
+        }
+        
+        .nav-link:nth-child(6) {
+          animation: fadeInDown 0.5s ease-out 0.6s forwards;
+          opacity: 0;
+        }
+        
+        .nav-link:nth-child(7) {
+          animation: fadeInDown 0.5s ease-out 0.7s forwards;
           opacity: 0;
         }
 
@@ -530,17 +541,17 @@ function HomeContent() {
           <span className="w-6 h-0.5 bg-white"></span>
         </button>
         {/* Desktop Navigation */}
-        <div className="desktop-nav absolute left-1/2 transform -translate-x-1/2 gap-8 text-sm">
+        <div className="hidden md:flex desktop-nav absolute left-1/2 transform -translate-x-1/2 gap-4 md:gap-8 text-sm">
           <a href="#top" className="nav-link text-cyan-400 transition-colors duration-300 relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:bg-cyan-400">Home</a>
           <a href="#features" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Features</a>
           <a href="#how-it-works" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">How it Works</a>
           <a href="#Tutorial Video" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Tutorial Video</a>
           <a href="#gallery" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Gallery</a>
-          <Link href="/pricing" className="hover:text-cyan-400 text-white transition-colors duration-300 relative">Pricing</Link>
-          <Link href="/contact-us" className="hover:text-cyan-400 text-white transition-colors duration-300 relative">Contact Us</Link>
+          <Link href="/pricing" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Pricing</Link>
+          <Link href="/contact-us" className="nav-link hover:text-cyan-400 text-white transition-colors duration-300 relative">Contact Us</Link>
         </div>
         {/* Desktop Buttons */}
-        <div className="desktop-nav-buttons gap-2">
+        <div className="hidden md:flex desktop-nav-buttons gap-2">
           <button
             className="text-white border border-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm transition-colors"
             onClick={handleSignIn}
@@ -563,8 +574,8 @@ function HomeContent() {
         <a href="#how-it-works" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>How it Works</a>
         <a href="#Tutorial Video" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Tutorial Video</a>
         <a href="#gallery" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Gallery</a>
-        <Link href="/pricing" className="py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Pricing</Link>
-        <Link href="/contact-us" className="py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Contact Us</Link>
+        <Link href="/pricing" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Pricing</Link>
+        <Link href="/contact-us" className="py-2 w-full text-center nav-link hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Contact Us</Link>
         <div className="flex gap-2 mt-4 w-full justify-center">
           <button
             className="text-white border border-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm transition-colors"

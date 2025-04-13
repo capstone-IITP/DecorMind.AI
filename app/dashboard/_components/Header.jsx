@@ -249,7 +249,7 @@ function Header() {
           </Link>
           <Link 
             href="/dashboard-contact-us" 
-            className={`nav-link ${isActive('/dashboard-contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/contact-us-d' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+            className={`nav-link ${isActive('/dashboard-contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/dashboard-contact-us' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
             onClick={() => handleLinkClick('/dashboard-contact-us')}
           >
             Contact Us

@@ -9,13 +9,7 @@ import PaymentButton from '../_components/PaymentButton';
 import { useUser } from '@clerk/nextjs';
 
 export default function PricingPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-black flex justify-center items-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#22d3ee]"></div>
-    </div>}>
-      <SimplifiedPricingComponent />
-    </Suspense>
-  );
+  return <SimplifiedPricingComponent />;
 }
 
 // Client Component that safely uses useSearchParams
@@ -50,12 +44,12 @@ function PricingComponent() {
 
   // Function to handle sign in
   const handleSignIn = () => {
-    router.push('/sign-in');
+    router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
   };
 
   // Function to handle sign up
   const handleSignUp = () => {
-    router.push('/sign-up');
+    router.push(`/sign-up?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
   };
 
   // Function to convert price to selected currency
@@ -93,7 +87,7 @@ function PricingComponent() {
     // Check if user is signed in
     if (!isSignedIn) {
       showCustomPopup("Please sign in to upgrade your plan", () => {
-        window.location.href = '/sign-in?redirectUrl=/pricing-d';
+        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
       });
       return;
     }
@@ -105,7 +99,8 @@ function PricingComponent() {
 
       // Show success notification and redirect
       showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
-        window.location.href = "/redesign";
+        // Redirect to redesign page
+        router.push("/redesign");
       }, true);
     }
     // For premium and pro plans, we'll handle it in the payment success callback
@@ -131,9 +126,9 @@ function PricingComponent() {
     showCustomPopup(`Successfully upgraded to ${plan.toUpperCase()} plan!`, () => {
       // Redirect to redesign page only if signed in
       if (isSignedIn) {
-        window.location.href = "/redesign";
+        router.push("/redesign");
       } else {
-        window.location.href = '/sign-in?redirectUrl=/pricing-d';
+        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
       }
     });
   };
@@ -735,27 +730,21 @@ function PricingComponent() {
         <Link href="/#features" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Features</Link>
         <Link href="/#how-it-works" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>How it Works</Link>
         <Link href="/#gallery" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Gallery</Link>
-        <Link href="/pricing" className="block py-2 w-full text-center text-cyan-400 transition-colors duration-300" onClick={closeMobileMenu}>Pricing</Link>
-        <Link href="/contact-us" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Contact Us</Link>
+        <Link href="/dashboard-pricing" className="block py-2 w-full text-center text-cyan-400 transition-colors duration-300" onClick={closeMobileMenu}>Pricing</Link>
+        <Link href="/dashboard-contact-us" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Contact Us</Link>
         <div className="flex gap-2 mt-4 w-full justify-center pb-4">
-          <button
+          <Link
+            href={`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`}
             className="text-white border border-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm transition-colors"
-            onClick={() => {
-              closeMobileMenu();
-              handleSignIn();
-            }}
           >
             Sign In
-          </button>
-          <button
+          </Link>
+          <Link
+            href={`/sign-up?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`}
             className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-4 py-2 rounded-md text-sm font-bold transition-colors"
-            onClick={() => {
-              closeMobileMenu();
-              handleSignUp();
-            }}
           >
             Sign Up
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -871,7 +860,7 @@ function SimplifiedPricingComponent() {
     const storedPlan = localStorage.getItem('userPlan') || 'free';
     setCurrentPlan(storedPlan);
 
-    // Add CSS for popup animations
+    // Add CSS for animations
     let style;
     if (typeof window !== 'undefined') {
       style = document.createElement('style');
@@ -926,15 +915,176 @@ function SimplifiedPricingComponent() {
             opacity: 0;
           }
         }
+        
+        /* Navbar link animations */
+        @keyframes fadeInDown {
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .nav-link {
+          position: relative;
+          opacity: 0;
+        }
+
+        .nav-link::after {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 2px;
+          bottom: -4px;
+          left: 0;
+          background-color: #22d3ee;
+          transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+          width: 100%;
+        }
+
+        .nav-link.active::after {
+          width: 100%;
+        }
+
+        /* Click animation */
+        @keyframes clickEffect {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(0.95);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .link-clicked {
+          animation: clickEffect 0.3s ease forwards;
+        }
+
+        .nav-link:nth-child(1) {
+          animation: fadeInDown 0.5s ease-out 0.1s forwards;
+        }
+
+        .nav-link:nth-child(2) {
+          animation: fadeInDown 0.5s ease-out 0.2s forwards;
+        }
+
+        .nav-link:nth-child(3) {
+          animation: fadeInDown 0.5s ease-out 0.3s forwards;
+        }
+
+        .nav-link:nth-child(4) {
+          animation: fadeInDown 0.5s ease-out 0.4s forwards;
+        }
+
+        .nav-link:nth-child(5) {
+          animation: fadeInDown 0.5s ease-out 0.5s forwards;
+        }
+
+        /* Navigation bar slide-down animation */
+        @keyframes slideDown {
+          0% {
+            transform: translateY(-100%);
+          }
+          100% {
+            transform: translateY(0);
+          }
+        }
+
+        .nav-slide-down {
+          animation: slideDown 0.5s ease-out forwards;
+        }
+
+        /* Logo animation */
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .logo-pulse:hover {
+          animation: pulse 1s infinite;
+        }
+        
+        /* Logo glow effect */
+        .logo-container {
+          position: relative;
+          transition: all 0.3s ease;
+        }
+        
+        .logo-container:hover::after {
+          content: '';
+          position: absolute;
+          top: -5px;
+          left: -5px;
+          right: -5px;
+          bottom: -5px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0) 70%);
+          z-index: -1;
+          animation: glow 1.5s infinite alternate;
+        }
+        
+        @keyframes glow {
+          0% {
+            opacity: 0.5;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+        
+        /* Sticky navbar effect */
+        .sticky-nav {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
+        }
+        
+        .sticky-nav.scrolled {
+          background-color: rgba(24, 24, 27, 0.8);
+          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+        }
       `;
       document.head.appendChild(style);
-    }
+      
+      // Add scroll event for sticky navbar effect
+      const handleScroll = () => {
+        const navbar = document.querySelector('.sticky-nav');
+        if (navbar) {
+          if (window.scrollY > 10) {
+            navbar.classList.add('scrolled');
+          } else {
+            navbar.classList.remove('scrolled');
+          }
+        }
+      };
 
-    return () => {
-      if (style && style.parentNode) {
-        document.head.removeChild(style);
-      }
-    };
+      window.addEventListener('scroll', handleScroll);
+      
+      return () => {
+        if (style && style.parentNode) {
+          document.head.removeChild(style);
+        }
+        window.removeEventListener('scroll', handleScroll);
+      };
+    }
   }, []);
 
   // Custom popup component
@@ -960,7 +1110,7 @@ function SimplifiedPricingComponent() {
               onClick={() => {
                 onClose();
                 if (!isSuccess && !isSignedIn) {
-                  window.location.href = '/sign-in?redirectUrl=/pricing-d';
+                  router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
                 } else if (onAction) {
                   onAction();
                 }
@@ -1003,13 +1153,13 @@ function SimplifiedPricingComponent() {
       return;
     }
 
-    // Otherwise proceed with normal navigation
-    window.location.href = path;
-
     // Reset active link after animation completes
     setTimeout(() => {
       setActiveLink(null);
     }, 300);
+
+    // Navigate using router instead of changing window.location
+    router.push(path);
   };
 
   // Function to check if the link is active
@@ -1026,7 +1176,7 @@ function SimplifiedPricingComponent() {
     // Check if user is signed in
     if (!isSignedIn) {
       showCustomPopup("Please sign in to upgrade your plan", () => {
-        window.location.href = '/sign-in?redirectUrl=/pricing-d';
+        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
       });
       return;
     }
@@ -1038,13 +1188,9 @@ function SimplifiedPricingComponent() {
 
       // Show success notification and redirect
       showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
-        // Redirect to redesign page only if signed in
-        if (isSignedIn) {
-          window.location.href = "/redesign";
-        } else {
-          window.location.href = '/sign-in';
-        }
-      });
+        // Redirect to redesign page
+        router.push("/redesign");
+      }, true);
     }
     // For premium and pro plans, we'll handle it in the payment success callback
   };
@@ -1069,9 +1215,9 @@ function SimplifiedPricingComponent() {
     showCustomPopup(`Successfully upgraded to ${plan.toUpperCase()} plan!`, () => {
       // Redirect to redesign page only if signed in
       if (isSignedIn) {
-        window.location.href = "/redesign";
+        router.push("/redesign");
       } else {
-        window.location.href = '/sign-in?redirectUrl=/pricing-d';
+        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
       }
     });
   };
@@ -1098,7 +1244,7 @@ function SimplifiedPricingComponent() {
       if (!isSignedIn) {
         return (
           <button
-            onClick={() => window.location.href = '/sign-in?redirectUrl=/pricing-d'}
+            onClick={() => router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`)}
             className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg"
           >
             Sign in to upgrade
@@ -1189,17 +1335,17 @@ function SimplifiedPricingComponent() {
               DecorMind
             </Link>
             <Link
-              href="/pricing"
-              className={`nav-link ${isActive('/pricing') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/pricing' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/pricing')}
+              href="/dashboard-pricing"
+              className={`nav-link ${isActive('/dashboard-pricing') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/dashboard-pricing' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/dashboard-pricing')}
               style={{ fontSize: '0.875rem !important' }}
             >
               Pricing
             </Link>
             <Link
-              href="/contact-us"
-              className={`nav-link ${isActive('/contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/contact-us' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/contact-us')}
+              href="/dashboard-contact-us"
+              className={`nav-link ${isActive('/dashboard-contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/dashboard-contact-us' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              onClick={() => handleLinkClick('/dashboard-contact-us')}
               style={{ fontSize: '0.875rem !important' }}
             >
               Contact Us
@@ -1246,14 +1392,14 @@ function SimplifiedPricingComponent() {
           DecorMind
         </Link>
         <Link
-          href="/pricing"
+          href="/dashboard-pricing"
           className="block py-2 w-full text-center text-cyan-400 transition-colors duration-300"
           onClick={closeMobileMenu}
         >
           Pricing
         </Link>
         <Link
-          href="/contact-us"
+          href="/dashboard-contact-us"
           className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
           onClick={closeMobileMenu}
         >

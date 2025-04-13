@@ -4,6 +4,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 const isProtectedRoute = createRouteMatcher([
   "/dashboard", 
   "/dashboard/(.*)",
+  "/dashboard-contact-us", // Add dashboard-contact-us as a protected route
   "/pricing/(.*)",  // Add pricing routes as protected
   "/api/razorpay",  // Protect the payment API route
   "/redesign/(.*)"  // Protect redesign routes

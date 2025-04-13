@@ -20,11 +20,27 @@ export default function Page() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const redirectParam = params.get('redirectUrl');
+      console.log('Sign-in page - URL query parameters:', window.location.search);
+      console.log('Sign-in page - redirectParam:', redirectParam);
+      
       if (redirectParam) {
-        setRedirectUrl(redirectParam);
+        try {
+          // Decode the URL if it's encoded
+          const decodedUrl = decodeURIComponent(redirectParam);
+          console.log('Sign-in page - Decoded redirectUrl:', decodedUrl);
+          setRedirectUrl(decodedUrl);
+        } catch (error) {
+          console.error('Error decoding redirectUrl:', error);
+          setRedirectUrl(redirectParam);
+        }
       }
     }
-  }, []);
+  }, []); // Empty dependency array ensures this only runs once on mount
+
+  // Log redirectUrl whenever it changes
+  useEffect(() => {
+    console.log('Sign-in page - redirectUrl updated to:', redirectUrl);
+  }, [redirectUrl]);
 
   // Array of interior design images
   const images = [
@@ -98,7 +114,7 @@ export default function Page() {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <SignIn
-            redirectUrl={redirectUrl}
+            redirectUrl="/dashboard-pricing"
             routing="path"
             path="/sign-in"
             appearance={{

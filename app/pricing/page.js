@@ -9,13 +9,7 @@ import PaymentButton from '../_components/PaymentButton';
 import { useUser } from '@clerk/nextjs';
 
 export default function PricingPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-black flex justify-center items-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#22d3ee]"></div>
-    </div>}>
-      <SimplifiedPricingComponent />
-    </Suspense>
-  );
+  return <SimplifiedPricingComponent />;
 }
 
 // Client Component that safely uses useSearchParams
@@ -93,7 +87,7 @@ function PricingComponent() {
     // Check if user is signed in
     if (!isSignedIn) {
       showCustomPopup("Please sign in to upgrade your plan", () => {
-        window.location.href = '/sign-in?redirectUrl=/pricing';
+        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
       });
       return;
     }
@@ -105,7 +99,7 @@ function PricingComponent() {
 
       // Show success notification and redirect
       showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
-        window.location.href = "/redesign";
+        router.push("/redesign");
       }, true);
     }
     // For premium and pro plans, we'll handle it in the payment success callback
@@ -131,9 +125,9 @@ function PricingComponent() {
     showCustomPopup(`Successfully upgraded to ${plan.toUpperCase()} plan!`, () => {
       // Redirect to redesign page only if signed in
       if (isSignedIn) {
-        window.location.href = "/redesign";
+        router.push("/redesign");
       } else {
-        window.location.href = '/sign-in?redirectUrl=/pricing';
+        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
       }
     });
   };
@@ -300,24 +294,13 @@ function PricingComponent() {
         /* Navigation link hover animation */
         .nav-link {
           position: relative;
-          transition: all 0.3s ease;
-        }
-        
-        .nav-link::after {
-          content: '';
-          position: absolute;
-          width: 0;
-          height: 2px;
-          bottom: -4px;
-          left: 0;
-          background-color: #22d3ee;
-          transition: width 0.3s ease;
-        }
-        
-        .nav-link:hover::after {
-          width: 100%;
+          opacity: 0;
         }
 
+        .nav-link::after {
+          background-color: #22d3ee;
+        }
+        
         /* Navigation links fade-in animation on page load */
         @keyframes fadeInDown {
           0% {
@@ -368,100 +351,7 @@ function PricingComponent() {
         .nav-slide-down {
           animation: slideDown 0.5s ease-out forwards;
         }
-
-        /* Global smooth scrolling */
-        html {
-          scroll-behavior: smooth;
-        }
-
-        /* Navbar link animations */
-        @keyframes fadeInDown {
-          0% {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .nav-link {
-          position: relative;
-          opacity: 0;
-          font-size: 0.875rem !important; /* much smaller equivalent */
-        }
-
-        .nav-link::after {
-          content: '';
-          position: absolute;
-          width: 0;
-          height: 2px;
-          bottom: -4px;
-          left: 0;
-          background-color: #22d3ee;
-          transition: width 0.3s ease;
-        }
         
-        .nav-link:hover::after {
-          width: 100%;
-        }
-
-        .nav-link.active::after {
-          width: 100%;
-        }
-
-        /* Click animation */
-        @keyframes clickEffect {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(0.95);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-
-        .link-clicked {
-          animation: clickEffect 0.3s ease forwards;
-        }
-
-        .nav-link:nth-child(1) {
-          animation: fadeInDown 0.5s ease-out 0.1s forwards;
-        }
-
-        .nav-link:nth-child(2) {
-          animation: fadeInDown 0.5s ease-out 0.2s forwards;
-        }
-
-        .nav-link:nth-child(3) {
-          animation: fadeInDown 0.5s ease-out 0.3s forwards;
-        }
-
-        .nav-link:nth-child(4) {
-          animation: fadeInDown 0.5s ease-out 0.4s forwards;
-        }
-
-        .nav-link:nth-child(5) {
-          animation: fadeInDown 0.5s ease-out 0.5s forwards;
-        }
-
-        /* Navigation bar slide-down animation */
-        @keyframes slideDown {
-          0% {
-            transform: translateY(-100%);
-          }
-          100% {
-            transform: translateY(0);
-          }
-        }
-
-        .nav-slide-down {
-          animation: slideDown 0.5s ease-out forwards;
-        }
-
         /* Logo animation */
         @keyframes pulse {
           0% {
@@ -522,6 +412,27 @@ function PricingComponent() {
         }
       `;
       document.head.appendChild(style);
+
+      // Add scroll event for sticky navbar effect
+      const handleScroll = () => {
+        const navbar = document.querySelector('.sticky-nav');
+        if (navbar) {
+          if (window.scrollY > 10) {
+            navbar.classList.add('scrolled');
+          } else {
+            navbar.classList.remove('scrolled');
+          }
+        }
+      };
+
+      window.addEventListener('scroll', handleScroll);
+
+      return () => {
+        if (style && style.parentNode) {
+          document.head.removeChild(style);
+        }
+        window.removeEventListener('scroll', handleScroll);
+      };
     }
 
     // Function to add animations to a section
@@ -670,62 +581,107 @@ function PricingComponent() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900 text-white">
       {/* Navigation Bar */}
-      <nav className="flex justify-between items-center py-4 px-6 bg-zinc-900 sticky top-0 z-50 shadow-md border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
-          <div className="bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
-          <h1 className="text-lg font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
+      <nav className="p-5 shadow-sm flex justify-between items-center bg-zinc-900 border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down sticky-nav">
+        <div
+          className="flex gap-2 items-center cursor-pointer hover:opacity-80 transition-opacity logo-pulse"
+          onClick={() => router.push('/')}
+        >
+          <div className="logo-container bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
+          <h2 className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
         </div>
 
         <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 items-center">
-          <nav className="flex gap-6" style={{ fontSize: '0.875rem' }}>
+          <nav className="flex gap-4 md:gap-6 mx-auto justify-center flex-wrap" style={{ fontSize: '0.875rem' }}>
             <Link
-              href="/dashboard"
-              className={`nav-link ${isActive('/dashboard') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/dashboard' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/dashboard')}
-              style={{ fontSize: '0.875rem !important' }}
+              href="/"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
             >
               Home
+              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
-              href="#"
-              className={`nav-link ${isActive('/redesign') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/redesign' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
+              href="/#features"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               onClick={(e) => {
                 e.preventDefault();
-                handleLinkClick('/redesign');
+                router.push('/');
               }}
-              style={{ fontSize: '0.875rem !important' }}
             >
-              Redesign
+              Features
+              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
-              href="/decormind"
-              className={`nav-link ${isActive('/decormind') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/decormind' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/decormind')}
-              style={{ fontSize: '0.875rem !important' }}
+              href="/#how-it-works"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              onClick={(e) => {
+                e.preventDefault();
+                router.push('/');
+              }}
             >
-              DecorMind
+              How it Works
+              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <Link
+              href="/#gallery"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              onClick={(e) => {
+                e.preventDefault();
+                router.push('/');
+              }}
+            >
+              Gallery
+              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <Link
+              href="/tutorial-video"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+            >
+              Tutorial Video
+              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/pricing"
-              className={`nav-link ${isActive('/pricing') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/pricing' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/pricing')}
-              style={{ fontSize: '0.875rem !important' }}
+              className="nav-link text-cyan-400 active transition-colors relative group"
             >
               Pricing
+              <span className="absolute left-0 bottom-0 h-[2px] w-full bg-cyan-400 transition-all duration-300"></span>
             </Link>
             <Link
               href="/contact-us"
-              className={`nav-link ${isActive('/contact-us') ? 'text-cyan-400 active' : 'text-white'} ${activeLink === '/contact-us' ? 'link-clicked' : ''} hover:text-cyan-400 transition-colors duration-300 relative`}
-              onClick={() => handleLinkClick('/contact-us')}
-              style={{ fontSize: '0.875rem !important' }}
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
             >
               Contact Us
+              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
           </nav>
         </div>
 
         <div>
-          <UserButton afterSignOutUrl="/" />
+          <div className="hidden md:flex items-center gap-2">
+            {isSignedIn ? (
+              <>
+                <UserButton afterSignOutUrl="/" />
+              </>
+            ) : (
+              <>
+                <Link
+                  href={`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`}
+                  className="text-white border border-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md text-sm transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href={`/sign-up?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`}
+                  className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
+          <div className="md:hidden">
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </div>
       </nav>
 
@@ -871,7 +827,7 @@ function SimplifiedPricingComponent() {
     const storedPlan = localStorage.getItem('userPlan') || 'free';
     setCurrentPlan(storedPlan);
 
-    // Add CSS for popup animations
+    // Add CSS for animations
     let style;
     if (typeof window !== 'undefined') {
       style = document.createElement('style');
@@ -926,15 +882,185 @@ function SimplifiedPricingComponent() {
             opacity: 0;
           }
         }
+        
+        /* Navbar link animations */
+        @keyframes fadeInDown {
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .nav-link {
+          position: relative;
+          opacity: 0;
+        }
+
+        /* Removing the duplicate underline code */
+        /*.nav-link::after {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 2px;
+          bottom: -4px;
+          left: 0;
+          background-color: #22d3ee;
+          transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+          width: 100%;
+        }
+
+        .nav-link.active::after {
+          width: 100%;
+        }*/
+
+        /* Click animation */
+        @keyframes clickEffect {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(0.95);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .link-clicked {
+          animation: clickEffect 0.3s ease forwards;
+        }
+
+        .nav-link:nth-child(1) {
+          animation: fadeInDown 0.5s ease-out 0.1s forwards;
+        }
+
+        .nav-link:nth-child(2) {
+          animation: fadeInDown 0.5s ease-out 0.2s forwards;
+        }
+
+        .nav-link:nth-child(3) {
+          animation: fadeInDown 0.5s ease-out 0.3s forwards;
+        }
+
+        .nav-link:nth-child(4) {
+          animation: fadeInDown 0.5s ease-out 0.4s forwards;
+        }
+
+        .nav-link:nth-child(5) {
+          animation: fadeInDown 0.5s ease-out 0.5s forwards;
+        }
+
+        .nav-link:nth-child(6) {
+          animation: fadeInDown 0.5s ease-out 0.6s forwards;
+        }
+
+        .nav-link:nth-child(7) {
+          animation: fadeInDown 0.5s ease-out 0.7s forwards;
+        }
+
+        /* Navigation bar slide-down animation */
+        @keyframes slideDown {
+          0% {
+            transform: translateY(-100%);
+          }
+          100% {
+            transform: translateY(0);
+          }
+        }
+
+        .nav-slide-down {
+          animation: slideDown 0.5s ease-out forwards;
+        }
+
+        /* Logo animation */
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .logo-pulse:hover {
+          animation: pulse 1s infinite;
+        }
+        
+        /* Logo glow effect */
+        .logo-container {
+          position: relative;
+          transition: all 0.3s ease;
+        }
+        
+        .logo-container:hover::after {
+          content: '';
+          position: absolute;
+          top: -5px;
+          left: -5px;
+          right: -5px;
+          bottom: -5px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0) 70%);
+          z-index: -1;
+          animation: glow 1.5s infinite alternate;
+        }
+        
+        @keyframes glow {
+          0% {
+            opacity: 0.5;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+        
+        /* Sticky navbar effect */
+        .sticky-nav {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
+        }
+        
+        .sticky-nav.scrolled {
+          background-color: rgba(24, 24, 27, 0.8);
+          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+        }
       `;
       document.head.appendChild(style);
-    }
 
-    return () => {
-      if (style && style.parentNode) {
-        document.head.removeChild(style);
-      }
-    };
+      // Add scroll event for sticky navbar effect
+      const handleScroll = () => {
+        const navbar = document.querySelector('.sticky-nav');
+        if (navbar) {
+          if (window.scrollY > 10) {
+            navbar.classList.add('scrolled');
+          } else {
+            navbar.classList.remove('scrolled');
+          }
+        }
+      };
+
+      window.addEventListener('scroll', handleScroll);
+
+      return () => {
+        if (style && style.parentNode) {
+          document.head.removeChild(style);
+        }
+        window.removeEventListener('scroll', handleScroll);
+      };
+    }
   }, []);
 
   // Custom popup component
@@ -960,7 +1086,7 @@ function SimplifiedPricingComponent() {
               onClick={() => {
                 onClose();
                 if (!isSuccess && !isSignedIn) {
-                  window.location.href = '/sign-in?redirectUrl=/pricing';
+                  router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
                 } else if (onAction) {
                   onAction();
                 }
@@ -1003,13 +1129,19 @@ function SimplifiedPricingComponent() {
       return;
     }
 
-    // Otherwise proceed with normal navigation
-    window.location.href = path;
+    // If user clicks Contact Us and is signed in, redirect to dashboard contact us
+    if (path === '/dashboard-contact-us' && isSignedIn) {
+      router.push('/dashboard-contact-us');
+      return;
+    }
 
     // Reset active link after animation completes
     setTimeout(() => {
       setActiveLink(null);
     }, 300);
+
+    // Navigate to the path
+    router.push(path);
   };
 
   // Function to check if the link is active
@@ -1026,7 +1158,7 @@ function SimplifiedPricingComponent() {
     // Check if user is signed in
     if (!isSignedIn) {
       showCustomPopup("Please sign in to upgrade your plan", () => {
-        window.location.href = '/sign-in?redirectUrl=/pricing';
+        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
       });
       return;
     }
@@ -1038,13 +1170,8 @@ function SimplifiedPricingComponent() {
 
       // Show success notification and redirect
       showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
-        // Redirect to redesign page only if signed in
-        if (isSignedIn) {
-          window.location.href = "/redesign";
-        } else {
-          window.location.href = '/sign-in';
-        }
-      });
+        router.push("/redesign");
+      }, true);
     }
     // For premium and pro plans, we'll handle it in the payment success callback
   };
@@ -1069,9 +1196,9 @@ function SimplifiedPricingComponent() {
     showCustomPopup(`Successfully upgraded to ${plan.toUpperCase()} plan!`, () => {
       // Redirect to redesign page only if signed in
       if (isSignedIn) {
-        window.location.href = "/redesign";
+        router.push("/redesign");
       } else {
-        window.location.href = '/sign-in?redirectUrl=/pricing';
+        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
       }
     });
   };
@@ -1098,7 +1225,7 @@ function SimplifiedPricingComponent() {
       if (!isSignedIn) {
         return (
           <button
-            onClick={() => window.location.href = '/sign-in?redirectUrl=/pricing'}
+            onClick={() => router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`)}
             className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg"
           >
             Sign in to upgrade
@@ -1161,16 +1288,19 @@ function SimplifiedPricingComponent() {
 
         <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 items-center">
           <nav className="flex gap-4 md:gap-6 mx-auto justify-center flex-wrap" style={{ fontSize: '0.875rem' }}>
-            <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
+            <Link
+              href="/"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+            >
               Home
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/#features"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               onClick={(e) => {
                 e.preventDefault();
-                router.push('/');
+                handleLinkClick('/#features');
               }}
             >
               Features
@@ -1178,10 +1308,10 @@ function SimplifiedPricingComponent() {
             </Link>
             <Link
               href="/#how-it-works"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               onClick={(e) => {
                 e.preventDefault();
-                router.push('/');
+                handleLinkClick('/#how-it-works');
               }}
             >
               How it Works
@@ -1189,10 +1319,10 @@ function SimplifiedPricingComponent() {
             </Link>
             <Link
               href="/#gallery"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               onClick={(e) => {
                 e.preventDefault();
-                router.push('/');
+                handleLinkClick('/#gallery');
               }}
             >
               Gallery
@@ -1200,21 +1330,33 @@ function SimplifiedPricingComponent() {
             </Link>
             <Link
               href="/tutorial-video"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('/tutorial-video');
+              }}
             >
               Tutorial Video
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/pricing"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-cyan-400 active transition-colors relative group"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('/pricing');
+              }}
             >
               Pricing
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute left-0 bottom-0 h-[2px] w-full bg-cyan-400 transition-all duration-300"></span>
             </Link>
             <Link
               href="/contact-us"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('/contact-us');
+              }}
             >
               Contact Us
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -1222,8 +1364,32 @@ function SimplifiedPricingComponent() {
           </nav>
         </div>
 
-        <div className="md:block">
-          <UserButton afterSignOutUrl="/" />
+        <div>
+          <div className="hidden md:flex items-center gap-2">
+            {isSignedIn ? (
+              <>
+                <UserButton afterSignOutUrl="/" />
+              </>
+            ) : (
+              <>
+                <Link
+                  href={`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`}
+                  className="text-white border border-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md text-sm transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href={`/sign-up?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`}
+                  className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
+          <div className="md:hidden">
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </div>
 
         <button className="md:hidden text-white" onClick={toggleMobileMenu}>

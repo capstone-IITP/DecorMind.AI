@@ -19,6 +19,18 @@ export default function ContactUs() {
   const [popupMessage, setPopupMessage] = useState('');
   const [popupAction, setPopupAction] = useState(null);
   const [isSuccessPopup, setIsSuccessPopup] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [submitStatus, setSubmitStatus] = useState({
+    message: '',
+    type: '' // 'success' or 'error'
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Custom popup component
   const CustomPopup = ({ message, onClose, onAction, isSuccess }) => (
@@ -42,7 +54,9 @@ export default function ContactUs() {
             <button
               onClick={() => {
                 onClose();
-                window.location.href = '/sign-in?redirectUrl=/redesign';
+                if (onAction) {
+                  onAction();
+                }
               }}
               className={`popup-btn bg-gradient-to-r ${isSuccess ? 'from-green-500 to-green-400' : 'from-cyan-500 to-cyan-400'} text-slate-800 font-medium px-10 py-2 rounded-md hover:opacity-90 transition-colors`}
             >
@@ -77,8 +91,22 @@ export default function ContactUs() {
       setActiveLink(null);
     }, 300);
 
-    // Navigate to the page
-    window.location.href = path;
+    // Handle section navigation within the homepage
+    if (path.startsWith('/#')) {
+      router.push('/');
+      // We'll need to wait for the navigation to complete before scrolling
+      setTimeout(() => {
+        const sectionId = path.substring(2); // Remove the /# to get the section id
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 300);
+      return;
+    }
+
+    // Navigate to the page using router
+    router.push(path);
   };
 
   // Function to check if the link is active
@@ -174,25 +202,6 @@ export default function ContactUs() {
           opacity: 0;
         }
 
-        .nav-link::after {
-          content: '';
-          position: absolute;
-          width: 0;
-          height: 2px;
-          bottom: -4px;
-          left: 0;
-          background-color: #22d3ee;
-          transition: width 0.3s ease;
-        }
-        
-        .nav-link:hover::after {
-          width: 100%;
-        }
-
-        .nav-link.active::after {
-          width: 100%;
-        }
-
         /* Click animation */
         @keyframes clickEffect {
           0% {
@@ -228,6 +237,14 @@ export default function ContactUs() {
 
         .nav-link:nth-child(5) {
           animation: fadeInDown 0.5s ease-out 0.5s forwards;
+        }
+
+        .nav-link:nth-child(6) {
+          animation: fadeInDown 0.5s ease-out 0.6s forwards;
+        }
+
+        .nav-link:nth-child(7) {
+          animation: fadeInDown 0.5s ease-out 0.7s forwards;
         }
 
         /* Navigation bar slide-down animation */
@@ -302,17 +319,6 @@ export default function ContactUs() {
           background-color: rgba(24, 24, 27, 0.8);
           box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
         }
-
-        /* Form field animation */
-        @keyframes formFieldFocus {
-          0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
-          50% { box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.3); }
-          100% { box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2); }
-        }
-        
-        .form-field:focus {
-          animation: formFieldFocus 0.5s ease-out forwards;
-        }
       `;
       document.head.appendChild(style);
 
@@ -340,17 +346,6 @@ export default function ContactUs() {
     }
   }, []);
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [submitStatus, setSubmitStatus] = useState({
-    message: '',
-    type: '' // 'success' or 'error'
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -390,6 +385,14 @@ export default function ContactUs() {
     }
   };
 
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       {showPopup && (
@@ -402,7 +405,7 @@ export default function ContactUs() {
       )}
 
       {/* Navigation Bar */}
-      <nav className="flex justify-between items-center py-4 px-6 bg-zinc-900 sticky top-0 z-50 shadow-md border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down">
+      <nav className="p-5 shadow-sm flex justify-between items-center bg-zinc-900 border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down sticky-nav">
         <div
           className="flex gap-2 items-center cursor-pointer hover:opacity-80 transition-opacity logo-pulse"
           onClick={() => router.push('/')}
@@ -411,18 +414,25 @@ export default function ContactUs() {
           <h2 className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
         </div>
 
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-8 text-sm">
+        <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 items-center">
           <nav className="flex gap-4 md:gap-6 mx-auto justify-center flex-wrap" style={{ fontSize: '0.875rem' }}>
-            <Link href="/" className="text-white hover:text-cyan-400 transition-colors relative group">
+            <Link 
+              href="/" 
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('/');
+              }}
+            >
               Home
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/#features"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               onClick={(e) => {
                 e.preventDefault();
-                router.push('/');
+                handleLinkClick('/#features');
               }}
             >
               Features
@@ -430,10 +440,10 @@ export default function ContactUs() {
             </Link>
             <Link
               href="/#how-it-works"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               onClick={(e) => {
                 e.preventDefault();
-                router.push('/');
+                handleLinkClick('/#how-it-works');
               }}
             >
               How it Works
@@ -441,10 +451,10 @@ export default function ContactUs() {
             </Link>
             <Link
               href="/#gallery"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               onClick={(e) => {
                 e.preventDefault();
-                router.push('/');
+                handleLinkClick('/#gallery');
               }}
             >
               Gallery
@@ -452,32 +462,166 @@ export default function ContactUs() {
             </Link>
             <Link
               href="/tutorial-video"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('/tutorial-video');
+              }}
             >
               Tutorial Video
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/pricing"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('/pricing');
+              }}
             >
               Pricing
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/contact-us"
-              className="text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-cyan-400 active transition-colors relative group"
             >
               Contact Us
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute left-0 bottom-0 h-[2px] w-full bg-cyan-400 transition-all duration-300"></span>
             </Link>
           </nav>
         </div>
 
         <div>
-          <UserButton afterSignOutUrl="/" />
+          <div className="hidden md:flex items-center gap-2">
+            {isSignedIn ? (
+              <>
+                <UserButton afterSignOutUrl="/" />
+              </>
+            ) : (
+              <>
+                <Link 
+                  href={`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-contact-us')}`}
+                  className="text-white border border-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md text-sm transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link 
+                  href={`/sign-up?redirectUrl=${encodeURIComponent('/dashboard-contact-us')}`}
+                  className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
+          <div className="md:hidden">
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </div>
+        
+        <button className="md:hidden text-white" onClick={toggleMobileMenu}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+        </button>
       </nav>
+
+      {/* Mobile Menu */}
+      <div className={`md:hidden fixed top-16 left-0 right-0 z-40 bg-zinc-900 shadow-md border-b border-zinc-800 transition-all duration-300 ${mobileMenuOpen ? 'block' : 'hidden'}`}>
+        <Link 
+          href="/" 
+          className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+          onClick={(e) => {
+            e.preventDefault();
+            closeMobileMenu();
+            handleLinkClick('/');
+          }}
+        >
+          Home
+        </Link>
+        <Link 
+          href="/#features" 
+          className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+          onClick={(e) => {
+            e.preventDefault();
+            closeMobileMenu();
+            handleLinkClick('/#features');
+          }}
+        >
+          Features
+        </Link>
+        <Link 
+          href="/#how-it-works" 
+          className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+          onClick={(e) => {
+            e.preventDefault();
+            closeMobileMenu();
+            handleLinkClick('/#how-it-works');
+          }}
+        >
+          How it Works
+        </Link>
+        <Link 
+          href="/#gallery" 
+          className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+          onClick={(e) => {
+            e.preventDefault();
+            closeMobileMenu();
+            handleLinkClick('/#gallery');
+          }}
+        >
+          Gallery
+        </Link>
+        <Link 
+          href="/tutorial-video" 
+          className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+          onClick={(e) => {
+            e.preventDefault();
+            closeMobileMenu();
+            handleLinkClick('/tutorial-video');
+          }}
+        >
+          Tutorial Video
+        </Link>
+        <Link 
+          href="/pricing" 
+          className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+          onClick={(e) => {
+            e.preventDefault();
+            closeMobileMenu();
+            handleLinkClick('/pricing');
+          }}
+        >
+          Pricing
+        </Link>
+        <Link 
+          href="/contact-us" 
+          className="block py-2 w-full text-center text-cyan-400 transition-colors duration-300"
+          onClick={(e) => {
+            e.preventDefault();
+            closeMobileMenu();
+          }}
+        >
+          Contact Us
+        </Link>
+        <div className="flex gap-2 mt-4 w-full justify-center pb-4">
+          <Link
+            href={`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-contact-us')}`}
+            className="text-white border border-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm transition-colors"
+            onClick={closeMobileMenu}
+          >
+            Sign In
+          </Link>
+          <Link
+            href={`/sign-up?redirectUrl=${encodeURIComponent('/dashboard-contact-us')}`}
+            className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 px-4 py-2 rounded-md text-sm font-bold transition-colors"
+            onClick={closeMobileMenu}
+          >
+            Sign Up
+          </Link>
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="py-16 px-6 fade-in">
@@ -487,77 +631,103 @@ export default function ContactUs() {
 
             <p className="text-zinc-300 mb-8">Have questions or need assistance? Reach out to our team and we'll get back to you as soon as possible.</p>
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {mounted ? (
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-white mb-2">Name</label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 form-field transition-all duration-300"
+                      placeholder="Your name"
+                      required={true}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-white mb-2">Email</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 form-field transition-all duration-300"
+                      placeholder="Your email"
+                      required={true}
+                    />
+                  </div>
+                </div>
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-white mb-2">Name</label>
+                  <label htmlFor="subject" className="block text-sm font-medium text-white mb-2">Subject</label>
                   <input
                     type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
+                    id="subject"
+                    name="subject"
+                    value={formData.subject}
                     onChange={handleChange}
                     className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 form-field transition-all duration-300"
-                    placeholder="Your name"
+                    placeholder="Subject"
                     required={true}
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-white mb-2">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
+                  <label htmlFor="message" className="block text-sm font-medium text-white mb-2">Message</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
                     onChange={handleChange}
+                    rows="4"
                     className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 form-field transition-all duration-300"
-                    placeholder="Your email"
+                    placeholder="Your message"
                     required={true}
-                  />
+                  ></textarea>
                 </div>
-              </div>
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-white mb-2">Subject</label>
-                <input
-                  type="text"
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 form-field transition-all duration-300"
-                  placeholder="Subject"
-                  required={true}
-                />
-              </div>
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-white mb-2">Message</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  rows="4"
-                  className="w-full px-4 py-2 bg-black border border-zinc-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 form-field transition-all duration-300"
-                  placeholder="Your message"
-                  required={true}
-                ></textarea>
-              </div>
-              <div className="text-center">
-                <Button
-                  type="submit"
-                  className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 transition-all duration-300 transform hover:scale-[1.02]"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
-                </Button>
-              </div>
+                <div className="text-center">
+                  <Button
+                    type="submit"
+                    className="bg-cyan-400 text-slate-800 hover:bg-cyan-500 transition-all duration-300 transform hover:scale-[1.02]"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                  </Button>
+                </div>
 
-              {submitStatus.message && (
-                <div className={`mt-4 p-3 rounded ${submitStatus.type === 'success' ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`}>
-                  {submitStatus.message}
+                {submitStatus.message && (
+                  <div className={`mt-4 p-3 rounded ${submitStatus.type === 'success' ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`}>
+                    {submitStatus.message}
+                  </div>
+                )}
+              </form>
+            ) : (
+              <div className="space-y-6 animate-pulse">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <div className="h-5 w-16 bg-zinc-800 rounded mb-2"></div>
+                    <div className="h-10 bg-zinc-800 rounded"></div>
+                  </div>
+                  <div>
+                    <div className="h-5 w-16 bg-zinc-800 rounded mb-2"></div>
+                    <div className="h-10 bg-zinc-800 rounded"></div>
+                  </div>
                 </div>
-              )}
-            </form>
+                <div>
+                  <div className="h-5 w-20 bg-zinc-800 rounded mb-2"></div>
+                  <div className="h-10 bg-zinc-800 rounded"></div>
+                </div>
+                <div>
+                  <div className="h-5 w-20 bg-zinc-800 rounded mb-2"></div>
+                  <div className="h-32 bg-zinc-800 rounded"></div>
+                </div>
+                <div className="flex justify-center">
+                  <div className="h-10 w-32 bg-zinc-800 rounded"></div>
+                </div>
+              </div>
+            )}
 
             <div className="mt-8 pt-8 border-t border-zinc-800">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -585,7 +755,7 @@ export default function ContactUs() {
                     </a>
                     <a href="#" className="text-white hover:text-cyan-400 transform transition-transform duration-300 hover:-translate-y-1">
                       <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 48 48">
-                        <radialGradient id="yOrnnhliCrdS2gy~4tD8ma_Xy10Jcu1L2Su_gr1" cx="19.38" cy="42.035" r="44.899" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#fd5"></stop><stop offset=".328" stopColor="#ff543f"></stop><stop offset=".348" stopColor="#fc5245"></stop><stop offset=".504" stopColor="#e64771"></stop><stop offset=".643" stopColor="#d53e91"></stop><stop offset=".761" stopColor="#cc39a4"></stop><stop offset=".841" stopColor="#c837ab"></stop></radialGradient><path fill="url(#yOrnnhliCrdS2gy~4tD8ma_Xy10Jcu1L2Su_gr1)" d="M34.017,41.99l-20,0.019c-4.4,0.004-8.003-3.592-8.008-7.992l-0.019-20 c-0.004-4.4,3.592-8.003,7.992-8.008l20-0.019c4.4-0.004,8.003,3.592,8.008,7.992l0.019,20 C42.014,38.383,38.417,41.986,34.017,41.99z"></path><radialGradient id="yOrnnhliCrdS2gy~4tD8mb_Xy10Jcu1L2Su_gr2" cx="11.786" cy="5.54" r="29.813" gradientTransform="matrix(1 0 0 .6663 0 1.849)" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#4168c9"></stop><stop offset=".999" stopColor="#4168c9" stopOpacity="0"></stop></radialGradient><path fill="url(#yOrnnhliCrdS2gy~4tD8mb_Xy10Jcu1L2Su_gr2)" d="M34.017,41.99l-20,0.019c-4.4,0.004-8.003-3.592-8.008-7.992l-0.019-20	c-0.004-4.4,3.592-8.003,7.992-8.008l20-0.019c4.4-0.004,8.003,3.592,8.008,7.992l0.019,20	C42.014,38.383,38.417,41.986,34.017,41.99z"></path><path fill="#fff" d="M24,31c-3.859,0-7-3.14-7-7s3.141-7,7-7s7,3.14,7,7S27.859,31,24,31z M24,19c-2.757,0-5,2.243-5,5	s2.243,5,5,5s5-2.243,5-5S26.757,19,24,19z"></path><circle cx="31.5" cy="16.5" r="1.5" fill="#fff"></circle><path fill="#fff" d="M30,37H18c-3.859,0-7-3.14-7-7V18c0-3.86,3.141-7,7-7h12c3.859,0,7,3.14,7,7v12	C37,33.86,33.859,37,30,37z M18,13c-2.757,0-5,2.243-5,5v12c0,2.757,2.243,5,5,5h12c2.757,0,5-2.243,5-5V18c0-2.757-2.243-5-5-5H18z"></path>
+                        <radialGradient id="yOrnnhliCrdS2gy~4tD8ma_Xy10Jcu1L2Su_gr1" cx="19.38" cy="42.035" r="44.899" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#fd5"></stop><stop offset=".328" stopColor="#ff543f"></stop><stop offset=".348" stopColor="#fc5245"></stop><stop offset=".504" stopColor="#e64771"></stop><stop offset=".643" stopColor="#d53e91"></stop><stop offset=".761" stopColor="#cc39a4"></stop><stop offset=".841" stopColor="#c837ab"></stop></radialGradient><path fill="url(#yOrnnhliCrdS2gy~4tD8ma_Xy10Jcu1L2Su_gr1)" d="M34.017,41.99l-20,0.019c-4.4,0.004-8.003-3.592-8.008-7.992l-0.019-20	c-0.004-4.4,3.592-8.003,7.992-8.008l20-0.019c4.4-0.004,8.003,3.592,8.008,7.992l0.019,20	C42.014,38.383,38.417,41.986,34.017,41.99z"></path><radialGradient id="yOrnnhliCrdS2gy~4tD8mb_Xy10Jcu1L2Su_gr2" cx="11.786" cy="5.54" r="29.813" gradientTransform="matrix(1 0 0 .6663 0 1.849)" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#4168c9"></stop><stop offset=".999" stopColor="#4168c9" stopOpacity="0"></stop></radialGradient><path fill="url(#yOrnnhliCrdS2gy~4tD8mb_Xy10Jcu1L2Su_gr2)" d="M34.017,41.99l-20,0.019c-4.4,0.004-8.003-3.592-8.008-7.992l-0.019-20	c-0.004-4.4,3.592-8.003,7.992-8.008l20-0.019c4.4-0.004,8.003,3.592,8.008,7.992l0.019,20	C42.014,38.383,38.417,41.986,34.017,41.99z"></path><path fill="#fff" d="M24,31c-3.859,0-7-3.14-7-7s3.141-7,7-7s7,3.14,7,7S27.859,31,24,31z M24,19c-2.757,0-5,2.243-5,5	s2.243,5,5,5s5-2.243,5-5S26.757,19,24,19z"></path><circle cx="31.5" cy="16.5" r="1.5" fill="#fff"></circle><path fill="#fff" d="M30,37H18c-3.859,0-7-3.14-7-7V18c0-3.86,3.141-7,7-7h12c3.859,0,7,3.14,7,7v12	C37,33.86,33.859,37,30,37z M18,13c-2.757,0-5,2.243-5,5v12c0,2.757,2.243,5,5,5h12c2.757,0,5-2.243,5-5V18c0-2.757-2.243-5-5-5H18z"></path>
                       </svg>
                     </a>
                     <a href="#" className="text-white hover:text-cyan-400 transform transition-transform duration-300 hover:-translate-y-1">

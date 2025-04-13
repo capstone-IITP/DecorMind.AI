@@ -9,10 +9,38 @@ import { useRouter } from "next/navigation";
 export default function Page() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const router = useRouter();
+  const [redirectUrl, setRedirectUrl] = useState('/dashboard');
 
   const handleLogoClick = () => {
     router.push('/');
   };
+
+  // Get the redirectUrl from the URL query parameter
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const redirectParam = params.get('redirectUrl');
+      console.log('Sign-up page - URL query parameters:', window.location.search);
+      console.log('Sign-up page - redirectParam:', redirectParam);
+      
+      if (redirectParam) {
+        try {
+          // Decode the URL if it's encoded
+          const decodedUrl = decodeURIComponent(redirectParam);
+          console.log('Sign-up page - Decoded redirectUrl:', decodedUrl);
+          setRedirectUrl(decodedUrl);
+        } catch (error) {
+          console.error('Error decoding redirectUrl:', error);
+          setRedirectUrl(redirectParam);
+        }
+      }
+    }
+  }, []); // Empty dependency array ensures this only runs once on mount
+
+  // Log redirectUrl whenever it changes
+  useEffect(() => {
+    console.log('Sign-up page - redirectUrl updated to:', redirectUrl);
+  }, [redirectUrl]);
 
   // Array of interior design images
   const images = [
@@ -86,7 +114,7 @@ export default function Page() {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <SignUp
-            redirectUrl="/dashboard"
+            redirectUrl={redirectUrl}
             routing="path"
             path="/sign-up"
             appearance={{
