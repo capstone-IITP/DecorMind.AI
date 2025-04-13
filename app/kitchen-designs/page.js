@@ -25,11 +25,29 @@ export default function KitchenDesigns() {
         setMobileMenuOpen(false);
     };
 
+    // Handle link click
+    const handleLinkClick = (path) => {
+        if (path.startsWith('/#')) {
+            router.push('/');
+            // We'll need to wait for the navigation to complete before scrolling
+            setTimeout(() => {
+                const sectionId = path.substring(2); // Remove the /# to get the section id
+                const element = document.getElementById(sectionId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 300);
+            return;
+        }
+
+        router.push(path);
+    };
+
     // Sign in handler
     const handleSignIn = () => {
         router.push('/sign-in');
     };
-    
+
     // Sign up handler
     const handleSignUp = () => {
         router.push('/sign-up');
@@ -175,7 +193,7 @@ export default function KitchenDesigns() {
                         className="text-white hover:text-cyan-400 transition-colors relative group"
                         onClick={(e) => {
                             e.preventDefault();
-                            router.push('/');
+                            handleLinkClick('/#features');
                         }}
                     >
                         Features
@@ -186,7 +204,7 @@ export default function KitchenDesigns() {
                         className="text-white hover:text-cyan-400 transition-colors relative group"
                         onClick={(e) => {
                             e.preventDefault();
-                            router.push('/');
+                            handleLinkClick('/#how-it-works');
                         }}
                     >
                         How it Works
@@ -197,15 +215,19 @@ export default function KitchenDesigns() {
                         className="text-white hover:text-cyan-400 transition-colors relative group"
                         onClick={(e) => {
                             e.preventDefault();
-                            router.push('/');
+                            handleLinkClick('/#gallery');
                         }}
                     >
                         Gallery
                         <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
                     </Link>
                     <Link
-                        href="/tutorial-video"
+                        href="/#Tutorial Video"
                         className="text-white hover:text-cyan-400 transition-colors relative group"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleLinkClick('/#Tutorial Video');
+                        }}
                     >
                         Tutorial Video
                         <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -213,6 +235,10 @@ export default function KitchenDesigns() {
                     <Link
                         href="/pricing"
                         className="text-white hover:text-cyan-400 transition-colors relative group"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleLinkClick('/pricing');
+                        }}
                     >
                         Pricing
                         <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -220,6 +246,10 @@ export default function KitchenDesigns() {
                     <Link
                         href="/contact-us"
                         className="text-white hover:text-cyan-400 transition-colors relative group"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleLinkClick('/contact-us');
+                        }}
                     >
                         Contact Us
                         <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -253,13 +283,55 @@ export default function KitchenDesigns() {
 
             {/* Mobile Menu */}
             <div className={`md:hidden fixed top-16 left-0 right-0 z-40 bg-zinc-900 shadow-md border-b border-zinc-800 transition-all duration-300 ${mobileMenuOpen ? 'block' : 'hidden'}`}>
-                <Link href="/" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300 " onClick={closeMobileMenu}>Home</Link>
-                <Link href="/#features" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Features</Link>
-                <Link href="/#how-it-works" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>How it Works</Link>
-                <Link href="/#gallery" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Gallery</Link>
-                <Link href="/tutorial-video" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Tutorial Video</Link>
-                <Link href="/pricing" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Pricing</Link>
-                <Link href="/contact-us" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300" onClick={closeMobileMenu}>Contact Us</Link>
+                <Link href="/" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300 "
+                    onClick={(e) => {
+                        e.preventDefault();
+                        closeMobileMenu();
+                        handleLinkClick('/');
+                    }}
+                >Home</Link>
+                <Link href="/#features" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        closeMobileMenu();
+                        handleLinkClick('/#features');
+                    }}
+                >Features</Link>
+                <Link href="/#how-it-works" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        closeMobileMenu();
+                        handleLinkClick('/#how-it-works');
+                    }}
+                >How it Works</Link>
+                <Link href="/#gallery" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        closeMobileMenu();
+                        handleLinkClick('/#gallery');
+                    }}
+                >Gallery</Link>
+                <Link href="/#Tutorial Video" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        closeMobileMenu();
+                        handleLinkClick('/#Tutorial Video');
+                    }}
+                >Tutorial Video</Link>
+                <Link href="/pricing" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        closeMobileMenu();
+                        handleLinkClick('/pricing');
+                    }}
+                >Pricing</Link>
+                <Link href="/contact-us" className="block py-2 w-full text-center hover:text-cyan-400 text-white transition-colors duration-300"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        closeMobileMenu();
+                        handleLinkClick('/contact-us');
+                    }}
+                >Contact Us</Link>
                 <div className="flex gap-2 mt-4 w-full justify-center pb-4">
                     <button
                         className="text-white border border-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm transition-colors"

@@ -583,7 +583,7 @@ function PricingComponent() {
       {/* Navigation Bar */}
       <nav className="p-5 shadow-sm flex justify-between items-center bg-zinc-900 border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down sticky-nav">
         <div
-          className="flex gap-2 items-center cursor-pointer hover:opacity-80 transition-opacity logo-pulse"
+          className="flex gap-2 items-center cursor-pointer hover:opacity-80 transition-opacity logo-pulse animate-fade-in"
           onClick={() => router.push('/')}
         >
           <div className="logo-container bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
@@ -594,14 +594,16 @@ function PricingComponent() {
           <nav className="flex gap-4 md:gap-6 mx-auto justify-center flex-wrap" style={{ fontSize: '0.875rem' }}>
             <Link
               href="/"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '100ms' }}
             >
               Home
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/#features"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '200ms' }}
               onClick={(e) => {
                 e.preventDefault();
                 router.push('/');
@@ -612,7 +614,8 @@ function PricingComponent() {
             </Link>
             <Link
               href="/#how-it-works"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '300ms' }}
               onClick={(e) => {
                 e.preventDefault();
                 router.push('/');
@@ -623,7 +626,8 @@ function PricingComponent() {
             </Link>
             <Link
               href="/#gallery"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '400ms' }}
               onClick={(e) => {
                 e.preventDefault();
                 router.push('/');
@@ -634,21 +638,32 @@ function PricingComponent() {
             </Link>
             <Link
               href="/tutorial-video"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '500ms' }}
             >
               Tutorial Video
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/pricing"
-              className="nav-link text-cyan-400 active transition-colors relative group"
+              className="nav-link text-cyan-400 active transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '600ms' }}
+              onClick={(e) => {
+                e.preventDefault();
+                router.push('/');
+              }}
             >
               Pricing
               <span className="absolute left-0 bottom-0 h-[2px] w-full bg-cyan-400 transition-all duration-300"></span>
             </Link>
             <Link
               href="/contact-us"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '700ms' }}
+              onClick={(e) => {
+                e.preventDefault();
+                router.push('/');
+              }}
             >
               Contact Us
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
@@ -657,7 +672,7 @@ function PricingComponent() {
         </div>
 
         <div>
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2 animate-fade-in" style={{ animationDelay: '800ms' }}>
             {isSignedIn ? (
               <>
                 <UserButton afterSignOutUrl="/" />
@@ -679,10 +694,16 @@ function PricingComponent() {
               </>
             )}
           </div>
-          <div className="md:hidden">
+          <div className="md:hidden animate-fade-in" style={{ animationDelay: '800ms' }}>
             <UserButton afterSignOutUrl="/" />
           </div>
         </div>
+
+        <button className="md:hidden text-white animate-fade-in" onClick={toggleMobileMenu} style={{ animationDelay: '800ms' }}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+        </button>
       </nav>
 
       {/* Mobile Menu */}
@@ -1279,7 +1300,7 @@ function SimplifiedPricingComponent() {
       {/* Navigation Bar */}
       <nav className="p-5 shadow-sm flex justify-between items-center bg-zinc-900 border-b border-zinc-800 rounded-bl-3xl rounded-br-3xl nav-slide-down sticky-nav">
         <div
-          className="flex gap-2 items-center cursor-pointer hover:opacity-80 transition-opacity logo-pulse"
+          className="flex gap-2 items-center cursor-pointer hover:opacity-80 transition-opacity logo-pulse animate-fade-in"
           onClick={() => router.push('/')}
         >
           <div className="logo-container bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
@@ -1290,14 +1311,16 @@ function SimplifiedPricingComponent() {
           <nav className="flex gap-4 md:gap-6 mx-auto justify-center flex-wrap" style={{ fontSize: '0.875rem' }}>
             <Link
               href="/"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '100ms' }}
             >
               Home
               <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/#features"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '200ms' }}
               onClick={(e) => {
                 e.preventDefault();
                 handleLinkClick('/#features');
@@ -1308,7 +1331,8 @@ function SimplifiedPricingComponent() {
             </Link>
             <Link
               href="/#how-it-works"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '300ms' }}
               onClick={(e) => {
                 e.preventDefault();
                 handleLinkClick('/#how-it-works');
@@ -1319,7 +1343,8 @@ function SimplifiedPricingComponent() {
             </Link>
             <Link
               href="/#gallery"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '400ms' }}
               onClick={(e) => {
                 e.preventDefault();
                 handleLinkClick('/#gallery');
@@ -1330,7 +1355,8 @@ function SimplifiedPricingComponent() {
             </Link>
             <Link
               href="/tutorial-video"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '500ms' }}
               onClick={(e) => {
                 e.preventDefault();
                 handleLinkClick('/tutorial-video');
@@ -1341,7 +1367,8 @@ function SimplifiedPricingComponent() {
             </Link>
             <Link
               href="/pricing"
-              className="nav-link text-cyan-400 active transition-colors relative group"
+              className="nav-link text-cyan-400 active transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '600ms' }}
               onClick={(e) => {
                 e.preventDefault();
                 handleLinkClick('/pricing');
@@ -1352,7 +1379,8 @@ function SimplifiedPricingComponent() {
             </Link>
             <Link
               href="/contact-us"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              style={{ animationDelay: '700ms' }}
               onClick={(e) => {
                 e.preventDefault();
                 handleLinkClick('/contact-us');
@@ -1365,7 +1393,7 @@ function SimplifiedPricingComponent() {
         </div>
 
         <div>
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2 animate-fade-in" style={{ animationDelay: '800ms' }}>
             {isSignedIn ? (
               <>
                 <UserButton afterSignOutUrl="/" />
@@ -1387,12 +1415,12 @@ function SimplifiedPricingComponent() {
               </>
             )}
           </div>
-          <div className="md:hidden">
+          <div className="md:hidden animate-fade-in" style={{ animationDelay: '800ms' }}>
             <UserButton afterSignOutUrl="/" />
           </div>
         </div>
 
-        <button className="md:hidden text-white" onClick={toggleMobileMenu}>
+        <button className="md:hidden text-white animate-fade-in" onClick={toggleMobileMenu} style={{ animationDelay: '800ms' }}>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
           </svg>
