@@ -675,7 +675,7 @@ function HomeContent() {
       </div>
 
       {/* Room Transformations Showcase Section */}
-      <div id="room-showcase" className="py-16 bg-zinc-900">
+      <div id="room-showcase" className="py-16 bg-black">
         <div className="container mx-auto px-6">
           <RoomTransformationsCarousel
             onSeeMoreClick={(roomType) => {
@@ -867,7 +867,7 @@ function HomeContent() {
       </div>
 
       {/* CTA Section */}
-      <div className="py-16 px-6 text-center bg-black">
+      <div className="py-16 px-6 text-center bg-black" id="cta">
         <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-4">Ready to Transform Your Space?</h3>
         <p className="text-white mb-8 max-w-2xl mx-auto">
           Join thousands of happy customers who have reimagined their homes with DecorMind.
@@ -880,7 +880,7 @@ function HomeContent() {
       {/* Contact Section Removed - Now available as a separate page */}
 
       {/* Footer */}
-      <footer className="bg-black py-10 px-6 border-t border-zinc-800">
+      <footer className="bg-black py-10 px-6 border-t border-zinc-800" id="footer">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
