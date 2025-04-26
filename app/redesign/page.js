@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
 import UpgradeModal from "../../components/UpgradeModal";
 import Image from 'next/image';
+import { downloadImageWithWatermark } from "../../lib/imageUtils";
 
 // Plans for credit system
 const plans = {
@@ -445,28 +446,11 @@ export default function Redesign() {
         label: `${selectedRoom}_${selectedStyle}_${budget}`
       });
 
-      // Create a temporary anchor element
-      const link = document.createElement('a');
-
-      // Set the download attribute with a filename
+      // Set the download filename
       const fileName = `${roomTypes.find(room => room.id === selectedRoom)?.name || 'Room'}_${styleOptions.find(style => style.id === selectedStyle)?.name || 'Design'}.jpg`;
-      link.download = fileName;
-
-      // Fetch the image and convert to blob
-      const response = await fetch(generatedDesign.imageUrl);
-      const blob = await response.blob();
-
-      // Create a local URL for the image blob
-      const url = window.URL.createObjectURL(blob);
-      link.href = url;
-
-      // Append to body, click to trigger download, then remove
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Clean up the object URL
-      window.URL.revokeObjectURL(url);
+      
+      // Use the watermarking utility to download the image
+      await downloadImageWithWatermark(generatedDesign.imageUrl, fileName);
 
       setDownloadSuccess(true);
 
@@ -1048,7 +1032,7 @@ export default function Redesign() {
             <p className="text-sm">Upgrade your plan to create more designs.</p>
           </div>
           <Button
-            onClick={() => router.push('/pricing')}
+            onClick={() => router.push('/dashboard-pricing')}
             className="ml-auto bg-amber-600 hover:bg-amber-700 text-white transition-colors duration-300"
           >
             Upgrade Now
@@ -1178,7 +1162,7 @@ export default function Redesign() {
               Upgrade to our premium plan to get unlimited designs, higher quality renders, and more style options.
             </p>
             <button
-              onClick={() => router.push('/pricing')}
+              onClick={() => router.push('/dashboard-pricing')}
               className="w-full bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-white hover:opacity-90 transition-all rounded-md shadow-md py-2 font-medium text-sm"
             >
               View pricing plans

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { downloadImageWithWatermark } from "../../lib/imageUtils";
 
 export default function GenerateImage() {
   const [prompt, setPrompt] = useState("");
@@ -41,6 +42,14 @@ export default function GenerateImage() {
       setError(err.message || "Failed to generate image");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleDownloadImage = async () => {
+    try {
+      await downloadImageWithWatermark(generatedImage, "generated-image.png");
+    } catch (error) {
+      console.error("Error downloading image:", error);
     }
   };
 
@@ -110,13 +119,12 @@ export default function GenerateImage() {
               >
                 Open in New Tab
               </button>
-              <a 
-                href={generatedImage}
-                download="generated-image.png"
+              <button 
+                onClick={handleDownloadImage}
                 className="px-3 py-1.5 bg-green-100 hover:bg-green-200 rounded-md text-sm"
               >
                 Download
-              </a>
+              </button>
             </div>
           </div>
         </div>

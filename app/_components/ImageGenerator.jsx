@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { downloadImageWithWatermark } from '../../lib/imageUtils';
 
 export default function ImageGenerator() {
     const [prompt, setPrompt] = useState("");
@@ -37,6 +38,14 @@ export default function ImageGenerator() {
             setError(err.message || "Failed to generate image");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDownloadImage = async () => {
+        try {
+            await downloadImageWithWatermark(image, "generated-interior.png");
+        } catch (error) {
+            console.error("Error downloading image:", error);
         }
     };
 
@@ -94,13 +103,12 @@ export default function ImageGenerator() {
                         />
                     </div>
                     <div className="mt-2 flex justify-end">
-                        <a 
-                            href={image}
-                            download="generated-interior.png"
+                        <button 
+                            onClick={handleDownloadImage}
                             className="text-sm text-cyan-600 hover:text-cyan-800"
                         >
                             Download Image
-                        </a>
+                        </button>
                     </div>
                 </div>
             )}

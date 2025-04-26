@@ -114,7 +114,7 @@ export default function Page() {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <SignIn
-            redirectUrl="/dashboard-pricing"
+            redirectUrl="/dashboard"
             routing="path"
             path="/sign-in"
             appearance={{

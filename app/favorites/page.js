@@ -5,6 +5,7 @@ import { Button } from "../../components/ui/button";
 import { useRouter, useSearchParams } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
 import Image from 'next/image';
+import { downloadImageWithWatermark } from "../../lib/imageUtils";
 
 // Setup IndexedDB for favorites storage
 const initIndexedDB = () => {
@@ -218,32 +219,30 @@ function FavoritesContent() {
   };
   
   // Add a new function to download images
-  const handleDownloadImage = (imageUrl, roomType) => {
+  const handleDownloadImage = async (imageUrl, roomType) => {
     if (!imageUrl) {
       console.error('Image URL is missing');
       alert('Sorry, the image URL is missing or invalid.');
       return;
     }
     
-    // Create a download link
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    
-    // Generate a filename based on the room type and date
-    const fileName = `${roomType.toLowerCase().replace(/\s+/g, '-')}-design-${Date.now()}.jpg`;
-    link.download = fileName;
-    
-    // Append to body, click programmatically, then remove
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Track download event
-    event({
-      action: 'design_downloaded',
-      category: 'favorites',
-      label: 'design_download'
-    });
+    try {
+      // Generate a filename based on the room type and date
+      const fileName = `${roomType.toLowerCase().replace(/\s+/g, '-')}-design-${Date.now()}.jpg`;
+      
+      // Use the watermarking utility to download the image
+      await downloadImageWithWatermark(imageUrl, fileName);
+      
+      // Track download event
+      event({
+        action: 'design_downloaded',
+        category: 'favorites',
+        label: 'design_download'
+      });
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      alert('Failed to download image. Please try again.');
+    }
   };
   
   return (
