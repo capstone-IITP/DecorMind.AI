@@ -10,10 +10,16 @@ export default function Page() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const router = useRouter();
   const [redirectUrl, setRedirectUrl] = useState('/dashboard');
+  const [isClient, setIsClient] = useState(false);
 
   const handleLogoClick = () => {
     router.push('/');
   };
+
+  // Set isClient to true once component mounts
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Get the redirectUrl from the URL query parameter
   useEffect(() => {
@@ -76,7 +82,7 @@ export default function Page() {
       {/* Left side - Branding and Image */}
       <div className="hidden md:block md:w-1/2 relative bg-zinc-900">
         <div className="absolute inset-0 overflow-hidden">
-          {images.map((src, index) => (
+          {isClient && images.map((src, index) => (
             <div
               key={index}
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
@@ -88,18 +94,19 @@ export default function Page() {
                 fill
                 priority={index === 0}
                 className="object-cover"
+                suppressHydrationWarning
               />
             </div>
           ))}
-          <div className="absolute inset-0 bg-gradient-to-r from-black to-transparent z-20"></div>
+          <div suppressHydrationWarning className={`absolute inset-0 ${isClient ? "bg-gradient-to-r from-black to-transparent" : "bg-black"} z-20`}></div>
         </div>
         <div className="relative z-30 p-12 flex flex-col h-full justify-between">
           <div>
             <div className="flex items-center gap-2 mb-8 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleLogoClick}>
               <div className="bg-cyan-400 w-8 h-8 rounded-full flex items-center justify-center text-black text-lg font-bold">DM</div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
+              <h1 suppressHydrationWarning className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">Welcome Back</h2>
+            <h2 suppressHydrationWarning className="text-3xl font-bold text-white mb-4">Welcome Back</h2>
             <p className="text-zinc-400 max-w-md">
               Sign in to continue your journey in transforming your space with AI-powered interior design.
             </p>

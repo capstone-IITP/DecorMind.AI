@@ -409,7 +409,7 @@ export default function DiningRoomDesigns() {
             {/* Hero section */}
             <div className="container mx-auto px-4 py-12">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-transparent bg-clip-text px-2 py-2 inline-block w-auto">
+                    <h1 id='title' className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-transparent bg-clip-text px-2 py-2 inline-block w-auto">
                         Dining Room Design Inspiration
                     </h1>
                     <p className="text-xl text-zinc-400 max-w-3xl mx-auto">

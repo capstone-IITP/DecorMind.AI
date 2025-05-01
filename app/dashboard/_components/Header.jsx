@@ -214,7 +214,7 @@ function Header() {
         onClick={() => router.push('/')}
       >
         <div className="logo-container bg-cyan-400 w-6 h-6 rounded-full flex items-center justify-center text-slate-800 text-xs font-bold">DM</div>
-        <h2 className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
+        <h2 suppressHydrationWarning className="font-bold text-lg bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h2>
       </div>
 
       <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-8 text-sm">

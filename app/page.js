@@ -75,13 +75,49 @@ function HomeContent() {
   const toggleMobileMenu = () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const body = document.body;
+    const menuButton = document.querySelector('.md\\:hidden');
 
     if (mobileMenu) {
       // Toggle the active class instead of hidden/flex
       mobileMenu.classList.toggle('active');
 
+      // Animate hamburger to X
+      if (menuButton) {
+        menuButton.classList.toggle('menu-active');
+        
+        // Animate the menu bars
+        const spans = menuButton.querySelectorAll('span');
+        if (mobileMenu.classList.contains('active')) {
+          // Animate to X
+          if (spans[0]) spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+          if (spans[1]) spans[1].style.opacity = '0';
+          if (spans[2]) spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+        } else {
+          // Reset to hamburger
+          if (spans[0]) spans[0].style.transform = 'none';
+          if (spans[1]) spans[1].style.opacity = '1';
+          if (spans[2]) spans[2].style.transform = 'none';
+        }
+      }
+
       // Toggle body scroll
       body.classList.toggle('mobile-menu-open');
+      
+      // Add staggered animations to menu items
+      if (mobileMenu.classList.contains('active')) {
+        const menuItems = mobileMenu.querySelectorAll('a, button');
+        menuItems.forEach((item, index) => {
+          item.style.opacity = '0';
+          item.style.transform = 'translateY(20px)';
+          
+          // Staggered animation with delay
+          setTimeout(() => {
+            item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+          }, 100 + (index * 50));
+        });
+      }
     }
   };
 
@@ -89,12 +125,33 @@ function HomeContent() {
   const closeMobileMenu = () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const body = document.body;
+    const menuButton = document.querySelector('.md\\:hidden');
 
     if (mobileMenu && mobileMenu.classList.contains('active')) {
-      mobileMenu.classList.remove('active');
+      // Animate menu items out
+      const menuItems = mobileMenu.querySelectorAll('a, button');
+      menuItems.forEach((item, index) => {
+        item.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(10px)';
+      });
+      
+      // Delay the menu closing slightly for a smoother animation
+      setTimeout(() => {
+        mobileMenu.classList.remove('active');
+        
+        // Reset hamburger icon
+        if (menuButton) {
+          menuButton.classList.remove('menu-active');
+          const spans = menuButton.querySelectorAll('span');
+          if (spans[0]) spans[0].style.transform = 'none';
+          if (spans[1]) spans[1].style.opacity = '1';
+          if (spans[2]) spans[2].style.transform = 'none';
+        }
 
-      // Re-enable body scroll
-      body.classList.remove('mobile-menu-open');
+        // Re-enable body scroll
+        body.classList.remove('mobile-menu-open');
+      }, 200);
     }
   };
 
@@ -601,7 +658,7 @@ function HomeContent() {
       {/* Hero Section */}
       <div className="relative px-4 md:px-6 py-8 md:py-12 bg-black flex flex-col md:flex-row">
         <div className="w-full max-w-3xl z-10 md:w-1/2 md:pr-8 mb-8 md:mb-0">
-          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-4">Transform Your Space with AI</h2>
+          <h2 id='title' className="text-3xl md:text-4xl font-bold font-acorn bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-4">Transform Your Space with AI</h2>
           <p className="text-base md:text-lg text-white mb-6">
             Design your dream interior in minutes, not months. Our AI-powered platform creates stunning, personalized room designs tailored to your style and budget.
           </p>
@@ -719,7 +776,7 @@ function HomeContent() {
 
       {/* Features Section */}
       <div className="py-16 px-6 bg-black transition-all duration-300" id="features">
-        <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-12">Key Features</h3>
+        <h3 id='title' className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-12">Key Features</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-black border border-zinc-800 p-6 rounded-lg">
             <div className="w-10 h-10 bg-cyan-400 rounded-md flex items-center justify-center text-slate-800 mb-4">
@@ -754,7 +811,7 @@ function HomeContent() {
 
       {/* How It Works Section */}
       <div className="py-16 px-6 bg-black transition-all duration-300" id="how-it-works">
-        <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-12">How It Works</h3>
+        <h3 id='title' className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-12">How It Works</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           <div className="text-center">
             <div className="w-12 h-12 bg-cyan-400 rounded-full flex items-center justify-center text-slate-800 font-bold mx-auto mb-4">1</div>
@@ -776,7 +833,7 @@ function HomeContent() {
 
       {/* Video Tutorial Section */}
       <div className="py-16 px-6 bg-black transition-all duration-300" id="Tutorial Video">
-        <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-8">Watch How It Works</h3>
+        <h3 id='title' className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-8">Watch How It Works</h3>
         <p className="text-center text-white mb-8 max-w-2xl mx-auto">See DecorMind in action with our step-by-step tutorial video</p>
         <div className="max-w-4xl mx-auto aspect-video relative rounded-lg overflow-hidden border border-zinc-800">
           <video
@@ -794,7 +851,7 @@ function HomeContent() {
 
       {/* Stunning Transformations Section */}
       <div className="py-16 px-6 bg-black transition-all duration-300" id="gallery">
-        <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-8">Stunning Transformations</h3>
+        <h3 id='title' className="text-2xl font-bold text-center bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-8">Stunning Transformations</h3>
         <p className="text-center text-white mb-12 max-w-2xl mx-auto">See what our AI can do with these real customer examples</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           <div className="bg-black border border-zinc-800 rounded-lg overflow-hidden group">
@@ -868,7 +925,7 @@ function HomeContent() {
 
       {/* CTA Section */}
       <div className="py-16 px-6 text-center bg-black" id="cta">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-4">Ready to Transform Your Space?</h3>
+        <h3 id='title' className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text mb-4">Ready to Transform Your Space?</h3>
         <p className="text-white mb-8 max-w-2xl mx-auto">
           Join thousands of happy customers who have reimagined their homes with DecorMind.
         </p>

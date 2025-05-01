@@ -1,16 +1,23 @@
-import React from 'react'
+'use client';
+
+import React, { useState, useEffect } from 'react'
 import { Button } from '../../../components/ui/button'
 import { useRouter } from 'next/navigation'
 
 export default function EmptyState() {
   const router = useRouter()
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
       <div className="bg-cyan-400 w-16 h-16 rounded-full flex items-center justify-center text-slate-800 text-2xl font-bold mb-6">
-        <span className="bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">D</span>
+        <span suppressHydrationWarning className="bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">D</span>
       </div>
-      <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">No Rooms Yet</h3>
+      <h3 suppressHydrationWarning className="text-2xl font-bold mb-2 bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">No Rooms Yet</h3>
       <p className="text-white text-opacity-80 mb-8 max-w-md">
         Welcome to DecorMind! Your personalized interior design experience.
       </p>

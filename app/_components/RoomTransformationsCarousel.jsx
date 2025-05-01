@@ -293,7 +293,7 @@ const RoomTransformationsCarousel = ({ onSeeMoreClick }) => {
   return (
     <div className="room-carousel px-4 md:px-0">
       <div className="text-center mb-8 md:mb-12 fade-in scale-in">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 md:mb-4">{getRoomTypeTitle()} Transformations</h2>
+        <h2 id='title' className="text-2xl md:text-3xl font-bold text-white mb-3 md:mb-4">{getRoomTypeTitle()} Transformations</h2>
         <p className="text-zinc-400 max-w-2xl mx-auto text-sm md:text-base">
           {getRoomTypeDescription()}
         </p>

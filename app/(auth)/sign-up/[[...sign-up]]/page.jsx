@@ -10,10 +10,16 @@ export default function Page() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const router = useRouter();
   const [redirectUrl, setRedirectUrl] = useState('/dashboard');
+  const [isClient, setIsClient] = useState(false);
 
   const handleLogoClick = () => {
     router.push('/');
   };
+
+  // Set isClient when component mounts
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Get the redirectUrl from the URL query parameter
   useEffect(() => {
@@ -58,6 +64,8 @@ export default function Page() {
 
   // Effect to change the image every 2 seconds
   useEffect(() => {
+    if (!isClient) return;
+    
     // Preload all images
     images.forEach((src) => {
       const img = new window.Image();
@@ -69,14 +77,14 @@ export default function Page() {
     }, 2000); // Changed from 3000ms to 2000ms (2 seconds)
 
     return () => clearInterval(interval);
-  }, [images]);
+  }, [images, isClient]);
 
   return (
     <div className="min-h-screen bg-black flex flex-col md:flex-row">
       {/* Left side - Branding and Image */}
       <div className="hidden md:block md:w-1/2 relative bg-zinc-900">
         <div className="absolute inset-0 overflow-hidden">
-          {images.map((src, index) => (
+          {isClient && images.map((src, index) => (
             <div
               key={index}
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
@@ -88,24 +96,25 @@ export default function Page() {
                 fill
                 priority={index === 0}
                 className="object-cover"
+                suppressHydrationWarning
               />
             </div>
           ))}
-          <div className="absolute inset-0 bg-gradient-to-r from-black to-transparent z-20"></div>
+          <div suppressHydrationWarning className={`absolute inset-0 ${isClient ? "bg-gradient-to-r from-black to-transparent" : "bg-black"} z-20`}></div>
         </div>
         <div className="relative z-30 p-12 flex flex-col h-full justify-between">
           <div>
             <div className="flex items-center gap-2 mb-8 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleLogoClick}>
               <div className="bg-cyan-400 w-8 h-8 rounded-full flex items-center justify-center text-slate-800 text-lg font-bold">DM</div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
+              <h1 suppressHydrationWarning className="text-2xl font-bold bg-gradient-to-r from-slate-800 via-cyan-400 to-green-400 text-transparent bg-clip-text">DecorMind</h1>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">Join DecorMind</h2>
+            <h2 suppressHydrationWarning className="text-3xl font-bold text-white mb-4">Join DecorMind</h2>
             <p className="text-zinc-400 max-w-md">
               Create an account to start transforming your space with AI-powered interior design.
             </p>
           </div>
-          <div className="text-sm text-white">
-            &copy; {new Date().getFullYear()} DecorMind. All rights reserved.
+          <div suppressHydrationWarning className="text-sm text-white">
+            &copy; {isClient ? new Date().getFullYear() : ''} DecorMind. All rights reserved.
           </div>
         </div>
       </div>
