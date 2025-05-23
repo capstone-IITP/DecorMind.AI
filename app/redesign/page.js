@@ -31,6 +31,12 @@ const roomTypes = [
   { id: 'bathroom', name: 'Bathroom' },
   { id: 'office', name: 'Home Office' },
   { id: 'dining', name: 'Dining Room' },
+  { id: 'kids', name: 'Kids Room' },
+  { id: 'balcony', name: 'Balcony' },
+  { id: 'basement', name: 'Basement' },
+  { id: 'study', name: 'Study' },
+  { id: 'guest', name: 'Guest Room' },
+  { id: 'entryway', name: 'Entryway' },
 ];
 
 // Setup IndexedDB for favorites storage
@@ -137,6 +143,8 @@ export default function Redesign() {
   const { event } = useGoogleAnalytics();
   const fileInputRef = useRef(null);
 
+  // Group all useState declarations together
+  const [isClient, setIsClient] = useState(false);
   const [step, setStep] = useState(1);
   const [roomImage, setRoomImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -150,21 +158,44 @@ export default function Redesign() {
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteSuccess, setFavoriteSuccess] = useState(false);
-  
-  // Credit system states
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [usedCredits, setUsedCredits] = useState(0);
   const [userPlan, setUserPlan] = useState("free");
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [remainingCredits, setRemainingCredits] = useState(0);
 
-  // Load user credits and plan from storage
+  // Initialize client-side state
   useEffect(() => {
+    setIsClient(true);
     const storedCredits = parseInt(localStorage.getItem("usedCredits")) || 0;
     const storedPlan = localStorage.getItem("userPlan") || "free";
     setUsedCredits(storedCredits);
     setUserPlan(storedPlan);
     setRemainingCredits(plans[storedPlan] - storedCredits);
   }, []);
+
+  // Check favorite status
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (!isClient || !generatedDesign || !selectedRoom || !selectedStyle) return;
+      
+      const roomTypeName = roomTypes.find(room => room.id === selectedRoom)?.name || 'Room';
+      const styleName = styleOptions.find(style => style.id === selectedStyle)?.name || 'Style';
+      
+      try {
+        const result = await checkIsFavorite(roomTypeName, styleName);
+        setIsFavorite(result);
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [isClient, generatedDesign, selectedRoom, selectedStyle]);
+
+  // Early return for server-side rendering
+  if (!isClient) {
+    return <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900"></div>;
+  }
 
   // Handle file upload
   const handleFileUpload = (e) => {
@@ -576,18 +607,6 @@ export default function Redesign() {
       console.error("Error handling favorites:", error);
     }
   };
-
-  // Update useEffect to check if design is in favorites using IndexedDB
-  React.useEffect(() => {
-    if (generatedDesign && selectedRoom && selectedStyle) {
-      const roomTypeName = roomTypes.find(room => room.id === selectedRoom)?.name || 'Room';
-      const styleName = styleOptions.find(style => style.id === selectedStyle)?.name || 'Style';
-      
-      checkIsFavorite(roomTypeName, styleName)
-        .then(result => setIsFavorite(result))
-        .catch(error => console.error("Error checking favorite status:", error));
-    }
-  }, [generatedDesign, selectedRoom, selectedStyle]);
 
   // Render step 1: Upload room image
   const renderStep1 = () => (
