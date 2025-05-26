@@ -5,7 +5,7 @@ import { Button } from "../../components/ui/button";
 import { useRouter, useSearchParams } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
 import Image from 'next/image';
-import { downloadImageWithWatermark } from "../../lib/imageUtils";
+import { downloadImageWithWatermark, addWatermarkToImage } from "../../lib/imageUtils";
 import FeedbackForm from "../../components/FeedbackForm";
 
 // Setup IndexedDB for favorites storage
@@ -268,7 +268,7 @@ function FavoritesContent() {
   };
   
   // Add a function to handle sharing the design
-  const handleShareDesign = (e, design) => {
+  const handleShareDesign = async (e, design) => {
     e.stopPropagation();
     
     // Check if Web Share API is available
@@ -280,45 +280,50 @@ function FavoritesContent() {
         
         // Check if we can share the image directly
         if (design.thumbnailUrl && navigator.canShare && navigator.canShare({ files: [new File([new Blob()], 'test.jpg', { type: 'image/jpeg' })] })) {
-          // Try to fetch the image and share it
-          fetch(design.thumbnailUrl)
-            .then(res => res.blob())
-            .then(blob => {
-              const file = new File([blob], `${design.roomType.toLowerCase()}_design.jpg`, { type: 'image/jpeg' });
-              
-              navigator.share({
-                title: shareTitle,
-                text: shareText,
-                url: shareUrl,
-                files: [file]
-              })
-              .then(() => {
-                setShareSuccess(true);
-                setShareMessage('Design shared successfully!');
-                
-                // Track share event
-                event({
-                  action: 'design_image_shared',
-                  category: 'favorites',
-                  label: 'web_share_api_with_image'
-                });
-                
-                // Hide success message after 3 seconds
-                setTimeout(() => {
-                  setShareSuccess(false);
-                }, 3000);
-              })
-              .catch((error) => {
-                console.error('Error sharing with image:', error);
-                // Fallback to sharing without image
-                shareWithoutImage();
-              });
+          try {
+            // Apply watermark to image before sharing
+            const watermarkedImageUrl = await addWatermarkToImage(design.thumbnailUrl || design.imageUrl);
+            
+            // Fetch the watermarked image
+            const response = await fetch(watermarkedImageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], `${design.roomType.toLowerCase()}_design.jpg`, { type: 'image/jpeg' });
+            
+            navigator.share({
+              title: shareTitle,
+              text: shareText,
+              url: shareUrl,
+              files: [file]
             })
-            .catch(error => {
-              console.error('Error fetching image for sharing:', error);
+            .then(() => {
+              setShareSuccess(true);
+              setShareMessage('Design shared successfully!');
+              
+              // Track share event
+              event({
+                action: 'design_image_shared',
+                category: 'favorites',
+                label: 'web_share_api_with_image'
+              });
+              
+              // Hide success message after 3 seconds
+              setTimeout(() => {
+                setShareSuccess(false);
+              }, 3000);
+              
+              // Clean up the object URL
+              URL.revokeObjectURL(watermarkedImageUrl);
+            })
+            .catch((error) => {
+              console.error('Error sharing with image:', error);
               // Fallback to sharing without image
               shareWithoutImage();
             });
+          } catch (error) {
+            console.error('Error applying watermark:', error);
+            // Fallback to sharing without image
+            shareWithoutImage();
+          }
         } else {
           // Share without image
           shareWithoutImage();
