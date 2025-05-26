@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
 import Image from 'next/image';
 import { downloadImageWithWatermark } from "../../lib/imageUtils";
+import FeedbackForm from "../../components/FeedbackForm";
 
 // Setup IndexedDB for favorites storage
 const initIndexedDB = () => {
@@ -734,6 +735,15 @@ function FavoritesContent() {
                   >
                     Create Similar Design
                   </Button>
+                </div>
+                
+                {/* Add feedback form to modal */}
+                <div className="mt-8">
+                  <FeedbackForm 
+                    designId={selectedDesign.id}
+                    roomType={selectedDesign.roomType}
+                    styleType={selectedDesign.style}
+                  />
                 </div>
               </div>
             </div>

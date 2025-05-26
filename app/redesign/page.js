@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import useGoogleAnalytics from '../_hooks/useGoogleAnalytics';
 import UpgradeModal from "../../components/UpgradeModal";
 import Image from 'next/image';
-import { downloadImageWithWatermark } from "../../lib/imageUtils";
+import { downloadImageWithWatermark, addWatermarkToImage } from "../../lib/imageUtils";
+import FeedbackForm from "../../components/FeedbackForm";
 
 // Plans for credit system
 const plans = {
@@ -1298,31 +1299,39 @@ export default function Redesign() {
             </p>
             <button
               onClick={() => router.push('/dashboard-pricing')}
-              className="w-full bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-white hover:opacity-90 transition-all rounded-md shadow-md py-2 font-medium text-sm"
+              className="bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-white hover:opacity-90 transition-all duration-300 rounded-md shadow-md flex items-center gap-2 px-4 py-2 font-medium"
             >
-              View pricing plans
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+              Upgrade Now
             </button>
           </div>
+          
+          {/* Add feedback form component */}
+          <FeedbackForm 
+            designId={generatedDesign?.id}
+            roomType={roomTypes.find(room => room.id === selectedRoom)?.name}
+            styleType={styleOptions.find(style => style.id === selectedStyle)?.name}
+          />
         </div>
       </div>
-
+      
       {/* Mobile share button - fixed to bottom on small screens */}
-      {generatedDesign && (
-        <div className="md:hidden fixed bottom-4 right-4 z-50">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleShareDesign(e);
-            }}
-            className="bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-white p-3 rounded-full shadow-lg hover:opacity-90 transition-all duration-300"
-            aria-label="Share design"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-          </button>
-        </div>
-      )}
+      <div className="md:hidden fixed bottom-4 right-4 z-50">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleShareDesign(e);
+          }}
+          className="bg-gradient-to-r from-[#1e3a5c] via-[#22d3ee] to-[#4ade80] text-white p-3 rounded-full shadow-lg hover:opacity-90 transition-all duration-300"
+          aria-label="Share design"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+        </svg>
+        </button>
+      </div>
     </div>
   );
 
@@ -1367,7 +1376,7 @@ export default function Redesign() {
   };
 
   // Add a function to handle sharing the design
-  const handleShareDesign = (e) => {
+  const handleShareDesign = async (e) => {
     e.stopPropagation();
     
     // Check if Web Share API is available
@@ -1381,45 +1390,50 @@ export default function Redesign() {
         
         // Check if we can share the image directly
         if (generatedDesign?.imageUrl && navigator.canShare && navigator.canShare({ files: [new File([new Blob()], 'test.jpg', { type: 'image/jpeg' })] })) {
-          // Try to fetch the image and share it
-          fetch(generatedDesign.imageUrl)
-            .then(res => res.blob())
-            .then(blob => {
-              const file = new File([blob], `${roomTypeName.toLowerCase()}_design.jpg`, { type: 'image/jpeg' });
-              
-              navigator.share({
-                title: shareTitle,
-                text: shareText,
-                url: shareUrl,
-                files: [file]
-              })
-              .then(() => {
-                setShareSuccess(true);
-                setShareMessage('Design shared successfully!');
-                
-                // Track share event
-                event({
-                  action: 'design_image_shared',
-                  category: 'redesign',
-                  label: 'web_share_api_with_image'
-                });
-                
-                // Hide success message after 3 seconds
-                setTimeout(() => {
-                  setShareSuccess(false);
-                }, 3000);
-              })
-              .catch((error) => {
-                console.error('Error sharing with image:', error);
-                // Fallback to sharing without image
-                shareWithoutImage();
-              });
+          try {
+            // Apply watermark before sharing - import this from imageUtils
+            const watermarkedImageUrl = await addWatermarkToImage(generatedDesign.imageUrl);
+            
+            // Fetch the watermarked image and share it
+            const response = await fetch(watermarkedImageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], `${roomTypeName.toLowerCase()}_design.jpg`, { type: 'image/jpeg' });
+            
+            navigator.share({
+              title: shareTitle,
+              text: shareText,
+              url: shareUrl,
+              files: [file]
             })
-            .catch(error => {
-              console.error('Error fetching image for sharing:', error);
+            .then(() => {
+              setShareSuccess(true);
+              setShareMessage('Design shared successfully!');
+              
+              // Track share event
+              event({
+                action: 'design_image_shared',
+                category: 'redesign',
+                label: 'web_share_api_with_image'
+              });
+              
+              // Hide success message after 3 seconds
+              setTimeout(() => {
+                setShareSuccess(false);
+              }, 3000);
+              
+              // Clean up the object URL
+              URL.revokeObjectURL(watermarkedImageUrl);
+            })
+            .catch((error) => {
+              console.error('Error sharing with image:', error);
               // Fallback to sharing without image
               shareWithoutImage();
             });
+          } catch (error) {
+            console.error('Error applying watermark:', error);
+            // Fallback to sharing without image
+            shareWithoutImage();
+          }
         } else {
           // Share without image
           shareWithoutImage();
