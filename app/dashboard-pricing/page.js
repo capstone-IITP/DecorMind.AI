@@ -69,13 +69,15 @@ function PricingComponent() {
 
   // Load user's current plan on component mount
   useEffect(() => {
-    const storedPlan = localStorage.getItem('userPlan') || 'free';
-    setCurrentPlan(storedPlan);
+    if (typeof window !== 'undefined') {
+      const storedPlan = localStorage.getItem('userPlan') || 'free';
+      setCurrentPlan(storedPlan);
 
-    // Check if a specific plan is highlighted from URL params
-    const planParam = searchParams.get('plan');
-    if (planParam && ['premium', 'pro'].includes(planParam)) {
-      setHighlightedPlan(planParam);
+      // Check if a specific plan is highlighted from URL params
+      const planParam = searchParams.get('plan');
+      if (planParam && ['premium', 'pro'].includes(planParam)) {
+        setHighlightedPlan(planParam);
+      }
     }
   }, [searchParams]);
 
@@ -87,13 +89,15 @@ function PricingComponent() {
     // Check if user is signed in
     if (!isSignedIn) {
       showCustomPopup("Please sign in to upgrade your plan", () => {
-        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+        setTimeout(() => {
+          router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+        }, 0);
       });
       return;
     }
 
     // If it's the free plan, we can set it directly
-    if (plan === 'free') {
+    if (plan === 'free' && typeof window !== 'undefined') {
       // Check if the user has already used the free plan
       const hasUsedFreePlan = localStorage.getItem("hasUsedFreePlan") === 'true';
       if (hasUsedFreePlan) {
@@ -109,7 +113,9 @@ function PricingComponent() {
       // Show success notification and redirect
       showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
         // Redirect to redesign page
-        router.push("/redesign");
+        setTimeout(() => {
+          router.push("/redesign");
+        }, 0);
       }, true);
     }
     // For premium and pro plans, we'll handle it in the payment success callback
@@ -119,26 +125,32 @@ function PricingComponent() {
   const handlePaymentSuccess = (plan, response) => {
     console.log("Payment successful", response);
 
-    // Update user plan and credits in localStorage
-    localStorage.setItem("userPlan", plan);
-    localStorage.setItem("usedCredits", "0"); // Reset used credits
+    if (typeof window !== 'undefined') {
+      // Update user plan and credits in localStorage
+      localStorage.setItem("userPlan", plan);
+      localStorage.setItem("usedCredits", "0"); // Reset used credits
 
-    // Set credits based on plan
-    if (plan === 'premium') {
-      localStorage.setItem("totalCredits", "10");
-    } else if (plan === 'pro') {
-      localStorage.setItem("totalCredits", "unlimited");
-    }
-
-    // Show success notification and redirect
-    showCustomPopup(`Successfully ${currentPlan === plan ? 'renewed' : 'upgraded to'} ${plan.toUpperCase()} plan!`, () => {
-      // Redirect to redesign page only if signed in
-      if (isSignedIn) {
-        router.push("/redesign");
-      } else {
-        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+      // Set credits based on plan
+      if (plan === 'premium') {
+        localStorage.setItem("totalCredits", "10");
+      } else if (plan === 'pro') {
+        localStorage.setItem("totalCredits", "unlimited");
       }
-    }, true);
+
+      // Show success notification and redirect
+      showCustomPopup(`Successfully ${currentPlan === plan ? 'renewed' : 'upgraded to'} ${plan.toUpperCase()} plan!`, () => {
+        // Redirect to redesign page only if signed in
+        if (isSignedIn) {
+          setTimeout(() => {
+            router.push("/redesign");
+          }, 0);
+        } else {
+          setTimeout(() => {
+            router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+          }, 0);
+        }
+      }, true);
+    }
   };
 
   // Add CSS animations
@@ -865,8 +877,10 @@ function SimplifiedPricingComponent() {
   // Add CSS animations when component mounts
   useEffect(() => {
     // Load user's current plan from localStorage
-    const storedPlan = localStorage.getItem('userPlan') || 'free';
-    setCurrentPlan(storedPlan);
+    if (typeof window !== 'undefined') {
+      const storedPlan = localStorage.getItem('userPlan') || 'free';
+      setCurrentPlan(storedPlan);
+    }
 
     // Add CSS for animations
     let style;
@@ -1118,7 +1132,9 @@ function SimplifiedPricingComponent() {
               onClick={() => {
                 onClose();
                 if (!isSuccess && !isSignedIn) {
-                  router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+                  setTimeout(() => {
+                    router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+                  }, 0);
                 } else if (onAction) {
                   onAction();
                 }
@@ -1140,7 +1156,7 @@ function SimplifiedPricingComponent() {
     setShowPopup(true);
     setIsSuccessPopup(isSuccess);
   };
-
+  
   // Function to toggle mobile menu
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -1150,7 +1166,13 @@ function SimplifiedPricingComponent() {
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
-
+  
+  // Function to check if the link is active
+  const isActive = (path) => {
+    if (!isLoaded) return false;
+    return pathname === path;
+  };
+  
   // Handle link click animation
   const handleLinkClick = (path) => {
     setActiveLink(path);
@@ -1167,16 +1189,12 @@ function SimplifiedPricingComponent() {
     }, 300);
 
     // Navigate using router instead of changing window.location
-    router.push(path);
+    setTimeout(() => {
+      router.push(path);
+    }, 0);
   };
 
-  // Function to check if the link is active
-  const isActive = (path) => {
-    if (!isLoaded) return false;
-    return pathname === path;
-  };
-
-  // Handle plan upgrade - similar to the existing component
+  // Handle plan upgrade
   const handleUpgrade = (plan) => {
     // Don't do anything if clicking on current plan
     if (plan === currentPlan) return;
@@ -1184,13 +1202,15 @@ function SimplifiedPricingComponent() {
     // Check if user is signed in
     if (!isSignedIn) {
       showCustomPopup("Please sign in to upgrade your plan", () => {
-        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+        setTimeout(() => {
+          router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+        }, 0);
       });
       return;
     }
 
     // If it's the free plan, we can set it directly
-    if (plan === 'free') {
+    if (plan === 'free' && typeof window !== 'undefined') {
       // Check if the user has already used the free plan
       const hasUsedFreePlan = localStorage.getItem("hasUsedFreePlan") === 'true';
       if (hasUsedFreePlan) {
@@ -1206,7 +1226,9 @@ function SimplifiedPricingComponent() {
       // Show success notification and redirect
       showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
         // Redirect to redesign page
-        router.push("/redesign");
+        setTimeout(() => {
+          router.push("/redesign");
+        }, 0);
       }, true);
     }
     // For premium and pro plans, we'll handle it in the payment success callback
@@ -1216,30 +1238,45 @@ function SimplifiedPricingComponent() {
   const handlePaymentSuccess = (plan, response) => {
     console.log("Payment successful", response);
 
-    // Update user plan and credits in localStorage
-    localStorage.setItem("userPlan", plan);
-    localStorage.setItem("usedCredits", "0"); // Reset used credits
+    if (typeof window !== 'undefined') {
+      // Update user plan and credits in localStorage
+      localStorage.setItem("userPlan", plan);
+      localStorage.setItem("usedCredits", "0"); // Reset used credits
 
-    // Set credits based on plan
-    if (plan === 'premium') {
-      localStorage.setItem("totalCredits", "10");
-    } else if (plan === 'pro') {
-      localStorage.setItem("totalCredits", "unlimited");
-    }
-
-    // Show success notification and redirect
-    showCustomPopup(`Successfully ${currentPlan === plan ? 'renewed' : 'upgraded to'} ${plan.toUpperCase()} plan!`, () => {
-      // Redirect to redesign page only if signed in
-      if (isSignedIn) {
-        router.push("/redesign");
-      } else {
-        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+      // Set credits based on plan
+      if (plan === 'premium') {
+        localStorage.setItem("totalCredits", "10");
+      } else if (plan === 'pro') {
+        localStorage.setItem("totalCredits", "unlimited");
       }
-    }, true);
+
+      // Show success notification and redirect
+      showCustomPopup(`Successfully ${currentPlan === plan ? 'renewed' : 'upgraded to'} ${plan.toUpperCase()} plan!`, () => {
+        // Redirect to redesign page only if signed in
+        if (isSignedIn) {
+          setTimeout(() => {
+            router.push("/redesign");
+          }, 0);
+        } else {
+          setTimeout(() => {
+            router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+          }, 0);
+        }
+      }, true);
+    }
   };
 
   // Add a check before showing payment button
   const renderActionButton = (plan, isCurrent, isDisabled) => {
+    if (typeof window === 'undefined') {
+      // Return a placeholder during server-side rendering
+      return (
+        <button className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg">
+          Loading...
+        </button>
+      );
+    }
+    
     // Get remaining credits from localStorage
     const usedCredits = parseInt(localStorage.getItem("usedCredits") || "0", 10);
     const totalCredits = localStorage.getItem("totalCredits") || (currentPlan === 'free' ? "2" : currentPlan === 'premium' ? "10" : "unlimited");
@@ -1286,7 +1323,11 @@ function SimplifiedPricingComponent() {
       if (!isSignedIn) {
         return (
           <button
-            onClick={() => router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`)}
+            onClick={() => {
+              setTimeout(() => {
+                router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+              }, 0);
+            }}
             className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg"
           >
             Sign in to upgrade

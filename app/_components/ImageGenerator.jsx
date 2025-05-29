@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { downloadImageWithWatermark } from '../../lib/imageUtils';
 import RoomDimensionForm from './RoomDimensionForm';
@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 
 export default function ImageGenerator() {
     const router = useRouter();
-    const { userDetail, useCredit, loading: userLoading } = useUserDetail();
+    const { userDetail, creditUsed, loading: userLoading } = useUserDetail();
     const [prompt, setPrompt] = useState("");
     const [image, setImage] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -69,10 +69,10 @@ export default function ImageGenerator() {
                 throw new Error(data.error || "Failed to generate image");
             }
             
-            // Use a credit for the successful generation
-            useCredit();
-            
             setImage(data.image);
+            
+            // Use the creditUsed function instead of useCredit directly
+            creditUsed();
         } catch (err) {
             console.error("Error generating image:", err);
             setError(err.message || "Failed to generate image");
