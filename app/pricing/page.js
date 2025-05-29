@@ -7,6 +7,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
 import PaymentButton from '../_components/PaymentButton';
 import { useUser } from '@clerk/nextjs';
+import { useUserDetail } from '../_context/UserDetailContext';
 
 export default function PricingPage() {
   return <SimplifiedPricingComponent />;
@@ -295,10 +296,6 @@ function PricingComponent() {
         .nav-link {
           position: relative;
           opacity: 0;
-        }
-
-        .nav-link::after {
-          background-color: #22d3ee;
         }
         
         /* Navigation links fade-in animation on page load */
@@ -594,15 +591,14 @@ function PricingComponent() {
           <nav className="flex gap-4 md:gap-6 mx-auto justify-center flex-wrap" style={{ fontSize: '0.875rem' }}>
             <Link
               href="/"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '100ms' }}
             >
               Home
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/#features"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '200ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -610,11 +606,10 @@ function PricingComponent() {
               }}
             >
               Features
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/#how-it-works"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '300ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -622,11 +617,10 @@ function PricingComponent() {
               }}
             >
               How it Works
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/#gallery"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '400ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -634,19 +628,17 @@ function PricingComponent() {
               }}
             >
               Gallery
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/tutorial-video"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '500ms' }}
             >
               Tutorial Video
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/pricing"
-              className="nav-link text-cyan-400 active transition-colors relative group animate-fade-in"
+              className="nav-link text-cyan-400 active transition-colors relative group"
               style={{ animationDelay: '600ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -654,11 +646,10 @@ function PricingComponent() {
               }}
             >
               Pricing
-              <span className="absolute left-0 bottom-0 h-[2px] w-full bg-cyan-400 transition-all duration-300"></span>
             </Link>
             <Link
               href="/contact-us"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '700ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -666,7 +657,6 @@ function PricingComponent() {
               }}
             >
               Contact Us
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
           </nav>
         </div>
@@ -808,390 +798,176 @@ function PricingComponent() {
 function SimplifiedPricingComponent() {
   const router = useRouter();
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeLink, setActiveLink] = useState('');
-  const [currentPlan, setCurrentPlan] = useState('free');
   const { isLoaded, isSignedIn, user } = useUser();
+  const { userDetail, updatePlan, loading: userLoading } = useUserDetail();
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
   const [popupAction, setPopupAction] = useState(null);
   const [isSuccessPopup, setIsSuccessPopup] = useState(false);
   const [currency, setCurrency] = useState('INR');
-  const [exchangeRates, setExchangeRates] = useState({
-    USD: 1,
-    EUR: 0.92,
-    GBP: 0.79,
-    INR: 83.50,
-    CAD: 1.37,
-    AUD: 1.52,
-    JPY: 150.45
-  });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Function to convert price to selected currency
-  const convertPrice = (usdPrice) => {
-    const convertedPrice = (usdPrice * exchangeRates[currency]).toFixed(2);
-    const currencySymbols = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      INR: '₹',
-      CAD: 'C$',
-      AUD: 'A$',
-      JPY: '¥'
-    };
-    return `${currencySymbols[currency]}${convertedPrice}`;
-  };
-
-  // Add CSS animations when component mounts
+  // Add useEffect to fix nav link styles
   useEffect(() => {
-    // Load user's current plan from localStorage
-    const storedPlan = localStorage.getItem('userPlan') || 'free';
-    setCurrentPlan(storedPlan);
+    // Create style element for nav links
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .nav-link {
+        position: relative;
+        opacity: 1;
+        transition: color 0.3s ease;
+      }
 
-    // Add CSS for animations
-    let style;
-    if (typeof window !== 'undefined') {
-      style = document.createElement('style');
-      style.innerHTML = `
-        /* Popup animations */
-        @keyframes fade-in-scale {
-          0% {
-            opacity: 0;
-            transform: scale(0.9);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        
-        .animate-fade-in-scale {
-          animation: fade-in-scale 0.2s ease-out forwards;
-        }
-        
-        /* Button hover effect */
-        .popup-btn {
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .popup-btn:after {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 5px;
-          height: 5px;
-          background: rgba(255, 255, 255, 0.3);
-          opacity: 0;
-          border-radius: 100%;
-          transform: scale(1, 1) translate(-50%);
-          transform-origin: 50% 50%;
-        }
-        
-        .popup-btn:hover:after {
-          animation: ripple 1s ease-out;
-        }
-        
-        @keyframes ripple {
-          0% {
-            transform: scale(0, 0);
-            opacity: 0.5;
-          }
-          100% {
-            transform: scale(20, 20);
-            opacity: 0;
-          }
-        }
-        
-        /* Navbar link animations */
-        @keyframes fadeInDown {
-          0% {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -4px;
+        left: 0;
+        background-color: #22d3ee;
+        transition: width 0.3s ease;
+      }
+      
+      .nav-link:hover::after {
+        width: 100%;
+      }
 
-        .nav-link {
-          position: relative;
-          opacity: 0;
-        }
+      .nav-link.active::after {
+        width: 100%;
+      }
+    `;
+    document.head.appendChild(style);
 
-        /* Removing the duplicate underline code */
-        /*.nav-link::after {
-          content: '';
-          position: absolute;
-          width: 0;
-          height: 2px;
-          bottom: -4px;
-          left: 0;
-          background-color: #22d3ee;
-          transition: width 0.3s ease;
-        }
-        
-        .nav-link:hover::after {
-          width: 100%;
-        }
-
-        .nav-link.active::after {
-          width: 100%;
-        }*/
-
-        /* Click animation */
-        @keyframes clickEffect {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(0.95);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-
-        .link-clicked {
-          animation: clickEffect 0.3s ease forwards;
-        }
-
-        .nav-link:nth-child(1) {
-          animation: fadeInDown 0.5s ease-out 0.1s forwards;
-        }
-
-        .nav-link:nth-child(2) {
-          animation: fadeInDown 0.5s ease-out 0.2s forwards;
-        }
-
-        .nav-link:nth-child(3) {
-          animation: fadeInDown 0.5s ease-out 0.3s forwards;
-        }
-
-        .nav-link:nth-child(4) {
-          animation: fadeInDown 0.5s ease-out 0.4s forwards;
-        }
-
-        .nav-link:nth-child(5) {
-          animation: fadeInDown 0.5s ease-out 0.5s forwards;
-        }
-
-        .nav-link:nth-child(6) {
-          animation: fadeInDown 0.5s ease-out 0.6s forwards;
-        }
-
-        .nav-link:nth-child(7) {
-          animation: fadeInDown 0.5s ease-out 0.7s forwards;
-        }
-
-        /* Navigation bar slide-down animation */
-        @keyframes slideDown {
-          0% {
-            transform: translateY(-100%);
-          }
-          100% {
-            transform: translateY(0);
-          }
-        }
-
-        .nav-slide-down {
-          animation: slideDown 0.5s ease-out forwards;
-        }
-
-        /* Logo animation */
-        @keyframes pulse {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.05);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-
-        .logo-pulse:hover {
-          animation: pulse 1s infinite;
-        }
-        
-        /* Logo glow effect */
-        .logo-container {
-          position: relative;
-          transition: all 0.3s ease;
-        }
-        
-        .logo-container:hover::after {
-          content: '';
-          position: absolute;
-          top: -5px;
-          left: -5px;
-          right: -5px;
-          bottom: -5px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, rgba(34, 211, 238, 0) 70%);
-          z-index: -1;
-          animation: glow 1.5s infinite alternate;
-        }
-        
-        @keyframes glow {
-          0% {
-            opacity: 0.5;
-          }
-          100% {
-            opacity: 1;
-          }
-        }
-        
-        /* Sticky navbar effect */
-        .sticky-nav {
-          position: sticky;
-          top: 0;
-          z-index: 50;
-          backdrop-filter: blur(10px);
-          transition: all 0.3s ease;
-        }
-        
-        .sticky-nav.scrolled {
-          background-color: rgba(24, 24, 27, 0.8);
-          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
-        }
-      `;
-      document.head.appendChild(style);
-
-      // Add scroll event for sticky navbar effect
-      const handleScroll = () => {
-        const navbar = document.querySelector('.sticky-nav');
-        if (navbar) {
-          if (window.scrollY > 10) {
-            navbar.classList.add('scrolled');
-          } else {
-            navbar.classList.remove('scrolled');
-          }
-        }
-      };
-
-      window.addEventListener('scroll', handleScroll);
-
-      return () => {
-        if (style && style.parentNode) {
-          document.head.removeChild(style);
-        }
-        window.removeEventListener('scroll', handleScroll);
-      };
-    }
+    // Clean up
+    return () => {
+      if (style && style.parentNode) {
+        document.head.removeChild(style);
+      }
+    };
   }, []);
+
+  // Convert price to selected currency
+  const convertPrice = (usdPrice) => {
+    // For simplicity, we're just returning the INR price directly
+    const currencySymbols = {
+      INR: '₹',
+    };
+    return `${currencySymbols[currency]}${usdPrice}`;
+  };
 
   // Custom popup component
   const CustomPopup = ({ message, onClose, onAction, isSuccess }) => (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/80">
-      <div className={`bg-zinc-900 border-2 ${isSuccess ? 'border-green-400' : 'border-cyan-400'} rounded-xl p-8 max-w-md w-full mx-4 ${isSuccess ? 'shadow-[0_0_15px_rgba(74,222,128,0.3)]' : 'shadow-[0_0_15px_rgba(34,211,238,0.3)]'} animate-fade-in-scale`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-zinc-900 border-2 border-cyan-400 rounded-xl p-6 max-w-md w-full mx-4">
         <div className="text-center">
-          <div className={`mx-auto w-12 h-12 ${isSuccess ? 'bg-green-400' : 'bg-cyan-400'} rounded-full flex items-center justify-center text-slate-800 mb-4`}>
-            {isSuccess ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          {isSuccess ? (
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
               </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </div>
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-            )}
-          </div>
-          <h3 className="text-xl font-semibold text-white mb-2">{isSuccess ? 'Success' : 'Notice'}</h3>
-          <p className="text-zinc-300 mb-6">{message}</p>
-          <div className="flex justify-center">
+            </div>
+          )}
+          <h3 className="text-lg font-medium text-white mb-4">{message}</h3>
+          <div className="flex justify-center space-x-4">
             <button
-              onClick={() => {
-                onClose();
-                if (!isSuccess && !isSignedIn) {
-                  router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
-                } else if (onAction) {
-                  onAction();
-                }
-              }}
-              className={`popup-btn bg-gradient-to-r ${isSuccess ? 'from-green-500 to-green-400' : 'from-cyan-500 to-cyan-400'} text-slate-800 font-medium px-10 py-2 rounded-md hover:opacity-90 transition-colors`}
+              onClick={onAction || onClose}
+              className="px-4 py-2 bg-cyan-400 text-black rounded-lg hover:bg-cyan-500 transition-colors"
             >
-              OK
+              {onAction ? 'Continue' : 'Close'}
             </button>
+            {onAction && (
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-zinc-700 text-white rounded-lg hover:bg-zinc-600 transition-colors"
+              >
+                Cancel
+              </button>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 
-  // Function to show popup
+  // Update the showCustomPopup function to remove the CSS we added
   const showCustomPopup = (message, action = null, isSuccess = false) => {
     setPopupMessage(message);
-    setPopupAction(action);
-    setShowPopup(true);
+    setPopupAction(() => action);
     setIsSuccessPopup(isSuccess);
+    setShowPopup(true);
   };
 
-  // Function to toggle mobile menu
+  // Toggle mobile menu
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  // Function to close mobile menu
+  // Close mobile menu
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
 
-  // Handle link click animation
+  // Handle link click
   const handleLinkClick = (path) => {
-    setActiveLink(path);
-
-    // If user is trying to go to redesign page and isn't signed in, redirect to login first
-    if (path === '/redesign' && !isSignedIn) {
-      showCustomPopup("Please sign in to access the redesign page");
-      return;
+    closeMobileMenu();
+    
+    // If it's an anchor link on the same page
+    if (path.startsWith('/#')) {
+      // Extract the id from the path
+      const id = path.substring(2);
+      const element = document.getElementById(id);
+      
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        // If element not found on current page, navigate to home page with the anchor
+        router.push(path);
+      }
+    } else {
+      // For regular links
+      router.push(path);
     }
-
-    // If user clicks Contact Us and is signed in, redirect to dashboard contact us
-    if (path === '/dashboard-contact-us' && isSignedIn) {
-      router.push('/dashboard-contact-us');
-      return;
-    }
-
-    // Reset active link after animation completes
-    setTimeout(() => {
-      setActiveLink(null);
-    }, 300);
-
-    // Navigate to the path
-    router.push(path);
   };
 
-  // Function to check if the link is active
+  // Check if a link is active
   const isActive = (path) => {
     if (!isLoaded) return false;
     return pathname === path;
   };
 
-  // Handle plan upgrade - similar to the existing component
+  // Handle plan upgrade
   const handleUpgrade = (plan) => {
     // Don't do anything if clicking on current plan
-    if (plan === currentPlan) return;
+    if (plan === userDetail.plan) return;
 
     // Check if user is signed in
     if (!isSignedIn) {
       showCustomPopup("Please sign in to upgrade your plan", () => {
-        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
+        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/pricing')}`);
       });
       return;
     }
 
-    // If it's the free plan, we can set it directly
+    // If it's the free plan, check if the user has already used it
     if (plan === 'free') {
-      localStorage.setItem("userPlan", plan);
-      localStorage.setItem("usedCredits", "0"); // Reset used credits
-
+      if (!userDetail.canUseFreeplan) {
+        showCustomPopup("You have already used your free plan credits. Please choose a premium plan to continue.", null, false);
+        return;
+      }
+      
+      // Update to free plan
+      updatePlan('free');
+      
       // Show success notification and redirect
       showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
-        router.push("/redesign");
+        router.push("/interior-generator");
       }, true);
     }
     // For premium and pro plans, we'll handle it in the payment success callback
@@ -1201,30 +977,17 @@ function SimplifiedPricingComponent() {
   const handlePaymentSuccess = (plan, response) => {
     console.log("Payment successful", response);
 
-    // Update user plan and credits in localStorage
-    localStorage.setItem("userPlan", plan);
-
-    // Set credits based on plan
-    if (plan === 'premium') {
-      localStorage.setItem("usedCredits", "0");
-      localStorage.setItem("totalCredits", "10");
-    } else if (plan === 'pro') {
-      localStorage.setItem("usedCredits", "0");
-      localStorage.setItem("totalCredits", "unlimited");
-    }
+    // Update user plan
+    updatePlan(plan);
 
     // Show success notification and redirect
     showCustomPopup(`Successfully upgraded to ${plan.toUpperCase()} plan!`, () => {
-      // Redirect to redesign page only if signed in
-      if (isSignedIn) {
-        router.push("/redesign");
-      } else {
-        router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
-      }
-    });
+      // Redirect to interior generator page
+      router.push("/interior-generator");
+    }, true);
   };
 
-  // Add a check before showing payment button
+  // Render action button based on plan status
   const renderActionButton = (plan, isCurrent, isDisabled) => {
     if (isCurrent) {
       return (
@@ -1233,32 +996,63 @@ function SimplifiedPricingComponent() {
         </button>
       );
     } else if (plan.planKey === 'free') {
+      // Disable free plan if already used
+      const freeDisabled = !userDetail.canUseFreeplan;
+      
       return (
         <button
           onClick={() => handleUpgrade('free')}
-          className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
+          className={`mt-6 w-full ${freeDisabled ? "bg-gray-500 cursor-not-allowed" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
+          disabled={freeDisabled}
         >
-          Select {plan.name} Plan
+          {freeDisabled ? "Already Used" : "Select Free Plan"}
         </button>
       );
-    } else {
-      // Check if user is signed in
+    } else if (plan.planKey === 'premium') {
+      // For premium plan
       if (!isSignedIn) {
         return (
           <button
-            onClick={() => router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`)}
+            onClick={() => router.push(`/sign-in?redirectUrl=${encodeURIComponent('/pricing')}`)}
             className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg"
           >
             Sign in to upgrade
           </button>
         );
       } else {
+        // Check if user is already on this plan and has used all credits
+        const needsRenewal = userDetail.plan === 'premium' && !userDetail.hasAvailableCredits;
+        
         return (
           <PaymentButton
-            amount={plan.planKey === 'premium' ? 100 : 83500} // 1 or 835 INR in paise
-            buttonText={plan.planKey === 'pro' ? "Buy Unlimited Credits" : `Select ${plan.name} Plan`}
-            className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
-            onSuccess={(response) => handlePaymentSuccess(plan.planKey, response)}
+            amount={100} // 1 INR in paise
+            buttonText={needsRenewal ? "Buy Again" : "Buy Premium Plan"}
+            className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg"
+            onSuccess={(response) => handlePaymentSuccess('premium', response)}
+          />
+        );
+      }
+    } else if (plan.planKey === 'pro') {
+      // For pro plan
+      if (!isSignedIn) {
+        return (
+          <button
+            onClick={() => router.push(`/sign-in?redirectUrl=${encodeURIComponent('/pricing')}`)}
+            className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg"
+          >
+            Sign in to upgrade
+          </button>
+        );
+      } else {
+        // Check if user is already on this plan and has used all credits
+        const needsRenewal = userDetail.plan === 'pro' && !userDetail.hasAvailableCredits;
+        
+        return (
+          <PaymentButton
+            amount={83500} // 835 INR in paise
+            buttonText={needsRenewal ? "Buy Again" : "Buy Unlimited Credits"}
+            className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg"
+            onSuccess={(response) => handlePaymentSuccess('pro', response)}
           />
         );
       }
@@ -1274,7 +1068,7 @@ function SimplifiedPricingComponent() {
     },
     {
       name: "Premium",
-      price: "₹1",
+      price: "₹1.00",
       features: ["10 AI Design Generations", "All Room Styles", "High-Quality Generations", "Email Support"],
       planKey: "premium",
     },
@@ -1311,15 +1105,14 @@ function SimplifiedPricingComponent() {
           <nav className="flex gap-4 md:gap-6 mx-auto justify-center flex-wrap" style={{ fontSize: '0.875rem' }}>
             <Link
               href="/"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '100ms' }}
             >
               Home
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/#features"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '200ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -1327,11 +1120,10 @@ function SimplifiedPricingComponent() {
               }}
             >
               Features
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/#how-it-works"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '300ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -1339,11 +1131,10 @@ function SimplifiedPricingComponent() {
               }}
             >
               How it Works
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/#gallery"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '400ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -1351,11 +1142,10 @@ function SimplifiedPricingComponent() {
               }}
             >
               Gallery
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/tutorial-video"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '500ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -1363,11 +1153,10 @@ function SimplifiedPricingComponent() {
               }}
             >
               Tutorial Video
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link
               href="/pricing"
-              className="nav-link text-cyan-400 active transition-colors relative group animate-fade-in"
+              className="nav-link text-cyan-400 active transition-colors relative group"
               style={{ animationDelay: '600ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -1375,11 +1164,10 @@ function SimplifiedPricingComponent() {
               }}
             >
               Pricing
-              <span className="absolute left-0 bottom-0 h-[2px] w-full bg-cyan-400 transition-all duration-300"></span>
             </Link>
             <Link
               href="/contact-us"
-              className="nav-link text-white hover:text-cyan-400 transition-colors relative group animate-fade-in"
+              className="nav-link text-white hover:text-cyan-400 transition-colors relative group"
               style={{ animationDelay: '700ms' }}
               onClick={(e) => {
                 e.preventDefault();
@@ -1387,7 +1175,6 @@ function SimplifiedPricingComponent() {
               }}
             >
               Contact Us
-              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
             </Link>
           </nav>
         </div>
@@ -1500,8 +1287,8 @@ function SimplifiedPricingComponent() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {plans.map((plan) => {
-            const isCurrent = plan.planKey === currentPlan;
-            const isDisabled = currentPlan === "pro" || (currentPlan === "premium" && plan.planKey === "free");
+            const isCurrent = plan.planKey === userDetail.plan;
+            const isDisabled = userDetail.plan === "pro" || (userDetail.plan === "premium" && plan.planKey === "free");
 
             // Convert prices based on currency
             let price;

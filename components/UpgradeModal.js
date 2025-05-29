@@ -21,14 +21,14 @@ export default function UpgradeModal({ show, onClose, currentPlan = "free" }) {
         upgradeTo = "pro";
         message = "Upgrade to Pro for unlimited AI designs and priority support!";
         planDetails = {
-            price: "₹999",
+            price: "₹835",
             features: "Unlimited designs + priority support",
             tag: "UNLIMITED"
         };
     }
 
     const handleUpgrade = () => {
-        router.push(`/pricing?plan=${upgradeTo}`);
+        router.push(`/dashboard-pricing?plan=${upgradeTo}`);
         onClose();
     };
     

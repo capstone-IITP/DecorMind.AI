@@ -19,7 +19,11 @@ export async function POST(req) {
             );
         }
 
-        console.log("Generating image with Stability AI:", prompt.substring(0, 50) + "...");
+        // Modify prompt to strongly include watermark in top-right corner
+        // Note: The prompt may already include room dimensions from the frontend
+        const watermarkPrompt = `${prompt}. Add a visible "DecorMind" text watermark in the top-right corner of the image, with gradient blue to teal to green colors. The watermark should be clear and legible.`;
+        
+        console.log("Generating image with Stability AI:", watermarkPrompt.substring(0, 100) + "...");
         
         try {
             const response = await fetch("https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image", {
@@ -31,11 +35,15 @@ export async function POST(req) {
                 body: JSON.stringify({
                     text_prompts: [
                         {
-                            text: prompt,
+                            text: watermarkPrompt,
                             weight: 1.0
+                        },
+                        {
+                            text: "blurry watermark, pixelated watermark, illegible watermark, no watermark, missing text, poorly rendered text",
+                            weight: -0.9
                         }
                     ],
-                    cfg_scale: 7,
+                    cfg_scale: 8,
                     height: 1024,
                     width: 1024,
                     samples: 1,

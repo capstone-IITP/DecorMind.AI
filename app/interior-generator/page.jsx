@@ -5,7 +5,7 @@ export default function InteriorGeneratorPage() {
     <div className="max-w-4xl mx-auto py-10 px-4">
       <h1 className="text-2xl font-bold mb-6">AI Interior Designer</h1>
       <p className="mb-8 text-gray-600">
-        Transform your space with AI-generated interior designs. Simply describe the room you want and our AI will create a beautiful visualization for you.
+        Transform your space with AI-generated interior designs. Simply describe the room you want, enter its dimensions, and our AI will create a beautiful visualization for you.
       </p>
       
       <div className="bg-gray-50 p-6 rounded-lg">
@@ -20,6 +20,7 @@ export default function InteriorGeneratorPage() {
           <li>Include color preferences if you have any</li>
           <li>Specify key furniture items you want to see</li>
           <li>Add details about lighting or time of day</li>
+          <li>Enter accurate room dimensions for properly scaled furniture and layout</li>
         </ul>
       </div>
       

@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import NextTopLoader from './_components/NextTopLoader';
 import GoogleAnalytics from './_components/GoogleAnalytics';
 import ConditionalLoader from './_components/ConditionalLoader';
+import Provider from './provider';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -125,9 +126,11 @@ export default function RootLayout({ children }) {
             shadow={true}
           />
           <GoogleAnalytics />
-          <ConditionalLoader>
-            {children}
-          </ConditionalLoader>
+          <Provider>
+            <ConditionalLoader>
+              {children}
+            </ConditionalLoader>
+          </Provider>
         </body>
       </html>
     </ClerkProvider>

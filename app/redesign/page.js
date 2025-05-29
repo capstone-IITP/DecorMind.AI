@@ -328,8 +328,50 @@ export default function Redesign() {
       const styleName = styleOptions.find(style => style.id === selectedStyle)?.name || selectedStyle;
       const roomTypeName = roomTypes.find(room => room.id === selectedRoom)?.name || selectedRoom;
 
-      // Create a descriptive prompt for the image generation
-      const prompt = `Generate a ${styleName.toLowerCase()} style ${roomTypeName.toLowerCase()} with a ${budget} budget. The room should have appropriate furniture, decor, and lighting for the style and room type.`;
+      // Create a more detailed prompt based on room type
+      let promptDetails = '';
+      let styleDetails = '';
+      
+      // Add style-specific details for better accuracy
+      if (selectedStyle === 'artdeco' && selectedRoom === 'study') {
+        styleDetails = `The Art Deco style should feature bold geometric patterns, rich colors like emerald green, gold, and black, luxurious materials, symmetrical designs, and decorative lighting fixtures like the chandelier. Include Art Deco furniture with sleek lines, mirrored surfaces, and metallic accents. The study should have built-in bookshelves, a statement desk, and artistic wall treatments.`;
+      } else if (selectedStyle === 'artdeco') {
+        styleDetails = `The Art Deco style should feature bold geometric patterns, rich colors, luxurious materials, symmetrical designs, and decorative lighting fixtures. Include stylish furniture with sleek lines, mirrored surfaces, and metallic accents.`;
+      } else if (selectedStyle === 'midcentury' && selectedRoom === 'study') {
+        styleDetails = `The Mid-Century Modern style should feature clean lines, organic shapes, minimal ornamentation, and a mix of traditional and non-traditional materials. The study should have a statement desk, functional shelving, and iconic mid-century chairs.`;
+      } else if (selectedStyle === 'rustic' && selectedRoom === 'study') {
+        styleDetails = `The Rustic style should feature natural materials like wood and stone, warm earthy colors, and vintage or antique elements. The study should have a solid wood desk, open shelving, and comfortable seating with natural textures.`;
+      }
+      
+      // Add room-specific details to make the generation more accurate
+      switch(selectedRoom) {
+        case 'study':
+          promptDetails = `The study should have a desk, bookshelves, a comfortable chair, adequate lighting for reading, and storage for books and documents. It should be designed for focused work and reading.`;
+          break;
+        case 'living':
+          promptDetails = `The living room should have comfortable seating, a coffee table, decorative elements, and be designed for relaxation and entertaining guests.`;
+          break;
+        case 'bedroom':
+          promptDetails = `The bedroom should have a comfortable bed, nightstands, proper lighting, and create a relaxing atmosphere for rest.`;
+          break;
+        case 'kitchen':
+          promptDetails = `The kitchen should have modern appliances, counter space, storage solutions, and be designed for efficient cooking and food preparation.`;
+          break;
+        case 'bathroom':
+          promptDetails = `The bathroom should have fixtures like sink, toilet, shower or bath, and create a clean, functional space.`;
+          break;
+        case 'office':
+          promptDetails = `The home office should have a proper desk, ergonomic chair, storage solutions, and be designed for productivity and focus.`;
+          break;
+        case 'dining':
+          promptDetails = `The dining room should have a dining table, chairs, and create an inviting atmosphere for meals and gatherings.`;
+          break;
+        default:
+          promptDetails = `The room should be functional and stylish, with appropriate furniture and decor elements.`;
+      }
+
+      // Create a descriptive prompt for the image generation with specific details
+      const prompt = `Generate a detailed ${styleName.toLowerCase()} style ${roomTypeName.toLowerCase()} with a ${budget} budget. ${promptDetails} ${styleDetails} The room should have appropriate furniture, decor, and lighting for the style and room type. Add a small "DecorMind" watermark text in the bottom corner of the image.`;
 
       // Make API call to the server
       const controller = new AbortController();
@@ -1100,7 +1142,19 @@ export default function Redesign() {
                   alt="Redesigned room"
                   fill
                   style={{ objectFit: 'cover' }}
+                  onContextMenu={(e) => e.preventDefault()}
                 />
+                {/* Add DecorMind watermark overlay to ensure it's always visible */}
+                <div className="absolute top-2 right-2 text-white text-sm font-bold drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]" style={{
+                  background: 'linear-gradient(90deg, #1e3a5c, #22d3ee, #4ade80)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  display: 'inline-block'
+                }}>
+                  DecorMind
+                </div>
               </div>
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                 <div className="flex justify-between items-center">
@@ -1336,41 +1390,59 @@ export default function Redesign() {
   );
 
   // Add a function to handle opening the image in a new page
-  const handleOpenImage = (imageUrl) => {
+  const handleOpenImage = async (imageUrl) => {
     if (imageUrl) {
-      // Create a temporary window to display the image
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(`
-          <html>
-            <head>
-              <title>Room Design Preview</title>
-              <style>
-                body { 
-                  margin: 0; 
-                  padding: 0; 
-                  background-color: #000;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  min-height: 100vh;
-                }
-                img { 
-                  max-width: 100%; 
-                  max-height: 100vh;
-                  object-fit: contain;
-                }
-              </style>
-            </head>
-            <body>
-              <img src="${imageUrl}" alt="Room Design" />
-            </body>
-          </html>
-        `);
-        newWindow.document.close();
-      } else {
-        // Fallback if popup is blocked
-        window.location.href = imageUrl;
+      try {
+        // Apply watermark to the image before opening
+        const watermarkedImageUrl = await addWatermarkToImage(imageUrl);
+        
+        // Create a temporary window to display the watermarked image
+        const newWindow = window.open('', '_blank');
+        if (newWindow) {
+          newWindow.document.write(`
+            <html>
+              <head>
+                <title>Room Design Preview</title>
+                <style>
+                  body { 
+                    margin: 0; 
+                    padding: 0; 
+                    background-color: #000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                  }
+                  img { 
+                    max-width: 100%; 
+                    max-height: 100vh;
+                    object-fit: contain;
+                  }
+                </style>
+              </head>
+              <body>
+                <img 
+                  src="${watermarkedImageUrl}" 
+                  alt="Room Design" 
+                  oncontextmenu="return false;" 
+                />
+              </body>
+            </html>
+          `);
+          newWindow.document.close();
+          
+          // Clean up the object URL when the window is closed
+          newWindow.onbeforeunload = function() {
+            URL.revokeObjectURL(watermarkedImageUrl);
+          };
+        } else {
+          // Fallback if popup is blocked
+          window.location.href = watermarkedImageUrl;
+        }
+      } catch (error) {
+        console.error('Error applying watermark:', error);
+        // Fallback to original image if watermarking fails
+        window.open(imageUrl, '_blank');
       }
     }
   };

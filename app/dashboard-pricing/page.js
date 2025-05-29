@@ -94,8 +94,17 @@ function PricingComponent() {
 
     // If it's the free plan, we can set it directly
     if (plan === 'free') {
+      // Check if the user has already used the free plan
+      const hasUsedFreePlan = localStorage.getItem("hasUsedFreePlan") === 'true';
+      if (hasUsedFreePlan) {
+        showCustomPopup("You have already used your free plan credits. Please choose a premium plan to continue.");
+        return;
+      }
+
       localStorage.setItem("userPlan", plan);
       localStorage.setItem("usedCredits", "0"); // Reset used credits
+      localStorage.setItem("totalCredits", "2"); // Set total credits for free plan
+      localStorage.setItem("hasUsedFreePlan", "true"); // Mark free plan as used
 
       // Show success notification and redirect
       showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
@@ -112,25 +121,24 @@ function PricingComponent() {
 
     // Update user plan and credits in localStorage
     localStorage.setItem("userPlan", plan);
+    localStorage.setItem("usedCredits", "0"); // Reset used credits
 
     // Set credits based on plan
     if (plan === 'premium') {
-      localStorage.setItem("usedCredits", "0");
       localStorage.setItem("totalCredits", "10");
     } else if (plan === 'pro') {
-      localStorage.setItem("usedCredits", "0");
       localStorage.setItem("totalCredits", "unlimited");
     }
 
     // Show success notification and redirect
-    showCustomPopup(`Successfully upgraded to ${plan.toUpperCase()} plan!`, () => {
+    showCustomPopup(`Successfully ${currentPlan === plan ? 'renewed' : 'upgraded to'} ${plan.toUpperCase()} plan!`, () => {
       // Redirect to redesign page only if signed in
       if (isSignedIn) {
         router.push("/redesign");
       } else {
         router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
       }
-    });
+    }, true);
   };
 
   // Add CSS animations
@@ -1183,8 +1191,17 @@ function SimplifiedPricingComponent() {
 
     // If it's the free plan, we can set it directly
     if (plan === 'free') {
+      // Check if the user has already used the free plan
+      const hasUsedFreePlan = localStorage.getItem("hasUsedFreePlan") === 'true';
+      if (hasUsedFreePlan) {
+        showCustomPopup("You have already used your free plan credits. Please choose a premium plan to continue.");
+        return;
+      }
+
       localStorage.setItem("userPlan", plan);
       localStorage.setItem("usedCredits", "0"); // Reset used credits
+      localStorage.setItem("totalCredits", "2"); // Set total credits for free plan
+      localStorage.setItem("hasUsedFreePlan", "true"); // Mark free plan as used
 
       // Show success notification and redirect
       showCustomPopup(`Successfully switched to ${plan.toUpperCase()} plan!`, () => {
@@ -1201,42 +1218,67 @@ function SimplifiedPricingComponent() {
 
     // Update user plan and credits in localStorage
     localStorage.setItem("userPlan", plan);
+    localStorage.setItem("usedCredits", "0"); // Reset used credits
 
     // Set credits based on plan
     if (plan === 'premium') {
-      localStorage.setItem("usedCredits", "0");
       localStorage.setItem("totalCredits", "10");
     } else if (plan === 'pro') {
-      localStorage.setItem("usedCredits", "0");
       localStorage.setItem("totalCredits", "unlimited");
     }
 
     // Show success notification and redirect
-    showCustomPopup(`Successfully upgraded to ${plan.toUpperCase()} plan!`, () => {
+    showCustomPopup(`Successfully ${currentPlan === plan ? 'renewed' : 'upgraded to'} ${plan.toUpperCase()} plan!`, () => {
       // Redirect to redesign page only if signed in
       if (isSignedIn) {
         router.push("/redesign");
       } else {
         router.push(`/sign-in?redirectUrl=${encodeURIComponent('/dashboard-pricing')}`);
       }
-    });
+    }, true);
   };
 
   // Add a check before showing payment button
   const renderActionButton = (plan, isCurrent, isDisabled) => {
+    // Get remaining credits from localStorage
+    const usedCredits = parseInt(localStorage.getItem("usedCredits") || "0", 10);
+    const totalCredits = localStorage.getItem("totalCredits") || (currentPlan === 'free' ? "2" : currentPlan === 'premium' ? "10" : "unlimited");
+    const hasUsedFreePlan = localStorage.getItem("hasUsedFreePlan") === 'true';
+    
+    // Check if credits are used up for current plan
+    const isPremiumWithNoCredits = currentPlan === 'premium' && usedCredits >= parseInt(totalCredits, 10);
+    const isProWithNoCredits = currentPlan === 'pro' && usedCredits >= (totalCredits === 'unlimited' ? 999999 : parseInt(totalCredits, 10));
+    
     if (isCurrent) {
+      // If current plan has no credits left, show "Buy Again" button for Premium and Pro
+      if ((plan.planKey === 'premium' && isPremiumWithNoCredits) || 
+          (plan.planKey === 'pro' && isProWithNoCredits)) {
+        return (
+          <PaymentButton
+            amount={plan.planKey === 'premium' ? 100 : 83500} // 1 or 835 INR in paise
+            buttonText="Buy Again"
+            className="mt-6 w-full bg-cyan-400 hover:bg-cyan-500 text-black py-2 rounded-lg"
+            onSuccess={(response) => handlePaymentSuccess(plan.planKey, response)}
+          />
+        );
+      }
+      
       return (
         <button className="mt-6 w-full bg-gray-700 text-white py-2 rounded-lg cursor-default" disabled>
           Current Plan
         </button>
       );
     } else if (plan.planKey === 'free') {
+      // Disable free plan if it has been used
+      const freeDisabled = hasUsedFreePlan;
+      
       return (
         <button
           onClick={() => handleUpgrade('free')}
-          className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
+          className={`mt-6 w-full ${freeDisabled ? "bg-gray-500 cursor-not-allowed" : "bg-gray-700 hover:bg-gray-700"} text-white py-2 rounded-lg`}
+          disabled={freeDisabled}
         >
-          Select {plan.name} Plan
+          {freeDisabled ? "Already Used" : "Current Plan"}
         </button>
       );
     } else {
@@ -1254,7 +1296,7 @@ function SimplifiedPricingComponent() {
         return (
           <PaymentButton
             amount={plan.planKey === 'premium' ? 100 : 83500} // 1 or 835 INR in paise
-            buttonText={plan.planKey === 'pro' ? "Buy Unlimited Credits" : `Select ${plan.name} Plan`}
+            buttonText={plan.planKey === 'pro' ? "Buy Unlimited Credits" : "Buy Premium Plan"}
             className={`mt-6 w-full ${isDisabled ? "bg-gray-500" : "bg-cyan-400 hover:bg-cyan-500"} text-black py-2 rounded-lg`}
             onSuccess={(response) => handlePaymentSuccess(plan.planKey, response)}
           />

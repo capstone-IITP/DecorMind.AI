@@ -193,7 +193,7 @@ function FavoritesContent() {
   };
   
   // Handle opening image in new tab
-  const handleOpenImage = (imageUrl) => {
+  const handleOpenImage = async (imageUrl) => {
     if (!imageUrl) {
       console.error('Image URL is missing');
       // Show an error message to the user
@@ -208,18 +208,69 @@ function FavoritesContent() {
       fullSizeUrl = imageUrl.replace(/w=200/, 'w=1400').replace(/q=60/, 'q=80');
     }
     
-    // Verify if image URL is valid before opening in new tab
-    const img = new Image();
-    img.onload = function() {
-      // Image loaded successfully, open in new tab
-      window.open(fullSizeUrl, '_blank');
-    };
-    img.onerror = function() {
-      // Image failed to load
-      console.error('Failed to load image:', fullSizeUrl);
-      alert('Sorry, the image could not be loaded. It may no longer be available or the URL might be invalid.');
-    };
-    img.src = fullSizeUrl;
+    try {
+      // Apply watermark to the image before opening
+      const watermarkedImageUrl = await addWatermarkToImage(fullSizeUrl);
+      
+      // Create a temporary window to display the watermarked image
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head>
+              <title>Room Design Preview</title>
+              <style>
+                body { 
+                  margin: 0; 
+                  padding: 0; 
+                  background-color: #000;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  min-height: 100vh;
+                }
+                img { 
+                  max-width: 100%; 
+                  max-height: 100vh;
+                  object-fit: contain;
+                }
+              </style>
+            </head>
+            <body>
+              <img 
+                src="${watermarkedImageUrl}" 
+                alt="Room Design" 
+                oncontextmenu="return false;" 
+              />
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+        
+        // Clean up the object URL when the window is closed
+        newWindow.onbeforeunload = function() {
+          URL.revokeObjectURL(watermarkedImageUrl);
+        };
+      } else {
+        // Fallback if popup is blocked
+        window.location.href = watermarkedImageUrl;
+      }
+    } catch (error) {
+      console.error('Error applying watermark:', error);
+      
+      // Fallback to original image verification method if watermarking fails
+      const img = new Image();
+      img.onload = function() {
+        // Image loaded successfully, open in new tab
+        window.open(fullSizeUrl, '_blank');
+      };
+      img.onerror = function() {
+        // Image failed to load
+        console.error('Failed to load image:', fullSizeUrl);
+        alert('Sorry, the image could not be loaded. It may no longer be available or the URL might be invalid.');
+      };
+      img.src = fullSizeUrl;
+    }
   };
   
   // Open detailed view modal
@@ -518,7 +569,19 @@ function FavoritesContent() {
                     className="transition-transform duration-500 hover:scale-110"
                     fill
                     style={{ objectFit: 'cover' }}
+                    onContextMenu={(e) => e.preventDefault()}
                   />
+                  {/* Add DecorMind watermark overlay */}
+                  <div className="absolute top-2 right-2 text-white text-sm font-bold drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]" style={{
+                    background: 'linear-gradient(90deg, #1e3a5c, #22d3ee, #4ade80)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    display: 'inline-block'
+                  }}>
+                    DecorMind
+                  </div>
                   <div key={`overlay-${favorite.id}`} className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
                     <div key={`caption-${favorite.id}`} className="p-4 w-full">
                       <p className="text-white font-medium">Click to view full image</p>
@@ -620,11 +683,23 @@ function FavoritesContent() {
                     alt={`${selectedDesign.roomType} design`}
                     fill
                     style={{ objectFit: 'contain' }}
+                    onContextMenu={(e) => e.preventDefault()}
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = 'https://via.placeholder.com/800x600?text=Image+Not+Available';
                     }}
                   />
+                  {/* Add DecorMind watermark overlay */}
+                  <div className="absolute top-4 right-4 text-white text-sm font-bold drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]" style={{
+                    background: 'linear-gradient(90deg, #1e3a5c, #22d3ee, #4ade80)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    display: 'inline-block'
+                  }}>
+                    DecorMind
+                  </div>
                 </div>
               </div>
               
