@@ -6,6 +6,7 @@ import { downloadImageWithWatermark } from '../../lib/imageUtils';
 import RoomDimensionForm from './RoomDimensionForm';
 import { useUserDetail } from '../_context/UserDetailContext';
 import { useRouter } from 'next/navigation';
+import ImageComparisonSlider from './ImageComparisonSlider';
 
 export default function ImageGenerator() {
     const router = useRouter();
@@ -20,9 +21,21 @@ export default function ImageGenerator() {
         height: "",
         unit: "feet"
     });
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const [roomImage, setRoomImage] = useState(null);
 
     const handleDimensionsChange = (newDimensions) => {
         setDimensions(newDimensions);
+    };
+
+    // Handle image upload
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setRoomImage(file);
+            const url = URL.createObjectURL(file);
+            setPreviewUrl(url);
+        }
     };
 
     const generateImage = async () => {
@@ -126,6 +139,41 @@ export default function ImageGenerator() {
                 />
             </div>
             
+            {/* Image upload section */}
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload Your Room Photo (Optional)
+                </label>
+                <div className="flex items-center">
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="room-image-upload"
+                    />
+                    <label
+                        htmlFor="room-image-upload"
+                        className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors"
+                    >
+                        Choose File
+                    </label>
+                    <span className="ml-3 text-sm text-gray-500">
+                        {roomImage ? roomImage.name : "No file chosen"}
+                    </span>
+                </div>
+                {previewUrl && (
+                    <div className="mt-3 relative w-full h-40 border border-gray-200 rounded-md overflow-hidden">
+                        <Image
+                            src={previewUrl}
+                            alt="Room preview"
+                            fill
+                            style={{ objectFit: 'cover' }}
+                        />
+                    </div>
+                )}
+            </div>
+            
             <RoomDimensionForm 
                 onSubmit={handleDimensionsChange}
             />
@@ -177,6 +225,17 @@ export default function ImageGenerator() {
                             Download Image
                         </button>
                     </div>
+                    
+                    {/* Add image comparison slider when both original and generated images are available */}
+                    {previewUrl && image && (
+                        <div className="mt-4 border border-gray-200 rounded-md overflow-hidden p-3">
+                            <ImageComparisonSlider 
+                                originalImage={previewUrl} 
+                                generatedImage={image}
+                                darkMode={false}
+                            />
+                        </div>
+                    )}
                 </div>
             )}
         </div>

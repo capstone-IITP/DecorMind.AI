@@ -8,6 +8,7 @@ import UpgradeModal from "../../components/UpgradeModal";
 import Image from 'next/image';
 import { downloadImageWithWatermark, addWatermarkToImage } from "../../lib/imageUtils";
 import FeedbackForm from "../../components/FeedbackForm";
+import ImageComparisonSlider from '../_components/ImageComparisonSlider';
 
 // Plans for credit system
 const plans = {
@@ -1332,6 +1333,16 @@ export default function Redesign() {
             </div>
           </div>
         </div>
+
+        {/* Add before-and-after image comparison slider */}
+        {previewUrl && generatedDesign?.imageUrl && (
+          <div className="col-span-1 lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-xl p-3 mt-3 mb-3">
+            <ImageComparisonSlider 
+              originalImage={previewUrl} 
+              generatedImage={generatedDesign.imageUrl}
+            />
+          </div>
+        )}
 
         <div className="space-y-6">
           <div>
