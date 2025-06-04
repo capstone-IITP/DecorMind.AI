@@ -12,6 +12,7 @@
     "clean-build": "npm run clean && npm run build"
   },
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
     "@clerk/nextjs": "^6.14.3",
     "@neondatabase/serverless": "^0.10.4",
     "@radix-ui/react-slot": "^1.1.2",
@@ -31,6 +32,7 @@
     "mongoose": "^8.13.2",
     "next": "^15.3.1",
     "node-fetch": "^3.3.2",
+    "nodemailer": "^7.0.3",
     "razorpay": "^2.9.6",
     "react": "^19.0.0",
     "react-compare-image": "^3.5.4",
