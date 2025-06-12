@@ -12,18 +12,29 @@ function Provider({ children }) {
     const VerifyUser = useCallback(async () => {
         if (user) {
             try {
+                // Call the verify-user API
                 const dataResult = await axios.post('/api/verify-user', {
                     user: user,
                 });
                 setUserData(dataResult.data.result);
             } catch (error) {
                 console.error("Error verifying user:", error);
+                
+                // Provide fallback user data if API call fails
+                setUserData({
+                    email: user.primaryEmailAddress?.emailAddress,
+                    name: user.fullName || user.username || "User",
+                    imageUrl: user.imageUrl,
+                    credits: 5
+                });
             }
         }
     }, [user]);
     
     useEffect(() => {
-        user && VerifyUser();
+        if (user) {
+            VerifyUser();
+        }
     }, [user, VerifyUser]);
 
     return (
